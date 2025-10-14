@@ -30,6 +30,7 @@ resources:
           type: github
           name: sitkatech/BuildTemplates
           endpoint: "sitkatech"
+          ref: drop-user-roles
 
 stages:
     - stage: BuildDB
