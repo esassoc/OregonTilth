@@ -1,9 +1,17 @@
-{{- if .Values.global.gateway.enabled -}}
+{{- if .Values.global.certificates.enabled -}}
+# Vanity-domain TLS certs for the shared infra `agc-gateway` (in `default`).
 # `issue-temporary-certificate: "true"` makes cert-manager write a self-signed
-# cert into the Secret immediately, so AGC can program the listener (and open
-# port 80 via the infra Gateway) without waiting on ACME. Once HTTP-01 succeeds,
-# the real Let's Encrypt cert overwrites the temp one in the same Secret.
-# Without this, AGC's listener-validation deadlocks the whole frontend.
+# cert into the Secret immediately, so AGC can program the listener without
+# waiting on ACME. Once HTTP-01 succeeds, the real Let's Encrypt cert
+# overwrites the temp one in the same Secret. Without this, AGC's listener-
+# validation deadlocks the whole frontend.
+#
+# IMPORTANT: deploy this chart BEFORE adding the corresponding listener to the
+# infra Gateway, so the Secret exists when AGC validates the listener.
+#
+# Lives in the chart's release namespace. The infra Gateway listener must
+# include `namespace:` on its `certificateRefs` and a ReferenceGrant (below)
+# permits cross-namespace read of these Secrets.
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -31,4 +39,18 @@ spec:
     kind: ClusterIssuer
   dnsNames:
   - {{ .Values.global.domains.api | quote }}
+---
+# Allows the infra Gateway in `default` to read the TLS Secrets above.
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: kyctg-tls-grant
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    namespace: default
+  to:
+  - group: ""
+    kind: Secret
 {{- end }}

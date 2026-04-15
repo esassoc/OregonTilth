@@ -24,7 +24,6 @@ httproute:
   gateway:
     name: ""
     namespace: ""
-    sectionName: ""
 ingress: {}
 autoscaling: {}
 nodeSelector: {}

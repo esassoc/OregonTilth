@@ -9,11 +9,10 @@ global:
   domains:
     web: "kyctg.esa-qa.sitkatech.com"
     api: "kyctg-api.esa-qa.sitkatech.com"
-  gateway:
+  certificates:
+    # Renders cert-manager Certificate + ReferenceGrant for the vanity hostnames
+    # (web + api) so the shared infra agc-gateway can find their TLS Secrets.
     enabled: true
-    # AGC resource ID — set per-environment from the spoke's Terraform output.
-    # Pipeline supplies via --set global.gateway.albId=<id> or env-specific override file.
-    albId: ""
   secrets:
     apiSqlPassword: "passwordhere"
     sendGridApiKey: "sendgridapikeyhere"
@@ -59,9 +58,8 @@ kyctg-api:
   httproute:
     enabled: true
     gateway:
-      name: kyctg-gateway
-      namespace: ""
-      sectionName: https-api
+      name: agc-gateway
+      namespace: default
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -114,9 +112,8 @@ kyctg-web:
   httproute:
     enabled: true
     gateway:
-      name: kyctg-gateway
-      namespace: ""
-      sectionName: https-web
+      name: agc-gateway
+      namespace: default
   autoscaling:
     enabled: false
     minReplicas: 1
