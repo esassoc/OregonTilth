@@ -479,6 +479,7 @@ stages:
                                       global.env.emailRedirect="$(emailRedirect)"
                                       global.domains.web="$(domainWeb)"
                                       global.domains.api="$(domainApi)"
+                                      global.gateway.albId="$(kv-agcId)"
                                       global.env.name="$(Environment)"
                                       global.env.dbServer=$(kv-dbServerName).database.windows.net
                                       global.env.databaseName=$(databaseName)

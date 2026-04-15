@@ -11,6 +11,9 @@ global:
     api: "kyctg-api.esa-qa.sitkatech.com"
   gateway:
     enabled: true
+    # AGC resource ID — set per-environment from the spoke's Terraform output.
+    # Pipeline supplies via --set global.gateway.albId=<id> or env-specific override file.
+    albId: ""
   secrets:
     apiSqlPassword: "passwordhere"
     sendGridApiKey: "sendgridapikeyhere"
