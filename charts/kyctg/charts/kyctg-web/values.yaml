@@ -19,6 +19,11 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
+httproute:
+  enabled: false
+  gateway:
+    name: ""
+    namespace: ""
 ingress: {}
 autoscaling: {}
 nodeSelector: {}
