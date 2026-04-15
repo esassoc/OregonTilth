@@ -21,9 +21,13 @@ service:
   port: 80
 httproute:
   enabled: false
+  # When true, also emits a hostname-scoped HTTP→HTTPS 301 redirect HTTPRoute
+  # pinned to the gateway's `http` listener.
+  redirect: true
   gateway:
     name: ""
     namespace: ""
+    sectionName: ""
 ingress: {}
 autoscaling: {}
 nodeSelector: {}

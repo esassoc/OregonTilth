@@ -57,9 +57,12 @@ kyctg-api:
     port: 80
   httproute:
     enabled: true
+    redirect: true
     gateway:
       name: agc-gateway
       namespace: default
+      # Pin to the HTTPS listener so this route does NOT attach to port 80.
+      sectionName: https-kyctg-api-qa
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -111,9 +114,12 @@ kyctg-web:
     port: 80
   httproute:
     enabled: true
+    redirect: true
     gateway:
       name: agc-gateway
       namespace: default
+      # Pin to the HTTPS listener so this route does NOT attach to port 80.
+      sectionName: https-kyctg-qa
   autoscaling:
     enabled: false
     minReplicas: 1
