@@ -1,0 +1,41 @@
+{{- if .Values.global.gateway.enabled -}}
+# Per-app Gateway. Attaches to the shared AGC frontend (BYO via `addresses`),
+# so it costs nothing extra. Listener validity is independent of the infra
+# Gateway, so a missing cert here cannot take down *.qa.esassoc.dev.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: kyctg-gateway
+spec:
+  gatewayClassName: azure-alb-external
+  addresses:
+  - type: alb.networking.azure.io/alb-frontend
+    value: agc-frontend
+  listeners:
+  - name: https-web
+    port: 443
+    protocol: HTTPS
+    hostname: {{ .Values.global.domains.web | quote }}
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        group: ""
+        name: {{ .Values.global.domains.web | replace "." "-" }}-tls
+  - name: https-api
+    port: 443
+    protocol: HTTPS
+    hostname: {{ .Values.global.domains.api | quote }}
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        group: ""
+        name: {{ .Values.global.domains.api | replace "." "-" }}-tls
+{{- end }}

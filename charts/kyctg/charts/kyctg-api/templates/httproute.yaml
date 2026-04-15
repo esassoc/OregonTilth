@@ -10,7 +10,12 @@ metadata:
 spec:
   parentRefs:
   - name: {{ .Values.httproute.gateway.name }}
-    namespace: {{ .Values.httproute.gateway.namespace }}
+    {{- with .Values.httproute.gateway.namespace }}
+    namespace: {{ . }}
+    {{- end }}
+    {{- with .Values.httproute.gateway.sectionName }}
+    sectionName: {{ . }}
+    {{- end }}
   hostnames:
   - {{ .Values.global.domains.api | quote }}
   rules:
