@@ -10,8 +10,9 @@ global:
     web: "kyctg.esa-qa.sitkatech.com"
     api: "kyctg-api.esa-qa.sitkatech.com"
   certificates:
-    # Renders cert-manager Certificate + ReferenceGrant for the vanity hostnames
-    # (web + api) so the shared infra agc-gateway can find their TLS Secrets.
+    # Renders cert-manager Certificates for the vanity hostnames (web + api).
+    # The gateway-listener-operator discovers the resulting TLS Secrets and
+    # automatically adds Gateway listeners + ReferenceGrants.
     enabled: true
   secrets:
     apiSqlPassword: "passwordhere"
@@ -61,8 +62,6 @@ kyctg-api:
     gateway:
       name: agc-gateway
       namespace: default
-      # Pin to the HTTPS listener so this route does NOT attach to port 80.
-      sectionName: https-kyctg-api-qa
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -118,8 +117,6 @@ kyctg-web:
     gateway:
       name: agc-gateway
       namespace: default
-      # Pin to the HTTPS listener so this route does NOT attach to port 80.
-      sectionName: https-kyctg-qa
   autoscaling:
     enabled: false
     minReplicas: 1

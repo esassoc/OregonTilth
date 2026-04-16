@@ -1,23 +1,13 @@
 {{- if .Values.global.certificates.enabled -}}
-# Vanity-domain TLS certs for the shared infra `agc-gateway` (in `default`).
-# `issue-temporary-certificate: "true"` makes cert-manager write a self-signed
-# cert into the Secret immediately, so AGC can program the listener without
-# waiting on ACME. Once HTTP-01 succeeds, the real Let's Encrypt cert
-# overwrites the temp one in the same Secret. Without this, AGC's listener-
-# validation deadlocks the whole frontend.
-#
-# IMPORTANT: deploy this chart BEFORE adding the corresponding listener to the
-# infra Gateway, so the Secret exists when AGC validates the listener.
-#
-# Lives in the chart's release namespace. The infra Gateway listener must
-# include `namespace:` on its `certificateRefs` and a ReferenceGrant (below)
-# permits cross-namespace read of these Secrets.
+# Vanity-domain TLS certs for the shared infra `agc-gateway`.
+# The gateway-listener-operator watches for these Secrets and automatically:
+#   1. Adds a Gateway listener for the vanity hostname
+#   2. Creates a ReferenceGrant allowing cross-namespace Secret access
+# Apps just need to deploy the Certificate + HTTPRoute — nothing else.
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: {{ .Values.global.domains.web | replace "." "-" }}-tls
-  annotations:
-    cert-manager.io/issue-temporary-certificate: "true"
 spec:
   secretName: {{ .Values.global.domains.web | replace "." "-" }}-tls
   issuerRef:
@@ -30,8 +20,6 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: {{ .Values.global.domains.api | replace "." "-" }}-tls
-  annotations:
-    cert-manager.io/issue-temporary-certificate: "true"
 spec:
   secretName: {{ .Values.global.domains.api | replace "." "-" }}-tls
   issuerRef:
@@ -39,18 +27,4 @@ spec:
     kind: ClusterIssuer
   dnsNames:
   - {{ .Values.global.domains.api | quote }}
----
-# Allows the infra Gateway in `default` to read the TLS Secrets above.
-apiVersion: gateway.networking.k8s.io/v1beta1
-kind: ReferenceGrant
-metadata:
-  name: kyctg-tls-grant
-spec:
-  from:
-  - group: gateway.networking.k8s.io
-    kind: Gateway
-    namespace: default
-  to:
-  - group: ""
-    kind: Secret
 {{- end }}

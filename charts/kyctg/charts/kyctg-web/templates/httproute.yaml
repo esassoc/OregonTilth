@@ -1,8 +1,8 @@
 {{- if .Values.httproute.enabled -}}
 {{- $fullName := include "kyctg-web.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
-# HTTPS app route — pinned to the specific HTTPS listener so it never
-# attaches to the port-80 listener (that's owned by the redirect below).
+# HTTPS app route — auto-attaches to the HTTPS listener the
+# gateway-listener-operator creates for this hostname.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -13,9 +13,6 @@ spec:
   parentRefs:
   - name: {{ .Values.httproute.gateway.name }}
     namespace: {{ .Values.httproute.gateway.namespace }}
-    {{- with .Values.httproute.gateway.sectionName }}
-    sectionName: {{ . }}
-    {{- end }}
   hostnames:
   - {{ .Values.global.domains.web | quote }}
   rules:
