@@ -10,6 +10,10 @@ metadata:
   name: {{ .Values.global.domains.web | replace "." "-" }}-tls
 spec:
   secretName: {{ .Values.global.domains.web | replace "." "-" }}-tls
+  # Label the resulting Secret so the gateway-listener-operator picks it up.
+  secretTemplate:
+    labels:
+      gateway-listener-operator.esassoc.dev/vanity: "true"
   issuerRef:
     name: letsencrypt-gandi
     kind: ClusterIssuer
@@ -22,6 +26,9 @@ metadata:
   name: {{ .Values.global.domains.api | replace "." "-" }}-tls
 spec:
   secretName: {{ .Values.global.domains.api | replace "." "-" }}-tls
+  secretTemplate:
+    labels:
+      gateway-listener-operator.esassoc.dev/vanity: "true"
   issuerRef:
     name: letsencrypt-gandi
     kind: ClusterIssuer
