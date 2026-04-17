@@ -13,6 +13,7 @@ spec:
   parentRefs:
   - name: {{ .Values.httproute.gateway.name }}
     namespace: {{ .Values.httproute.gateway.namespace }}
+    port: 443
   hostnames:
   - {{ .Values.global.domains.api | quote }}
   rules:
