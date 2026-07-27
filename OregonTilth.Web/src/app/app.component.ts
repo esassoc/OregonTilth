@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, DOCUMENT } from '@angular/core';
 import { OAuthService, OAuthSuccessEvent } from 'angular-oauth2-oidc';
 import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
 import { Subject, Observable } from 'rxjs';
@@ -8,7 +8,6 @@ import { Router, RouteConfigLoadStart, RouteConfigLoadEnd, NavigationEnd, Router
 import { BusyService } from './shared/services';
 import { AuthenticationService } from './services/authentication.service';
 import { Title } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
 import { HeaderNavComponent } from './shared/components/header-nav/header-nav.component';
 import { BreadcrumbsComponent } from './shared/components/breadcrumbs/breadcrumbs.component';
 import { SideNavComponent } from './shared/components/side-nav/side-nav.component';
