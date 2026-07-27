@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,8 @@ using OregonTilth.API.Services.Hierarchy;
 using OregonTilth.EFModels.Entities;
 using Serilog;
 using System;
+using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using OregonTilth.API.Services.Logging;
 using OregonTilth.API.Services.SitkaSmtpClientService;
@@ -54,6 +57,16 @@ namespace OregonTilth.API
                         }
                     }
                 });
+
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.Providers.Add<BrotliCompressionProvider>();
+                options.Providers.Add<GzipCompressionProvider>();
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/json" });
+            });
+            services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
+            services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
 
             services.Configure<FrescaConfiguration>(Configuration);
 
@@ -117,6 +130,7 @@ namespace OregonTilth.API
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+            app.UseResponseCompression();
             app.UseSerilogRequestLogging(opts =>
             {
                 opts.EnrichDiagnosticContext = LogHelper.EnrichFromRequest;
