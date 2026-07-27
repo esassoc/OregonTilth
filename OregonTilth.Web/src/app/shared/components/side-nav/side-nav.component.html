@@ -1,5 +1,5 @@
 <button class="workbook-nav-toggler btn btn-primary navbar-dark" (click)="toggleWorkbookNavigation()">Workbook Navigation <span class="navbar-toggler-icon"></span></button>
-<nav class="side-nav" [class.open]="navigationOpen" (clickOutside)="onClickedOutside($event)" [exclude]="'.workbook-nav-toggler'">
+<nav class="side-nav" [class.open]="navigationOpen" (clickOutside)="onClickedOutside($event)" [clickOutsideExclude]="'.workbook-nav-toggler'">
     
     <div class="nav-group-container" *ngIf="rootPages">
         <div ngbAccordion activeIds="{{activePanelID}}">

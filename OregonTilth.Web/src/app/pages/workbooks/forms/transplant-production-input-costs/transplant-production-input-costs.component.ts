@@ -23,7 +23,6 @@ import { TransplantProductionInputCostCreateDto } from 'src/app/shared/models/fo
 import { TransplantProductionInputCostDto } from 'src/app/shared/models/generated/transplant-production-input-cost-dto';
 import { TransplantProductionInputDto } from 'src/app/shared/models/generated/transplant-production-input-dto';
 import { TransplantProductionTrayTypeDto } from 'src/app/shared/models/generated/transplant-production-tray-type-dto';
-import { element } from 'protractor';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { AgGridAngular } from 'ag-grid-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
@@ -91,7 +90,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
     this.getTransplantProductionTrayTypesRequest = this.workbookService.getTransplantProductionTrayTypes(this.workbookID);
     this.getTransplantProductionInputCostsRequest = this.workbookService.getTransplantProductionInputCosts(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getTransplantProductionInputsRequest, this.getTransplantProductionTrayTypesRequest, this.getTransplantProductionInputCostsRequest]).subscribe(([workbook, tpInputs, tpTrayTypes, tpInputCosts]: [WorkbookDto, TransplantProductionInputDto[], TransplantProductionTrayTypeDto[], TransplantProductionInputCostDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionInputDto[], TransplantProductionTrayTypeDto[], TransplantProductionInputCostDto[]]>([this.getWorkbookRequest, this.getTransplantProductionInputsRequest, this.getTransplantProductionTrayTypesRequest, this.getTransplantProductionInputCostsRequest]).subscribe(([workbook, tpInputs, tpTrayTypes, tpInputCosts]: [WorkbookDto, TransplantProductionInputDto[], TransplantProductionTrayTypeDto[], TransplantProductionInputCostDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Transplant Production Input Costs'}]);
       this.transplantProductionInputs = tpInputs;

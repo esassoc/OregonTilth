@@ -87,7 +87,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
     this.getFieldLaborActivityCategoriesRequest = this.lookupTablesService.getFieldLaborActivityCategories();
     this.getFieldLaborActivitiesRequest = this.workbookService.getFieldLaborActivities(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getFieldLaborActivityCategoriesRequest, this.getFieldLaborActivitiesRequest]).subscribe(([workbook, fieldLaborActivityCategories, fieldLaborActivities]: [WorkbookDto, FieldLaborActivityCategoryDto[], FieldLaborActivityDto[]]) => {
+    forkJoin<[WorkbookDto, FieldLaborActivityCategoryDto[], FieldLaborActivityDto[]]>([this.getWorkbookRequest, this.getFieldLaborActivityCategoriesRequest, this.getFieldLaborActivitiesRequest]).subscribe(([workbook, fieldLaborActivityCategories, fieldLaborActivities]: [WorkbookDto, FieldLaborActivityCategoryDto[], FieldLaborActivityDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Field Labor Activities'}]);
       this.fieldLaborActivityCategories = fieldLaborActivityCategories;

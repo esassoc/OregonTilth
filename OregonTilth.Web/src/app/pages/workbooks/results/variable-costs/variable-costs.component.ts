@@ -106,7 +106,7 @@ export class VariableCostsComponent implements OnInit {
         this.getVariableCostsDashboardReportDtosRequest = this.resultsService.getVariableCostsDashboardReportDtos(this.workbookID);
   
   
-        forkJoin([this.getWorkbookRequest, this.getVariableCostsDashboardReportDtosRequest]).subscribe(([workbook, variableCostsDashboardReportDtos]: [WorkbookDto, VariableCostsDashboardReportDto[]] ) => {
+        forkJoin<[WorkbookDto, VariableCostsDashboardReportDto[]]>([this.getWorkbookRequest, this.getVariableCostsDashboardReportDtosRequest]).subscribe(([workbook, variableCostsDashboardReportDtos]: [WorkbookDto, VariableCostsDashboardReportDto[]] ) => {
             this.workbook = workbook;
             this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Cost Breakdown'}]);
             this.variableCostsDashboardReportDtos = variableCostsDashboardReportDtos;

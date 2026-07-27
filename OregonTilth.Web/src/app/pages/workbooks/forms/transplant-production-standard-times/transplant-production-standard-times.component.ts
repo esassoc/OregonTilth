@@ -98,7 +98,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
     this.getTransplantProductionLaborActivitiesRequest = this.workbookService.getTransplantProductionLaborActivities(this.workbookID);
     this.getTransplantProductionTrayTypesRequest = this.workbookService.getTransplantProductionTrayTypes(this.workbookID);
 
-    forkJoin(
+    forkJoin<[WorkbookDto, TransplantProductionStandardTimeSummaryDto[], TransplantProductionLaborActivityDto[], TransplantProductionTrayTypeDto[]]>(
       [
         this.getWorkbookRequest,
         this.getTransplantProductionStandardTimesRequest,

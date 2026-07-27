@@ -70,7 +70,7 @@ export class TransplantProductionInputsComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getTransplantProductionInputsRequest = this.workbookService.getTransplantProductionInputs(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getTransplantProductionInputsRequest]).subscribe(([workbook, tpInputs]: [WorkbookDto, TransplantProductionInputDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionInputDto[]]>([this.getWorkbookRequest, this.getTransplantProductionInputsRequest]).subscribe(([workbook, tpInputs]: [WorkbookDto, TransplantProductionInputDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Transplant Production Inputs'}]);
 

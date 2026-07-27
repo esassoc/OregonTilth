@@ -95,7 +95,7 @@ export class FieldLaborByCropComponent implements OnInit {
     this.getFieldLaborByCropsRequest = this.workbookService.getFieldLaborByCrops(this.workbookID);
 
 
-    forkJoin([this.getWorkbookRequest, this.getCropDtosRequest, this.getFieldStandardTimeDtosRequest, this.getFieldLaborByCropsRequest, this.workbookService.getCropSpecificInfos(this.workbookID), this.workbookService.getHarvestPostHarvestStandardTimes(this.workbookID)])
+    forkJoin<[WorkbookDto, CropDto[], FieldStandardTimeSummaryDto[], FieldLaborByCropDto[], CropSpecificInfoSummaryDto[], HarvestPostHarvestStandardTimeSummaryDto[]]>([this.getWorkbookRequest, this.getCropDtosRequest, this.getFieldStandardTimeDtosRequest, this.getFieldLaborByCropsRequest, this.workbookService.getCropSpecificInfos(this.workbookID), this.workbookService.getHarvestPostHarvestStandardTimes(this.workbookID)])
     .subscribe(([workbookDto, cropDtos, fieldStandardTimeDtos, fieldLaborByCrops, cropSpecificInfos, harvestPostHarvestStandardTimes]: [WorkbookDto, CropDto[], FieldStandardTimeSummaryDto[], FieldLaborByCropDto[], CropSpecificInfoSummaryDto[], HarvestPostHarvestStandardTimeSummaryDto[]]) => {
       this.workbook = workbookDto;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbookDto.WorkbookName, routerLink:['/workbooks',workbookDto.WorkbookID.toString()]}, {label:'Field Labor By Crop'}]);

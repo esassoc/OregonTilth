@@ -71,7 +71,7 @@ export class CropUnitsComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getCropUnitsRequest = this.workbookService.getCropUnits(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getCropUnitsRequest]).subscribe(([workbook, cropUnits]: [WorkbookDto, CropUnitDto[]]) => {
+    forkJoin<[WorkbookDto, CropUnitDto[]]>([this.getWorkbookRequest, this.getCropUnitsRequest]).subscribe(([workbook, cropUnits]: [WorkbookDto, CropUnitDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Crop Units'}]);
 

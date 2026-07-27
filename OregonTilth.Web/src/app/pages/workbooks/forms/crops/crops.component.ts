@@ -73,7 +73,7 @@ export class CropsComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getCropsRequest = this.workbookService.getCrops(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getCropsRequest]).subscribe(([workbook, crops]: [WorkbookDto, CropDto[]]) => {
+    forkJoin<[WorkbookDto, CropDto[]]>([this.getWorkbookRequest, this.getCropsRequest]).subscribe(([workbook, crops]: [WorkbookDto, CropDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Crops'}]);
 

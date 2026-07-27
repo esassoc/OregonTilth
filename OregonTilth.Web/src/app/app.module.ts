@@ -22,7 +22,6 @@ import { ButtonRendererComponent } from './shared/components/ag-grid/button-rend
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { FontAwesomeIconLinkRendererComponent } from './shared/components/ag-grid/fontawesome-icon-link-renderer/fontawesome-icon-link-renderer.component';
 import { LoginCallbackComponent } from './pages/login-callback/login-callback.component';
 import { HelpComponent } from './pages/help/help.component';
@@ -66,12 +65,11 @@ import { CropCropUnitComponent } from './pages/workbooks/results/crop-crop-unit/
 import { LaborHoursComponent } from './pages/workbooks/results/labor-hours/labor-hours.component';
 import { EditableRendererComponent } from './shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { VariableCostsComponent } from './pages/workbooks/results/variable-costs/variable-costs.component';
-import { NgClickOutsideModule } from 'ng-click-outside2';
 import { DuplicateComponent } from './pages/workbooks/duplicate/duplicate.component';
 import { PageListComponent } from './pages/page-list/page-list.component';
 import { PageEditComponent } from './pages/page-edit/page-edit.component';
 import { PageDetailComponent } from './pages/page-detail/page-detail.component';
-import { NgChartsModule } from 'ng2-charts';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { BreadcrumbsComponent } from "./shared/components/breadcrumbs/breadcrumbs.component";
 
 export function init_app(appLoadService: AppInitService) {
@@ -138,13 +136,11 @@ export function init_app(appLoadService: AppInitService) {
     OAuthModule.forRoot(),
     SharedModule,
     FormsModule,
-    NgxChartsModule,
     BrowserAnimationsModule,
     AgGridModule,
     NgMultiSelectDropDownModule,
     ReactiveFormsModule,
-    NgClickOutsideModule,
-    NgChartsModule,
+    BaseChartDirective,
     BreadcrumbsComponent
 ],
     providers: [
@@ -158,6 +154,9 @@ export function init_app(appLoadService: AppInitService) {
             useClass: GlobalErrorHandlerService
         },
         DecimalPipe, CurrencyPipe, DatePipe,
+        // ng2-charts v6+ no longer auto-registers Chart.js controllers/scales the way
+        // NgChartsModule did; without this the charts render blank.
+        provideCharts(withDefaultRegisterables()),
     ],
     bootstrap: [AppComponent]
 })

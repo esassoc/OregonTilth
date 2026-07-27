@@ -81,7 +81,7 @@ export class MachineryComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getMachineryRequest = this.workbookService.getMachinery(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getMachineryRequest]).subscribe(([workbook, machineries]: [WorkbookDto, MachineryDto[],] ) => {
+    forkJoin<[WorkbookDto, MachineryDto[]]>([this.getWorkbookRequest, this.getMachineryRequest]).subscribe(([workbook, machineries]: [WorkbookDto, MachineryDto[],] ) => {
         this.workbook = workbook;
         this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Machinery Costs'}]);
 

@@ -76,7 +76,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getTransplantProductionLaborActivitiesRequest = this.workbookService.getTransplantProductionLaborActivities(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getTransplantProductionLaborActivitiesRequest]).subscribe(([workbook, fieldLaborActivities]: [WorkbookDto, TransplantProductionLaborActivityDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionLaborActivityDto[]]>([this.getWorkbookRequest, this.getTransplantProductionLaborActivitiesRequest]).subscribe(([workbook, fieldLaborActivities]: [WorkbookDto, TransplantProductionLaborActivityDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Transplant Production Labor Activities'}]);
 

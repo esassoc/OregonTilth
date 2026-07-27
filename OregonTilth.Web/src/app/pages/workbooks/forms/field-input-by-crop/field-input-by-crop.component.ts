@@ -91,7 +91,7 @@ export class FieldInputByCropComponent implements OnInit {
 
     this.getFieldInputByCropsRequest = this.workbookService.getFieldInputByCrops(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getCropDtosRequest, this.getFieldInputCostDtosRequest, this.getFieldInputByCropsRequest, this.workbookService.getCropSpecificInfos(this.workbookID)])
+    forkJoin<[WorkbookDto, CropDto[], FieldInputCostDto[], FieldInputByCropDto[], CropSpecificInfoSummaryDto[]]>([this.getWorkbookRequest, this.getCropDtosRequest, this.getFieldInputCostDtosRequest, this.getFieldInputByCropsRequest, this.workbookService.getCropSpecificInfos(this.workbookID)])
     .subscribe(([workbookDto, cropDtos, fieldInputCostDtos, fieldInputByCrops, cropSpecificInfos]
       : [WorkbookDto, CropDto[], FieldInputCostDto[], FieldInputByCropDto[],CropSpecificInfoSummaryDto[]]) => {
       this.workbook = workbookDto;

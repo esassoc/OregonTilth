@@ -131,7 +131,7 @@ export class FieldStandardTimesComponent implements OnInit {
     this.getMachineryRequest = this.workbookService.getMachinery(this.workbookID);
     this.getFieldUnitsRequest = this.lookupTablesService.getFieldUnitTypes();
 
-    forkJoin(
+    forkJoin<[WorkbookDto, FieldLaborActivityDto[], FieldStandardTimeSummaryDto[], vFieldLaborActivityForTimeStudyDto[], LaborTypeDto[], MachineryDto[], FieldUnitTypeDto[]]>(
       [
         this.getWorkbookRequest,
         this.getFieldLaborActivitiesRequest,

@@ -92,7 +92,7 @@ export class CropYieldInformationComponent implements OnInit {
     this.getCropYieldInformationDtosRequest = this.workbookService.getCropYieldInformation(this.workbookID);
     this.availableCropCropUnitCombinationsRequest = this.workbookService.getAvailableCropUnitCombinationsForCropYieldInformation(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getCropsRequest, this.getCropUnitsRequest, this.getCropYieldInformationDtosRequest, this.availableCropCropUnitCombinationsRequest]).subscribe(([workbook, cropDtos, cropUnitDtos, cropYieldInfoDtos, availableCropCropUnitCombinations]: [WorkbookDto, CropDto[], CropUnitDto[], CropYieldInformationSummaryDto[], AvailableCropYieldInformationDto[]]) => {
+    forkJoin<[WorkbookDto, CropDto[], CropUnitDto[], CropYieldInformationSummaryDto[], AvailableCropYieldInformationDto[]]>([this.getWorkbookRequest, this.getCropsRequest, this.getCropUnitsRequest, this.getCropYieldInformationDtosRequest, this.availableCropCropUnitCombinationsRequest]).subscribe(([workbook, cropDtos, cropUnitDtos, cropYieldInfoDtos, availableCropCropUnitCombinations]: [WorkbookDto, CropDto[], CropUnitDto[], CropYieldInformationSummaryDto[], AvailableCropYieldInformationDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Crop Yield and Price Information'}]);
       this.crops = cropDtos;

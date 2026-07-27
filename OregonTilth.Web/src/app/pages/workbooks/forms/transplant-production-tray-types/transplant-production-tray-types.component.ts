@@ -74,7 +74,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getTransplantProductionTrayTypesRequest = this.workbookService.getTransplantProductionTrayTypes(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getTransplantProductionTrayTypesRequest]).subscribe(([workbook, tpTrayTypes]: [WorkbookDto, TransplantProductionTrayTypeDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionTrayTypeDto[]]>([this.getWorkbookRequest, this.getTransplantProductionTrayTypesRequest]).subscribe(([workbook, tpTrayTypes]: [WorkbookDto, TransplantProductionTrayTypeDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Transplant Production Tray Types'}]);
 

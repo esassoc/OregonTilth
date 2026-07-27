@@ -87,7 +87,7 @@ export class FieldInputCostsComponent implements OnInit {
     this.getFieldUnitTypesRequest = this.lookupTablesService.getFieldUnitTypes();
     this.getFieldInputCostsRequest = this.workbookService.getFieldInputCosts(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getFieldUnitTypesRequest, this.getFieldInputCostsRequest]).subscribe(([workbook, fieldUnitTypes, fieldInputCosts]: [WorkbookDto, FieldUnitTypeDto[], FieldInputCostDto[]]) => {
+    forkJoin<[WorkbookDto, FieldUnitTypeDto[], FieldInputCostDto[]]>([this.getWorkbookRequest, this.getFieldUnitTypesRequest, this.getFieldInputCostsRequest]).subscribe(([workbook, fieldUnitTypes, fieldInputCosts]: [WorkbookDto, FieldUnitTypeDto[], FieldInputCostDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Field Input Costs'}]);
       this.fieldUnitTypes = fieldUnitTypes.filter(x => x.Enabled);

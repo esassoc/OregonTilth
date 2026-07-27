@@ -112,7 +112,7 @@ export class CropSpecificInfoComponent implements OnInit {
     this.getCropSpecificInfosRequest = this.workbookService.getCropSpecificInfos(this.workbookID);
     this.getCropsRequest = this.workbookService.getCrops(this.workbookID);
 
-    forkJoin([
+    forkJoin<[WorkbookDto, TpOrDsTypeDto[], CropSpecificInfoSummaryDto[], CropDto[], FieldLaborByCropDto[], FieldInputByCropDto[]]>([
         this.getWorkbookRequest, 
         this.getTpOrDsTypesRequest, 
         this.getCropSpecificInfosRequest, 

@@ -68,7 +68,7 @@ export class CropCropUnitComponent implements OnInit {
         this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
         this.getcropYieldInformationDashboardReportDtosRequest = this.resultsService.getCropYieldInformationDashboardReportDtos(this.workbookID);
 
-        forkJoin([this.getWorkbookRequest, this.getcropYieldInformationDashboardReportDtosRequest]).subscribe(([workbook, cropYieldInformationDashboardReportDtos]: [WorkbookDto, CropCropUnitDashboardReportDto[]] ) => {
+        forkJoin<[WorkbookDto, CropCropUnitDashboardReportDto[]]>([this.getWorkbookRequest, this.getcropYieldInformationDashboardReportDtosRequest]).subscribe(([workbook, cropYieldInformationDashboardReportDtos]: [WorkbookDto, CropCropUnitDashboardReportDto[]] ) => {
             this.workbook = workbook;
             this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Crop/Crop-Unit'}]);
 

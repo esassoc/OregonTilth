@@ -125,7 +125,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
     this.getCropUnitsRequest = this.workbookService.getCropUnits(this.workbookID);
     this.getHarvestTypesRequest = this.lookupTablesService.getHarvestTypes();
 
-    forkJoin(
+    forkJoin<[WorkbookDto, HarvestPostHarvestStandardTimeSummaryDto[], CropDto[], CropUnitDto[], HarvestTypeDto[]]>(
       [
         this.getWorkbookRequest,
         this.getHarvestPostHarvestStandardTimesRequest,

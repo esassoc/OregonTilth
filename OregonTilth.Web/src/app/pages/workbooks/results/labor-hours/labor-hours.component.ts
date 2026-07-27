@@ -108,12 +108,15 @@ export class LaborHoursComponent implements OnInit {
       this.getLaborActivityCategoriesRequest = this.lookupTablesService.getFieldLaborActivityCategories();
 
 
-      forkJoin([this.getWorkbookRequest, this.getLaborHoursDashboardReportDtosRequest]).subscribe(([workbook, laborHoursDashboardReportDtos, laborActivityCategoryDtos]: [WorkbookDto, LaborHoursDashboardReportDto[], FieldLaborActivityCategoryDto[]] ) => {
+      // NOTE: getLaborActivityCategoriesRequest is built above but has never been passed
+      // to this forkJoin, so the third destructured value was always undefined at runtime.
+      // rxjs 6's looser typing hid the arity mismatch; rxjs 7 rejects it. Kept as a 2-tuple
+      // here to preserve existing behaviour exactly - see the note in the upgrade summary.
+      forkJoin<[WorkbookDto, LaborHoursDashboardReportDto[]]>([this.getWorkbookRequest, this.getLaborHoursDashboardReportDtosRequest]).subscribe(([workbook, laborHoursDashboardReportDtos]: [WorkbookDto, LaborHoursDashboardReportDto[]] ) => {
           this.workbook = workbook;
           this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Labor Breakdown'}]);
           this.laborHoursDashboardReportDtos = laborHoursDashboardReportDtos;
-          this.laborActivityCategoryDtos = laborActivityCategoryDtos;
-          
+
           this.initializeDropdowns();
           this.updateGridData();
           this.formatChartData();
