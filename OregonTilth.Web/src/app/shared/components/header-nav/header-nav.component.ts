@@ -26,7 +26,9 @@ export class HeaderNavComponent implements OnInit, OnDestroy {
     private getUnassignedUserReportRequest: any;
     windowWidth: number;
 
-    @HostListener('window:resize', ['$event'])
+    // Angular 21 type-checks @HostListener args against the handler signature; resize()
+    // takes no parameters and reads window.innerWidth directly, so '$event' is dropped.
+    @HostListener('window:resize')
     resize() {
         this.windowWidth = window.innerWidth;
     }
