@@ -6,13 +6,17 @@ import { LinkRendererComponent } from 'src/app/shared/components/ag-grid/link-re
 import { ColDef } from 'ag-grid-community';
 import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text-type.enum';
 import { UserDetailedDto } from 'src/app/shared/models';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../shared/components/custom-rich-text/custom-rich-text.component';
 
 @Component({
-  selector: 'fresca-field-definition-list',
-  templateUrl: './field-definition-list.component.html',
-  styleUrls: ['./field-definition-list.component.scss']
+    selector: 'fresca-field-definition-list',
+    templateUrl: './field-definition-list.component.html',
+    styleUrls: ['./field-definition-list.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, AgGridModule]
 })
 export class FieldDefinitionListComponent implements OnInit {
 

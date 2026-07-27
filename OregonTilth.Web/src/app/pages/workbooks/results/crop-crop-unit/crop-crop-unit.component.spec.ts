@@ -8,8 +8,8 @@ describe('CropCropUnitComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CropCropUnitComponent ]
-    })
+    imports: [CropCropUnitComponent]
+})
     .compileComponents();
   }));
 

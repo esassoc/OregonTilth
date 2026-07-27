@@ -9,14 +9,19 @@ import { FieldDefinitionDto } from '../../models/generated/field-definition-dto'
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { FieldDefinitionTypeEnum } from '../../models/enums/field-definition-type.enum';
 import TinyMCEHelpers from '../../helpers/tiny-mce-helpers';
-import { EditorComponent } from '@tinymce/tinymce-angular';
+import { EditorComponent, EditorModule } from '@tinymce/tinymce-angular';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TinyMceConfigPipe } from '../../helpers/tiny-mce-config.pipe';
 
 declare var $ : any
 
 @Component({
-  selector: 'field-definition',
-  templateUrl: './field-definition.component.html',
-  styleUrls: ['./field-definition.component.scss']
+    selector: 'field-definition',
+    templateUrl: './field-definition.component.html',
+    styleUrls: ['./field-definition.component.scss'],
+    standalone: true,
+    imports: [NgIf, EditorModule, FormsModule, NgbPopover, TinyMceConfigPipe]
 })
 export class FieldDefinitionComponent implements OnInit {
 

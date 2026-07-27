@@ -8,8 +8,8 @@ describe('FieldLaborByCropComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ FieldLaborByCropComponent ]
-    })
+    imports: [FieldLaborByCropComponent]
+})
     .compileComponents();
   }));
 

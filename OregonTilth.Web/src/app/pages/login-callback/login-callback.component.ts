@@ -4,9 +4,10 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
-  selector: 'fresca-login-callback',
-  templateUrl: './login-callback.component.html',
-  styleUrls: ['./login-callback.component.scss']
+    selector: 'fresca-login-callback',
+    templateUrl: './login-callback.component.html',
+    styleUrls: ['./login-callback.component.scss'],
+    standalone: true
 })
 export class LoginCallbackComponent implements OnInit, OnDestroy {
   private watchUserChangeSubscription: any;

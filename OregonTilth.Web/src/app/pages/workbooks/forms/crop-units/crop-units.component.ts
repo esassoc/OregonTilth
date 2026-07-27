@@ -14,14 +14,21 @@ import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/butto
 import { CropUnitCreateDto } from 'src/app/shared/models/forms/crop-units/crop-unit-create-dto';
 import { CropUnitDto } from 'src/app/shared/models/generated/crop-unit-dto';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'crop-units',
-  templateUrl: './crop-units.component.html',
-  styleUrls: ['./crop-units.component.scss']
+    selector: 'crop-units',
+    templateUrl: './crop-units.component.html',
+    styleUrls: ['./crop-units.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgbTooltip, AgGridModule]
 })
 export class CropUnitsComponent implements OnInit {
   @ViewChild('cropUnitsGrid') cropUnitsGrid: AgGridAngular;

@@ -22,20 +22,25 @@ import { FieldStandardTimeCreateDto } from 'src/app/shared/models/forms/field-st
 import { LaborTypeEnum } from 'src/app/shared/models/enums/labor-type.enum';
 import { TimeStudyCellRendererComponent } from 'src/app/shared/components/ag-grid/time-study-cell-renderer/time-study-cell-renderer.component';
 import { TimeStudyDto } from 'src/app/shared/models/generated/time-study-dto';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef, NgbAlert, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators,FormsModule, ReactiveFormsModule  } from '@angular/forms';
 import { TimeStudyModal } from 'src/app/shared/components/ag-grid/time-study-modal/time-study-modal.component';
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { FieldUnitTypeEnum } from 'src/app/shared/generated/enum/field-unit-type-enum';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
 
 @Component({
-  selector: 'field-standard-times',
-  templateUrl: './field-standard-times.component.html',
-  styleUrls: ['./field-standard-times.component.scss']
+    selector: 'field-standard-times',
+    templateUrl: './field-standard-times.component.html',
+    styleUrls: ['./field-standard-times.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgbAlert, NgIf, NgFor, FormsModule, NgbTooltip, AgGridModule]
 })
 export class FieldStandardTimesComponent implements OnInit {
 

@@ -8,8 +8,8 @@ describe('ButtonRendererComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ButtonRendererComponent ]
-    })
+    imports: [ButtonRendererComponent]
+})
     .compileComponents();
   }));
 

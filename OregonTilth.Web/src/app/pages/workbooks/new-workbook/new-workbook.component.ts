@@ -4,23 +4,28 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
 import { LinkRendererComponent } from 'src/app/shared/components/ag-grid/link-renderer/link-renderer.component';
 import { RoleDto } from 'src/app/shared/models/generated/role-dto';
 import { AlertService } from 'src/app/shared/services/alert.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Alert } from 'src/app/shared/models/alert';
 import { AlertContext } from 'src/app/shared/models/enums/alert-context.enum';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { WorkbookCreatedService } from 'src/app/shared/services/workbook-created.service';
+import { AlertDisplayComponent } from '../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'new-workbook',
-  templateUrl: './new-workbook.component.html',
-  styleUrls: ['./new-workbook.component.scss']
+    selector: 'new-workbook',
+    templateUrl: './new-workbook.component.html',
+    styleUrls: ['./new-workbook.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, RouterLink]
 })
 export class NewWorkbookComponent implements OnInit {
 

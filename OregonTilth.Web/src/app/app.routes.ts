@@ -1,5 +1,4 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { Routes } from '@angular/router';
 import { NotFoundComponent, UnauthenticatedComponent, SubscriptionInsufficientComponent } from './shared/pages';
 import { UnauthenticatedAccessGuard } from './shared/guards/unauthenticated-access/unauthenticated-access.guard';
 import { ManagerOnlyGuard } from "./shared/guards/unauthenticated-access/manager-only-guard";
@@ -46,7 +45,7 @@ import { CustomRichTextListComponent } from './pages/custom-rich-text-list/custo
 import { CustomRichTextEditComponent } from './pages/custom-rich-text-edit/custom-rich-text-edit.component';
 import { LogoutCallbackComponent } from './pages/logout-callback/logout-callback.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: "labels-and-definitions/:id", component: FieldDefinitionEditComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard] },
   { path: "labels-and-definitions", component: FieldDefinitionListComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard] },
   { path: "custom-rich-text/:id", component: CustomRichTextEditComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard] },
@@ -97,8 +96,3 @@ const routes: Routes = [
   { path: '**', component: NotFoundComponent }
 ];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes, { initialNavigation: 'enabledNonBlocking'})],
-  exports: [RouterModule]
-})
-export class AppRoutingModule { }

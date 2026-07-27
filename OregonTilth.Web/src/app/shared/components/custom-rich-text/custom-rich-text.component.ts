@@ -7,13 +7,18 @@ import { AlertService } from '../../services/alert.service';
 import { Alert } from '../../models/alert';
 import { AlertContext } from '../../models/enums/alert-context.enum';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { EditorComponent } from '@tinymce/tinymce-angular';
+import { EditorComponent, EditorModule } from '@tinymce/tinymce-angular';
 import TinyMCEHelpers from '../../helpers/tiny-mce-helpers';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TinyMceConfigPipe } from '../../helpers/tiny-mce-config.pipe';
 
 @Component({
-  selector: 'custom-rich-text',
-  templateUrl: './custom-rich-text.component.html',
-  styleUrls: ['./custom-rich-text.component.scss']
+    selector: 'custom-rich-text',
+    templateUrl: './custom-rich-text.component.html',
+    styleUrls: ['./custom-rich-text.component.scss'],
+    standalone: true,
+    imports: [NgIf, EditorModule, FormsModule, TinyMceConfigPipe]
 })
 export class CustomRichTextComponent implements OnInit {
   @Input() customRichTextTypeID: number;

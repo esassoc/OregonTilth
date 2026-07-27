@@ -8,8 +8,8 @@ describe('MultiLinkRendererComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ MultiLinkRendererComponent ]
-    })
+    imports: [MultiLinkRendererComponent]
+})
     .compileComponents();
   }));
 

@@ -8,12 +8,15 @@ import { CustomRichTextDetailedDto } from 'src/app/shared/models/custom-rich-tex
 import { AlertContext } from 'src/app/shared/models/enums/alert-context.enum';
 import { AlertService } from 'src/app/shared/services/alert.service';
 import { CustomRichTextService } from 'src/app/shared/services/custom-rich-text.service';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { AsyncPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { EditorModule } from '@tinymce/tinymce-angular';
+import { TinyMceConfigPipe } from 'src/app/shared/helpers/tiny-mce-config.pipe';
 
 @Component({
   selector: 'oregontilth-custom-rich-text-edit',
   standalone: true,
-  imports: [SharedModule, RouterLink],
+  imports: [AsyncPipe, AlertDisplayComponent, EditorModule, TinyMceConfigPipe, FormsModule, RouterLink],
   templateUrl: './custom-rich-text-edit.component.html',
   styleUrl: './custom-rich-text-edit.component.scss'
 })

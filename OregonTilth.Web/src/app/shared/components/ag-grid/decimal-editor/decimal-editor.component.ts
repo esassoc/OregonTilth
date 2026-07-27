@@ -5,6 +5,7 @@ import {
     ViewContainerRef,
   } from '@angular/core';
 import { AgEditorComponent } from 'ag-grid-angular';
+import { FormsModule } from '@angular/forms';
     
   const KEY_BACKSPACE = 8;
   const KEY_DELETE = 46;
@@ -20,7 +21,9 @@ import { AgEditorComponent } from 'ag-grid-angular';
       [(ngModel)]="value"
       style="width: 100%; border:none;"
     />`,
-  })
+    standalone: true,
+    imports: [FormsModule],
+})
   export class DecimalEditor implements AgEditorComponent, AfterViewInit {
     private params: any;
     public value: number;

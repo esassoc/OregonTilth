@@ -20,16 +20,24 @@ import { TransplantProductionLaborByCropCreateDto } from 'src/app/shared/models/
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { TransplantProductionInformationDto } from 'src/app/shared/models/generated/transplant-production-information-dto';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { TransplantProductionStandardTimeCreateDto } from 'src/app/shared/models/forms/transplant-production-standard-times/transplant-production-standard-time-create-dto';
 import { TransplantProductionStandardTimeDto } from 'src/app/shared/models/generated/transplant-production-standard-time-dto';
 import { TransplantProductionStandardTimeSummaryDto } from 'src/app/shared/models/forms/transplant-production-standard-times/transplant-production-standard-time-summary-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 @Component({
-  selector: 'transplant-production-labor-by-crop',
-  templateUrl: './transplant-production-labor-by-crop.component.html',
-  styleUrls: ['./transplant-production-labor-by-crop.component.scss']
+    selector: 'transplant-production-labor-by-crop',
+    templateUrl: './transplant-production-labor-by-crop.component.html',
+    styleUrls: ['./transplant-production-labor-by-crop.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgMultiSelectDropDownModule, NgbTooltip, AgGridModule]
 })
 export class TransplantProductionLaborByCropComponent implements OnInit {
   @ViewChild('tpLaborByCropGrid') tpLaborByCropGrid: AgGridAngular;

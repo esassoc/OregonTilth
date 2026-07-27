@@ -11,15 +11,20 @@ import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/butto
 import { Alert } from 'src/app/shared/models/alert';
 import { AlertContext } from 'src/app/shared/models/enums/alert-context.enum';
 import { AlertService } from 'src/app/shared/services/alert.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { GridService } from 'src/app/shared/services/grid/grid.service';
 import { FieldDefinitionGridHeaderComponent } from 'src/app/shared/components/field-definition-grid-header/field-definition-grid-header.component';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../shared/components/custom-rich-text/custom-rich-text.component';
+import { AgGridModule } from 'ag-grid-angular';
 
 @Component({
-  selector: 'workbooks',
-  templateUrl: './workbooks.component.html',
-  styleUrls: ['./workbooks.component.scss']
+    selector: 'workbooks',
+    templateUrl: './workbooks.component.html',
+    styleUrls: ['./workbooks.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, RouterLink, CustomRichTextComponent, AgGridModule]
 })
 export class WorkbooksComponent implements OnInit {
 

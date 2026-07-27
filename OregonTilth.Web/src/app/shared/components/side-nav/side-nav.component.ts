@@ -8,7 +8,7 @@ import {
 } from "@angular/core";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { UserDetailedDto } from "../../models";
-import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { PageService } from "../../services/page-service";
 import { PageTreeDto } from "../../models/page/page-tree-dto";
 import { WorkbookService } from "src/app/services/workbook/workbook.service";
@@ -17,11 +17,34 @@ import { combineLatest, forkJoin, merge } from "rxjs";
 import { filter, startWith } from "rxjs/operators";
 import { RouteHelpers } from "../../services/router-helper/router-helper";
 import { WorkbookCreatedService } from "../../services/workbook-created.service";
+import { NgClickOutsideExcludeDirective, NgClickOutsideDirective } from "ng-click-outside2";
+import { NgIf, NgFor } from "@angular/common";
+import { NgbAccordionDirective, NgbAccordionItem, NgbAccordionHeader, NgbAccordionToggle, NgbAccordionButton, NgbCollapse, NgbAccordionCollapse } from "@ng-bootstrap/ng-bootstrap";
+import { FormsModule } from "@angular/forms";
+import { FieldDefinitionComponent } from "../field-definition/field-definition.component";
 
 @Component({
     selector: "side-nav",
     templateUrl: "./side-nav.component.html",
     styleUrls: ["./side-nav.component.scss"],
+    standalone: true,
+    imports: [
+        NgClickOutsideExcludeDirective,
+        NgClickOutsideDirective,
+        NgIf,
+        NgbAccordionDirective,
+        NgFor,
+        NgbAccordionItem,
+        NgbAccordionHeader,
+        NgbAccordionToggle,
+        NgbAccordionButton,
+        NgbCollapse,
+        NgbAccordionCollapse,
+        RouterLinkActive,
+        RouterLink,
+        FormsModule,
+        FieldDefinitionComponent,
+    ],
 })
 export class SideNavComponent implements OnInit, OnDestroy {
     private watchUserChangeSubscription: any;

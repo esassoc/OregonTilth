@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/button-renderer/button-renderer.component';
@@ -16,11 +16,16 @@ import { AlertService } from 'src/app/shared/services/alert.service';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { FieldDefinitionService } from 'src/app/shared/services/field-definition-service';
 import { PageService } from 'src/app/shared/services/page-service';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'oregontilth-page-list',
-  templateUrl: './page-list.component.html',
-  styleUrls: ['./page-list.component.scss']
+    selector: 'oregontilth-page-list',
+    templateUrl: './page-list.component.html',
+    styleUrls: ['./page-list.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, NgIf, FormsModule, NgFor, AgGridModule]
 })
 export class PageListComponent implements OnInit {
   @ViewChild("fieldDefinitionsGrid") fieldDefinitionsGrid: AgGridAngular;

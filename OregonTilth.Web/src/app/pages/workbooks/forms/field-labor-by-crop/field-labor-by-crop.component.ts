@@ -19,18 +19,26 @@ import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { FieldStandardTimeDto } from 'src/app/shared/models/generated/field-standard-time-dto';
 import { FieldStandardTimeSummaryDto } from 'src/app/shared/models/forms/field-standard-times/field-standard-time-summary-dto';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { CropSpecificInfoSummaryDto } from 'src/app/shared/models/forms/crop-specific-info/crop-specific-info-summary-dto';
 import { TpOrDsTypeEnum } from 'src/app/shared/models/enums/tp-or-ds-type.enum';
 import { FieldUnitTypeEnum } from 'src/app/shared/models/enums/field-unit-type.enum';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { HarvestPostHarvestStandardTimeSummaryDto } from 'src/app/shared/models/forms/harvest-post-harvest-standard-times/harvest-post-harvest-standard-time-summary-dto';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'field-labor-by-crop',
-  templateUrl: './field-labor-by-crop.component.html',
-  styleUrls: ['./field-labor-by-crop.component.scss']
+    selector: 'field-labor-by-crop',
+    templateUrl: './field-labor-by-crop.component.html',
+    styleUrls: ['./field-labor-by-crop.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgMultiSelectDropDownModule, NgbTooltip, AgGridModule]
 })
 export class FieldLaborByCropComponent implements OnInit {
   @ViewChild('fieldLaborByCropGrid') fieldLaborByCropGrid: AgGridAngular;

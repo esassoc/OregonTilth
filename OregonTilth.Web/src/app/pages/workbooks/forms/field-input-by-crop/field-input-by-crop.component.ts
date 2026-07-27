@@ -19,15 +19,23 @@ import { FieldInputCostDto } from 'src/app/shared/models/generated/field-input-c
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { CropSpecificInfoSummaryDto } from 'src/app/shared/models/forms/crop-specific-info/crop-specific-info-summary-dto';
 import { FieldUnitTypeEnum } from 'src/app/shared/models/enums/field-unit-type.enum';
 import { TpOrDsTypeEnum } from 'src/app/shared/models/enums/tp-or-ds-type.enum';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 @Component({
-  selector: 'field-input-labor-by-crop',
-  templateUrl: './field-input-by-crop.component.html',
-  styleUrls: ['./field-input-by-crop.component.scss']
+    selector: 'field-input-labor-by-crop',
+    templateUrl: './field-input-by-crop.component.html',
+    styleUrls: ['./field-input-by-crop.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgMultiSelectDropDownModule, NgbTooltip, AgGridModule]
 })
 export class FieldInputByCropComponent implements OnInit {
   @ViewChild('fieldInputByCropGrid') fieldInputByCropGrid: AgGridAngular;

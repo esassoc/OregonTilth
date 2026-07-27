@@ -8,8 +8,8 @@ describe('FieldDefinitionEditComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ FieldDefinitionEditComponent ]
-    })
+    imports: [FieldDefinitionEditComponent]
+})
     .compileComponents();
   }));
 

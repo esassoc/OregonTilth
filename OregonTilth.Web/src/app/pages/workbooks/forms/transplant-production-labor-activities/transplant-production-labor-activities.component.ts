@@ -18,14 +18,21 @@ import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/butto
 import { TransplantProductionLaborActivityCreateDto } from 'src/app/shared/models/forms/transplant-production-labor-activities/transplant-production-labor-activity-create-dto';
 import { TransplantProductionLaborActivityDto } from 'src/app/shared/models/generated/transplant-production-labor-activity-dto';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'transplant-production-labor-activities',
-  templateUrl: './transplant-production-labor-activities.component.html',
-  styleUrls: ['./transplant-production-labor-activities.component.scss']
+    selector: 'transplant-production-labor-activities',
+    templateUrl: './transplant-production-labor-activities.component.html',
+    styleUrls: ['./transplant-production-labor-activities.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgbTooltip, AgGridModule]
 })
 export class TransplantProductionLaborActivitiesComponent implements OnInit {
   @ViewChild('transplantProductionLaborActivitiesGrid') transplantProductionLaborActivitiesGrid: AgGridAngular;

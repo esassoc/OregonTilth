@@ -8,8 +8,8 @@ describe('EditableRendererComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ EditableRendererComponent ]
-    })
+    imports: [EditableRendererComponent]
+})
     .compileComponents();
   }));
 

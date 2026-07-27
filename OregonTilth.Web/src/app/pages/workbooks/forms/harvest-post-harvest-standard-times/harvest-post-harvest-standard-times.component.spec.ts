@@ -8,8 +8,8 @@ describe('HarvestPostHarvestStandardTimesComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ HarvestPostHarvestStandardTimesComponent ]
-    })
+    imports: [HarvestPostHarvestStandardTimesComponent]
+})
     .compileComponents();
   }));
 

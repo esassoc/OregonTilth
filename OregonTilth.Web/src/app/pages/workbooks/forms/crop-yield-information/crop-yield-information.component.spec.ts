@@ -8,8 +8,8 @@ describe('CropYieldInformationComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CropYieldInformationComponent ]
-    })
+    imports: [CropYieldInformationComponent]
+})
     .compileComponents();
   }));
 

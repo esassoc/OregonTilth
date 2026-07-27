@@ -7,8 +7,8 @@ describe('CropSpecificInfoComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CropSpecificInfoComponent ]
-    })
+    imports: [CropSpecificInfoComponent]
+})
     .compileComponents();
   }));
 

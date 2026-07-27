@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -19,13 +19,18 @@ import { ResultsService } from 'src/app/services/results/results.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { GridService } from 'src/app/shared/services/grid/grid.service';
 import { ViewChild } from '@angular/core';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'crop-crop-unit',
-  templateUrl: './crop-crop-unit.component.html',
-  styleUrls: ['./crop-crop-unit.component.scss']
+    selector: 'crop-crop-unit',
+    templateUrl: './crop-crop-unit.component.html',
+    styleUrls: ['./crop-crop-unit.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, NgIf, CustomRichTextComponent, NgbTooltip, AgGridModule]
 })
 export class CropCropUnitComponent implements OnInit {
   @ViewChild('cropCropUnitGrid') cropCropUnitGrid: AgGridAngular;

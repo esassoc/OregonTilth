@@ -1,15 +1,19 @@
 import {Component, ElementRef, OnDestroy, ViewChild} from "@angular/core";
 import {IAfterGuiAttachedParams, IHeaderParams} from "ag-grid-community";
 import {IHeaderAngularComp} from "ag-grid-angular";
+import { FieldDefinitionComponent } from "../field-definition/field-definition.component";
+import { NgIf } from "@angular/common";
 
 interface MyParams extends IHeaderParams {
     menuIcon: string;
 }
 
 @Component({
-  selector: 'fresca-field-definition-grid-header',
-  templateUrl: './field-definition-grid-header.component.html',
-  styleUrls: ['./field-definition-grid-header.component.scss']
+    selector: 'fresca-field-definition-grid-header',
+    templateUrl: './field-definition-grid-header.component.html',
+    styleUrls: ['./field-definition-grid-header.component.scss'],
+    standalone: true,
+    imports: [FieldDefinitionComponent, NgIf]
 })
 export class FieldDefinitionGridHeaderComponent implements OnDestroy, IHeaderAngularComp  {
   @ViewChild ('header') header: ElementRef;

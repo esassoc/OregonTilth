@@ -8,8 +8,8 @@ describe('WorkbooksComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ WorkbooksComponent ]
-    })
+    imports: [WorkbooksComponent]
+})
     .compileComponents();
   }));
 

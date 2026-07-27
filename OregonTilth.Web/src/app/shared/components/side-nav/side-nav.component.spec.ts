@@ -8,8 +8,8 @@ describe('SideNavComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ SideNavComponent ]
-    })
+    imports: [SideNavComponent]
+})
     .compileComponents();
   }));
 

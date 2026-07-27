@@ -8,8 +8,8 @@ describe('LandownerDashboardLinkRendererComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ FontAwesomeIconLinkRendererComponent ]
-    })
+    imports: [FontAwesomeIconLinkRendererComponent]
+})
     .compileComponents();
   }));
 

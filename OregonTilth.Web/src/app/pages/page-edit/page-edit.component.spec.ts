@@ -8,8 +8,8 @@ describe('PageEditComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ PageEditComponent ]
-    })
+    imports: [PageEditComponent]
+})
     .compileComponents();
   }));
 

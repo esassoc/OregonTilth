@@ -6,7 +6,7 @@ import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
 import { AlertService } from 'src/app/shared/services/alert.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LookupTablesService } from 'src/app/services/lookup-tables/lookup-tables.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/button-renderer/button-renderer.component';
@@ -17,15 +17,22 @@ import { CropUnitDto } from 'src/app/shared/models/generated/crop-unit-dto';
 import { CropYieldInformationSummaryDto } from 'src/app/shared/models/forms/crop-yield-information/crop-yield-information-summary-dto';
 import { CropYieldInformationCreateDto } from 'src/app/shared/models/forms/crop-yield-information/crop-yield-information-create-dto';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { AvailableCropYieldInformationDto } from 'src/app/shared/models/forms/crop-yield-information/available-crop-yield-information-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'crop-yield-information',
-  templateUrl: './crop-yield-information.component.html',
-  styleUrls: ['./crop-yield-information.component.scss']
+    selector: 'crop-yield-information',
+    templateUrl: './crop-yield-information.component.html',
+    styleUrls: ['./crop-yield-information.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, RouterLink, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class CropYieldInformationComponent implements OnInit {
   @ViewChild('cropYieldInformationGrid') cropYieldInformationGrid: AgGridAngular;

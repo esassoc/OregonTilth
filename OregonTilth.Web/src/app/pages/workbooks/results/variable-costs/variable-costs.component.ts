@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf, NgFor } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -19,7 +19,7 @@ import { ResultsService } from 'src/app/services/results/results.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { GridService } from 'src/app/shared/services/grid/grid.service';
 import { ViewChild } from '@angular/core';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { LaborHoursDashboardReportDto } from 'src/app/shared/models/forms/crop-yield-information/labor-hours-dashboard-report-dto';
 import { FieldLaborActivityCategoryDto } from 'src/app/shared/models/generated/field-labor-activity-category-dto';
 import { LookupTablesService } from 'src/app/services/lookup-tables/lookup-tables.service';
@@ -28,13 +28,20 @@ import { CropDto } from 'src/app/shared/models/generated/crop-dto';
 import { CropUnitDto } from 'src/app/shared/models/generated/crop-unit-dto';
 import { VariableCostsDashboardReportDto, ViariableCostForCropPivoted } from 'src/app/shared/models/forms/crop-yield-information/variable-costs-dashboard-report-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BaseChartDirective } from 'ng2-charts';
 
 
 
 @Component({
-  selector: 'variable-costs',
-  templateUrl: './variable-costs.component.html',
-  styleUrls: ['./variable-costs.component.scss']
+    selector: 'variable-costs',
+    templateUrl: './variable-costs.component.html',
+    styleUrls: ['./variable-costs.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, NgIf, CustomRichTextComponent, FormsModule, NgFor, NgbTooltip, AgGridModule, BaseChartDirective]
 })
 export class VariableCostsComponent implements OnInit {
   @ViewChild('cropCropUnitGrid') cropCropUnitGrid: AgGridAngular;

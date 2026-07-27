@@ -3,9 +3,10 @@ import { AgRendererComponent, ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
 
 @Component({
-  selector: 'button-renderer',
-  templateUrl: './button-renderer.component.html',
-  styleUrls: ['./button-renderer.component.scss']
+    selector: 'button-renderer',
+    templateUrl: './button-renderer.component.html',
+    styleUrls: ['./button-renderer.component.scss'],
+    standalone: true
 })
 
 export class ButtonRendererComponent implements ICellRendererAngularComp, AgRendererComponent  {

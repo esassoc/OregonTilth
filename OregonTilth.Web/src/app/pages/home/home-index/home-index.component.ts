@@ -5,11 +5,17 @@ import { RoleEnum } from 'src/app/shared/models/enums/role.enum';
 import { environment } from 'src/environments/environment';
 import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text-type.enum';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../shared/components/alert-display/alert-display.component';
+import { NgIf } from '@angular/common';
+import { NgbAlert } from '@ng-bootstrap/ng-bootstrap';
+import { CustomRichTextComponent } from '../../../shared/components/custom-rich-text/custom-rich-text.component';
 
 @Component({
     selector: 'app-home-index',
     templateUrl: './home-index.component.html',
-    styleUrls: ['./home-index.component.scss']
+    styleUrls: ['./home-index.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, NgIf, NgbAlert, CustomRichTextComponent]
 })
 export class HomeIndexComponent implements OnInit, OnDestroy {
     public watchUserChangeSubscription: any;

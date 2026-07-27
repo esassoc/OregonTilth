@@ -22,3 +22,11 @@ export class AppInitService {
       })).toPromise();
   }
 }
+
+// APP_INITIALIZER factory. Lived in app.module.ts until that module was removed as
+// part of the standalone migration; it belongs next to the service it initialises.
+export function init_app(appLoadService: AppInitService) {
+  return () => appLoadService.init().then(() => {
+
+  });
+}
