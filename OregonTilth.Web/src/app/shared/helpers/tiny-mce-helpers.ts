@@ -7,7 +7,7 @@ export default class TinyMCEHelpers {
      * @param overrideConfig 
      * @returns 
      */
-    public static DefaultInitConfig(editorComponent : EditorComponent = null, overrideConfig : object = null) : object {
+    public static DefaultInitConfig(editorComponent : Pick<EditorComponent, 'editor'> = null, overrideConfig : object = null) : object {
         let config = { 
             plugins: 'lists link image table code help wordcount media', 
             file_picker_types: 'image',
