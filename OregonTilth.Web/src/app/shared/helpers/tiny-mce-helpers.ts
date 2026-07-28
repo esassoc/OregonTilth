@@ -49,6 +49,22 @@ export default class TinyMCEHelpers {
     }
 
     /**
+     * Build a config for an editor that doesn't exist yet -- pass a viewChild() query rather than an
+     * instance. Call this once and hold the result: TinyMCE tears down and re-initializes whenever
+     * `init` changes identity, so the config bound to [init] has to stay identity-stable. The image
+     * picker resolves the live editor lazily through the accessor.
+     *
+     * @param editorAccessor
+     * @param overrideConfig
+     * @returns
+     */
+    public static DefaultInitConfigFor(editorAccessor : () => Pick<EditorComponent, 'editor'>, overrideConfig : object = null) : object {
+        return this.DefaultInitConfig({
+            get editor() { return editorAccessor()?.editor; },
+        }, overrideConfig);
+    }
+
+    /**
      * This is not a fancy merge of config, it overrides all keys present in the override config.
      * 
      * @param config 

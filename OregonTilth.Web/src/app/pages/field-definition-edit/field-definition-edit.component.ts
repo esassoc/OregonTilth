@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, AfterViewChecked, viewChild } from '@angular/core';
 import { FieldDefinitionService } from 'src/app/shared/services/field-definition-service';
 import { UserDetailedDto } from 'src/app/shared/models';
 import { FieldDefinitionDto } from 'src/app/shared/models/generated/field-definition-dto';
@@ -13,14 +13,13 @@ import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service'
 import { NgIf } from '@angular/common';
 import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
 import { FormsModule } from '@angular/forms';
-import { TinyMceConfigPipe } from '../../shared/helpers/tiny-mce-config.pipe';
 
 @Component({
     selector: 'fresca-field-definition-edit',
     templateUrl: './field-definition-edit.component.html',
     styleUrls: ['./field-definition-edit.component.scss'],
     standalone: true,
-    imports: [NgIf, AlertDisplayComponent, EditorModule, FormsModule, RouterLink, TinyMceConfigPipe]
+    imports: [NgIf, AlertDisplayComponent, EditorModule, FormsModule, RouterLink]
 })
 export class FieldDefinitionEditComponent implements OnInit {
   private watchUserChangeSubscription: any;
@@ -28,6 +27,10 @@ export class FieldDefinitionEditComponent implements OnInit {
 
   public fieldDefinition: FieldDefinitionDto;
   public editor;
+
+  private readonly editorRef = viewChild<EditorComponent>('tinyMceEditor');
+  /** Built once: TinyMCE re-initializes whenever the object bound to [init] changes identity. */
+  public readonly editorConfig = TinyMCEHelpers.DefaultInitConfigFor(this.editorRef);
 
   isLoadingSubmit: boolean;
 

@@ -55,8 +55,8 @@ export class CustomRichTextComponent {
   protected readonly customRichTextContent = computed(() =>
     this.sanitizer.bypassSecurityTrustHtml(this.customRichText()?.CustomRichTextContent ?? ''));
 
-  /** TinyMCE tears down and re-initializes whenever `init` changes identity, so build it exactly once. */
-  protected readonly editorConfig = this.buildEditorConfig();
+  /** Built once: the editor doesn't exist until edit mode is entered. */
+  protected readonly editorConfig = TinyMCEHelpers.DefaultInitConfigFor(this.editorRef);
 
   protected enterEdit(): void {
     this.editedContent.set(this.customRichText()?.CustomRichTextContent ?? '');
@@ -84,14 +84,5 @@ export class CustomRichTextComponent {
           this.alertService.pushAlert(new Alert("There was an error updating the rich text content", AlertContext.Danger, true));
         },
       });
-  }
-
-  private buildEditorConfig(): object {
-    const editorRef = this.editorRef;
-    // The image picker needs the live editor, which doesn't exist until edit mode is entered -- so
-    // resolve it through a getter instead of capturing an instance that is null now.
-    return TinyMCEHelpers.DefaultInitConfig({
-      get editor() { return editorRef()?.editor; },
-    });
   }
 }

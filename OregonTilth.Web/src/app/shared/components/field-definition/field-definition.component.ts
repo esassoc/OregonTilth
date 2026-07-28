@@ -58,8 +58,8 @@ export class FieldDefinitionComponent {
   protected readonly labelText = computed(() =>
     this.labelOverride() ?? this.fieldDefinition()?.FieldDefinitionType?.FieldDefinitionTypeDisplayName ?? '');
 
-  /** TinyMCE tears down and re-initializes whenever `init` changes identity, so build it exactly once. */
-  protected readonly editorConfig = this.buildEditorConfig();
+  /** Built once: the editor doesn't exist until the popover is opened in edit mode. */
+  protected readonly editorConfig = TinyMCEHelpers.DefaultInitConfigFor(this.editorRef);
 
   private hoveringLabel = false;
   private hoveringPopover = false;
@@ -133,14 +133,5 @@ export class FieldDefinitionComponent {
         this.popover()?.close();
       }
     }, HOVER_CLOSE_GRACE_MS);
-  }
-
-  private buildEditorConfig(): object {
-    const editorRef = this.editorRef;
-    // The image picker needs the live editor, which doesn't exist until the popover is opened in
-    // edit mode -- so resolve it through a getter instead of capturing an instance that is null now.
-    return TinyMCEHelpers.DefaultInitConfig({
-      get editor() { return editorRef()?.editor; },
-    });
   }
 }
