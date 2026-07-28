@@ -105,8 +105,8 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
       this.screenWidth = width;
   }
 
-  getRowNodeId(data)  {
-    return data.HarvestPostHarvestStandardTimeID.toString();
+  getRowId(params)  {
+    return params.data.HarvestPostHarvestStandardTimeID.toString();
   }
   
   ngOnInit() {
@@ -171,7 +171,9 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
 
     this.initializeStandardTimeRequest = this.workbookService.initializeHarvestPostHarvestTimeStudy(this.model).subscribe(response => {
       var transactionRows = this.gridApi.applyTransaction({add: [response] });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       
       this.resetForm();
@@ -211,7 +213,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.crops.map(x => x.CropName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:false,
         sortable: true, 
         filter: true,
@@ -238,7 +240,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.cropUnits.map(x => x.CropUnitName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:false,
         sortable: true, 
         filter: true,
@@ -265,7 +267,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.harvestTypes.map(x => x.HarvestTypeDisplayName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:false,
         sortable: true, 
         filter: true,
@@ -300,7 +302,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
           return number ? number.toFixed(4) : null
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -309,7 +311,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150
       },
       {
@@ -319,7 +321,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
           var downloadDisplay = TimeStudyCellRendererComponent.downloadDisplay(params.data)
           return { HarvestPostHarvestStandardTime: params.data, count: params.data.TimeStudies.length, DownloadDisplay: downloadDisplay };
         }, 
-        cellRendererFramework: TimeStudyCellRendererComponent,
+        cellRenderer: TimeStudyCellRendererComponent,
         cellRendererParams: { 
           clicked: function(data: any) {
             componentScope.launchModal(TimeStudyModal, 'Harvest Post-Harvest Time Studies', data.HarvestPostHarvestStandardTime);
@@ -333,7 +335,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.HarvestPostHarvestStandardTimeID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -384,7 +386,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
       data.node.setData(standardTime);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -426,7 +428,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.harvestPostHarvestStandardTimesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.harvestPostHarvestStandardTimesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

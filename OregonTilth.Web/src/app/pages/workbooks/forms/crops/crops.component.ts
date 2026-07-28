@@ -98,7 +98,7 @@ export class CropsComponent implements OnInit {
         field: 'CropName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -106,7 +106,7 @@ export class CropsComponent implements OnInit {
       {
         headerName: 'Delete', field: 'CropID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.CropID, ObjectDisplayName: params.data.CropName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Crop?`)) {
@@ -136,7 +136,7 @@ export class CropsComponent implements OnInit {
       data.node.setData(crop);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -175,7 +175,9 @@ export class CropsComponent implements OnInit {
     this.addCropRequest = this.workbookService.addCrop(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -194,7 +196,7 @@ export class CropsComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.cropsGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropsGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

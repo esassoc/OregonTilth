@@ -99,7 +99,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
         field: 'TransplantProductionTrayTypeName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -107,7 +107,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
       {
         headerName: 'Delete', field: 'TransplantProductionTrayTypeID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionTrayTypeID, ObjectDisplayName: params.data.TransplantProductionTrayTypeName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Transplant Production Tray Type?`)) {
@@ -137,7 +137,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
       data.node.setData(tpTrayTypeDto);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -177,7 +177,9 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
     this.addTransplantProductionTrayTypeRequest = this.workbookService.addTransplantProductionTrayType(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       
       this.resetForm();
       this.cdr.detectChanges();
@@ -197,7 +199,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.transplantProductionTrayTypesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.transplantProductionTrayTypesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

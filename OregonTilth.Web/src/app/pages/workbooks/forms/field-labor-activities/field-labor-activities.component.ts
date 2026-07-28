@@ -70,8 +70,8 @@ export class FieldLaborActivitiesComponent implements OnInit {
 
   public columnDefs: ColDef[];
 
-  getRowNodeId(data)  {
-    return data.FieldLaborActivityID.toString();
+  getRowId(params)  {
+    return params.data.FieldLaborActivityID.toString();
   }
  
   ngOnInit() {
@@ -115,7 +115,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
         field: 'FieldLaborActivityName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -137,7 +137,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
         valueGetter: function (params) {
           return params.data.FieldLaborActivityCategory.FieldLaborActivityCategoryDisplayName;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -163,7 +163,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
         valueGetter: params => {
           return params.data.LaborTypeManual ? "Yes" : "No";
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -189,7 +189,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
         valueGetter: params => {
           return params.data.LaborTypeMachinery ? "Yes" : "No";
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -197,7 +197,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
       {
         headerName: 'Delete', field: 'FieldLaborActivityID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldLaborActivityID, ObjectDisplayName: params.data.FieldLaborActivityName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Field Labor Activity?`)) {
@@ -228,7 +228,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
       data.node.setData(fieldLaborActivity);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -270,7 +270,9 @@ export class FieldLaborActivitiesComponent implements OnInit {
     this.addFieldLaborActivityRequest = this.workbookService.addFieldLaborActivity(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -285,7 +287,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.fieldLaborActivitiesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldLaborActivitiesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

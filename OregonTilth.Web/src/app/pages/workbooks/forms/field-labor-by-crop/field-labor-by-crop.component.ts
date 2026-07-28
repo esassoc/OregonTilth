@@ -157,7 +157,7 @@ export class FieldLaborByCropComponent implements OnInit {
         cellEditorParams: {
           values: this.cropDtos.map(x => x.CropName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true,
@@ -184,7 +184,7 @@ export class FieldLaborByCropComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agLargeTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
         cellEditorParams: {
           maxLength: 2000,
@@ -194,8 +194,8 @@ export class FieldLaborByCropComponent implements OnInit {
         headerName: 'Occurrences', 
         field: 'Occurrences',
         editable: true,
-        cellEditorFramework: DecimalEditor,
-        cellRendererFramework: EditableRendererComponent,
+        cellEditor: DecimalEditor,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -209,7 +209,7 @@ export class FieldLaborByCropComponent implements OnInit {
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldLaborByCropID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -239,7 +239,7 @@ export class FieldLaborByCropComponent implements OnInit {
       data.node.setData(fieldLaborByCrop);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -286,7 +286,9 @@ export class FieldLaborByCropComponent implements OnInit {
 
     this.addFieldLaborByCropRequest = this.workbookService.addFieldLaborByCrop(this.model).subscribe(response => {
       var transactionRows = this.gridApi.applyTransaction({add: response });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       if(response.length > 0){
 
@@ -345,7 +347,7 @@ export class FieldLaborByCropComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.fieldLaborByCropGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldLaborByCropGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

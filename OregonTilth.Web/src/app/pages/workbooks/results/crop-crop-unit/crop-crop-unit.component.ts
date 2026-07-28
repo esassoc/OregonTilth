@@ -61,8 +61,8 @@ export class CropCropUnitComponent implements OnInit {
   public cropYieldInformationDashboardReportDtos: CropCropUnitDashboardReportDto[];
 
 
-  getRowNodeId(data)  {
-    return data.CropYieldInformationID.toString();
+  getRowId(params)  {
+    return params.data.CropYieldInformationID.toString();
   }
  
   ngOnInit() {
@@ -181,7 +181,7 @@ export class CropCropUnitComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.cropCropUnitGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropCropUnitGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

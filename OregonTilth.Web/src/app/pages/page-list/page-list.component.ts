@@ -71,7 +71,7 @@ export class PageListComponent implements OnInit {
       {
         headerName: 'Page Name', valueGetter: function (params: any) {
           return { LinkValue: params.data.PageID, LinkDisplay: params.data.PageName };
-        }, cellRendererFramework: LinkRendererComponent,
+        }, cellRenderer: LinkRendererComponent,
         cellRendererParams: { inRouterLink: "/pages/edit" },
         filterValueGetter: function (params: any) {
           return params.data.PageName;
@@ -108,7 +108,7 @@ export class PageListComponent implements OnInit {
         valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.PageID, ObjectDisplayName: params.data.PageName };
         }, 
-        cellRendererFramework: ButtonRendererComponent,
+        cellRenderer: ButtonRendererComponent,
         cellRendererParams: {
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Page?`)) {

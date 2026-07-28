@@ -101,7 +101,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
         field: 'TransplantProductionLaborActivityName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -109,7 +109,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
       {
         headerName: 'Delete', field: 'TransplantProductionLaborActivityID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionLaborActivityID, ObjectDisplayName: params.data.TransplantProductionLaborActivityName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} TP Labor Activity?`)) {
@@ -139,7 +139,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
       data.node.setData(fieldLaborActivity);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -179,7 +179,9 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
     this.addTransplantProductionLaborActivityRequest = this.workbookService.addTransplantProductionLaborActivity(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -198,7 +200,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.transplantProductionLaborActivitiesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.transplantProductionLaborActivitiesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

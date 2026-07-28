@@ -144,7 +144,7 @@ export class FieldInputByCropComponent implements OnInit {
         cellEditorParams: {
           values: this.cropDtos.map(x => x.CropName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -166,7 +166,7 @@ export class FieldInputByCropComponent implements OnInit {
         cellEditorParams: {
           values: this.fieldInputCostDtos.map(x => x.FieldInputCostName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -176,7 +176,7 @@ export class FieldInputByCropComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agLargeTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
         cellEditorParams: {
           maxLength: 2000,
@@ -186,7 +186,7 @@ export class FieldInputByCropComponent implements OnInit {
         headerName: 'Occurrences', 
         field: 'Occurrences',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -195,13 +195,13 @@ export class FieldInputByCropComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true
       },
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldInputByCropID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -232,7 +232,7 @@ export class FieldInputByCropComponent implements OnInit {
       data.node.setData(fieldInputByCrop);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -281,7 +281,9 @@ export class FieldInputByCropComponent implements OnInit {
     this.isLoadingSubmit = true;
     this.addFieldInputByCropRequest = this.workbookService.addFieldInputByCrop(this.model).subscribe(response => {
       var transactionRows = this.gridApi.applyTransaction({add: response });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       if(response.length > 0){
         var successMessage = `Successfully added ${response.length} Field Input By Crop(s) for Crop '${response[0].Crop.CropName}'.`;
@@ -310,7 +312,7 @@ export class FieldInputByCropComponent implements OnInit {
     this.model = new FieldInputByCropCreateDto({WorkbookID: this.workbookID});
   }
   public exportToCsv() {
-    let columnsKeys = this.fieldInputByCropGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldInputByCropGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

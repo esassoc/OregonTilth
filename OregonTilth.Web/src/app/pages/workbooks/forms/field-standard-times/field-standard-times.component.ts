@@ -110,8 +110,8 @@ export class FieldStandardTimesComponent implements OnInit {
       this.screenWidth = width;
   }
 
-  getRowNodeId(data)  {
-    return data.FieldStandardTimeID.toString();
+  getRowId(params)  {
+    return params.data.FieldStandardTimeID.toString();
   }
   
   ngOnInit() {
@@ -258,7 +258,7 @@ export class FieldStandardTimesComponent implements OnInit {
         valueGetter: params => {
           return params.data.Machinery ? params.data.Machinery.MachineryName : 'N/A';
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: this.machinery.map(x => x.MachineryName)
@@ -281,7 +281,7 @@ export class FieldStandardTimesComponent implements OnInit {
         valueGetter: params => {
           return params.data.FieldUnitType.FieldUnitTypeDisplayName;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: this.fieldUnits.map(x => x.FieldUnitTypeDisplayName)
@@ -318,8 +318,8 @@ export class FieldStandardTimesComponent implements OnInit {
           return number ? number.toFixed(4) : null
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
-        cellRendererFramework: EditableRendererComponent,
+        cellEditor: DecimalEditor,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -337,7 +337,7 @@ export class FieldStandardTimesComponent implements OnInit {
           var downloadDisplay = TimeStudyCellRendererComponent.downloadDisplay(params.data)
           return { FieldStandardTime: params.data, count: params.data.TimeStudies.length, DownloadDisplay: downloadDisplay };
         }, 
-        cellRendererFramework: TimeStudyCellRendererComponent,
+        cellRenderer: TimeStudyCellRendererComponent,
         cellRendererParams: { 
           clicked: function(data: any) {
             componentScope.launchModal(TimeStudyModal, 'Field Time Studies', data.FieldStandardTime);
@@ -351,7 +351,7 @@ export class FieldStandardTimesComponent implements OnInit {
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete Record', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldStandardTimeID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -407,7 +407,9 @@ export class FieldStandardTimesComponent implements OnInit {
 
     this.initializeTimeStudyRequest = this.workbookService.initializeFieldTimeStudy(createDto).subscribe(fieldStandardTimeDto => {
         var transactionRows = this.gridApi.applyTransaction({add: [fieldStandardTimeDto]});
-        this.gridApi.flashCells({ rowNodes: transactionRows.add });
+        this.gridApi.flashCells({
+          rowNodes: transactionRows.add
+        });
         var createDtoIndexToRemove = this.createDtos.findIndex(x => {
           return x.LaborTypeID == createDto.LaborTypeID && x.FieldLaborActivityID == createDto.FieldLaborActivityID;
         });
@@ -427,7 +429,7 @@ export class FieldStandardTimesComponent implements OnInit {
       data.node.setData(fieldStandardTime);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -468,7 +470,7 @@ export class FieldStandardTimesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.fieldStandardTimesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldStandardTimesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

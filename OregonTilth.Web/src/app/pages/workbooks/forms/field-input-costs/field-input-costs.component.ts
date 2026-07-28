@@ -113,7 +113,7 @@ export class FieldInputCostsComponent implements OnInit {
         field: 'FieldInputCostName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -135,7 +135,7 @@ export class FieldInputCostsComponent implements OnInit {
         valueGetter: params => {
           return params.data.FieldUnitType ? params.data.FieldUnitType.FieldUnitTypeDisplayName : '';
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -144,8 +144,8 @@ export class FieldInputCostsComponent implements OnInit {
         headerName: 'Cost Per Field Unit', 
         field: 'CostPerFieldUnit',
         editable: true,
-        cellEditorFramework: DecimalEditor,
-        cellRendererFramework: EditableRendererComponent,
+        cellEditor: DecimalEditor,
+        cellRenderer: EditableRendererComponent,
         valueFormatter: this.gridService.currencyFormatter,
         resizable: true
       },
@@ -154,14 +154,14 @@ export class FieldInputCostsComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         filter: true,
         resizable: true
       },
       {
         headerName: 'Delete', field: 'FieldInputCostID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldInputCostID, ObjectDisplayName: params.data.FieldInputCostName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Field Input?`)) {
@@ -193,7 +193,7 @@ export class FieldInputCostsComponent implements OnInit {
       data.node.setData(fieldInputCost);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
     }, error => {
       this.refreshData();
@@ -235,7 +235,9 @@ export class FieldInputCostsComponent implements OnInit {
     this.addFieldInputCostRequest = this.workbookService.addFieldInputCost(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       
       this.resetForm();
       this.cdr.detectChanges();
@@ -254,12 +256,12 @@ export class FieldInputCostsComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.FieldInputCostID.toString();
+  getRowId(params)  {
+    return params.data.FieldInputCostID.toString();
   }
 
   public exportToCsv() {
-    let columnsKeys = this.fieldInputCostGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldInputCostGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

@@ -63,8 +63,8 @@
         </div>        
         <div class="row mt-2">
           <div class="col">
-            <ag-grid-angular #tpStandardTimesGrid style="width: 100%; height: 800px;" class="ag-theme-balham" [rowData]="transplantProductionStandardTimes"
-              [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" (cellValueChanged)="onCellValueChanged($event)" (gridReady)="onGridReady($event)" [getRowNodeId]="getRowNodeId" [suppressDragLeaveHidesColumns]="true">
+            <ag-grid-angular theme="legacy" #tpStandardTimesGrid style="width: 100%; height: 800px;" class="ag-theme-balham" [rowData]="transplantProductionStandardTimes"
+              [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" (cellValueChanged)="onCellValueChanged($event)" (gridReady)="onGridReady($event)" [getRowId]="getRowId" [suppressDragLeaveHidesColumns]="true">
             </ag-grid-angular>
           </div>
         </div>

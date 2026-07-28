@@ -95,7 +95,7 @@ export class TransplantProductionInputsComponent implements OnInit {
         field: 'TransplantProductionInputName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -103,7 +103,7 @@ export class TransplantProductionInputsComponent implements OnInit {
       {
         headerName: 'Delete', field: 'TransplantProductionInputID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionInputID, ObjectDisplayName: params.data.TransplantProductionInputName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Transplant Production Input?`)) {
@@ -134,7 +134,7 @@ export class TransplantProductionInputsComponent implements OnInit {
       data.node.setData(tpInput);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -175,7 +175,9 @@ export class TransplantProductionInputsComponent implements OnInit {
     this.addTransplantProductionInputRequest = this.workbookService.addTransplantProductionInput(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -193,12 +195,12 @@ export class TransplantProductionInputsComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.TransplantProductionInputID.toString();
+  getRowId(params)  {
+    return params.data.TransplantProductionInputID.toString();
   }
 
   public exportToCsv() {
-    let columnsKeys = this.transplantProductionInputsGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.transplantProductionInputsGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

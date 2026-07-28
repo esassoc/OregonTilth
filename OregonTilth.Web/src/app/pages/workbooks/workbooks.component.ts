@@ -62,7 +62,7 @@ export class WorkbooksComponent implements OnInit {
           field: 'WorkbookName',
           valueGetter: function (params: any) {
             return { LinkValue: params.data.WorkbookID, LinkDisplay: params.data.WorkbookName };
-          }, cellRendererFramework: LinkRendererComponent,
+          }, cellRenderer: LinkRendererComponent,
           cellRendererParams: { inRouterLink: "/workbooks/" },
           filterValueGetter: function (params: any) {
             return params.data.WorkbookName;
@@ -81,7 +81,7 @@ export class WorkbooksComponent implements OnInit {
           sortable: true, filter: true, width: 170
         },
         {
-          headerComponentFramework: FieldDefinitionGridHeaderComponent, headerComponentParams: {fieldDefinitionType: 'AverageHourlyWage'},
+          headerComponent: FieldDefinitionGridHeaderComponent, headerComponentParams: {fieldDefinitionType: 'AverageHourlyWage'},
           cellEditor: 'agTextCellEditor',
           field: 'AverageHourlyWage',
           valueFormatter: this.gridService.currencyFormatter,
@@ -89,14 +89,14 @@ export class WorkbooksComponent implements OnInit {
           cellClass: 'not-editable'
         },
         {
-          headerComponentFramework: FieldDefinitionGridHeaderComponent, headerComponentParams: {fieldDefinitionType: 'StandardUnitOfSpaceLength'}, 
+          headerComponent: FieldDefinitionGridHeaderComponent, headerComponentParams: {fieldDefinitionType: 'StandardUnitOfSpaceLength'}, 
           cellEditor: 'agTextCellEditor',
           field: 'StandardUnitOfSpaceLength',
           sortable: true, filter: true, width: 200,
           cellClass: 'not-editable'
         },
         {
-          headerComponentFramework: FieldDefinitionGridHeaderComponent, headerComponentParams: {fieldDefinitionType: 'StandardUnitOfSpaceWidth'}, 
+          headerComponent: FieldDefinitionGridHeaderComponent, headerComponentParams: {fieldDefinitionType: 'StandardUnitOfSpaceWidth'}, 
           cellEditor: 'agTextCellEditor',
           field: 'StandardUnitOfSpaceWidth',
           sortable: true, filter: true, width: 200,
@@ -142,7 +142,7 @@ export class WorkbooksComponent implements OnInit {
         {
           headerName: 'Delete', field: 'WorkbookID', valueGetter: function (params: any) {
             return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.WorkbookID, ObjectDisplayName: params.data.WorkbookName };
-          }, cellRendererFramework: ButtonRendererComponent,
+          }, cellRenderer: ButtonRendererComponent,
           cellRendererParams: { 
             clicked: function(field: any) {
               if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Workbook?`)) {
@@ -155,7 +155,7 @@ export class WorkbooksComponent implements OnInit {
         {
           headerName: 'Edit', field: 'WorkbookID', valueGetter: function (params: any) {
             return { ButtonText: 'Edit', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.WorkbookID, ObjectDisplayName: params.data.WorkbookName };
-          }, cellRendererFramework: ButtonRendererComponent,
+          }, cellRenderer: ButtonRendererComponent,
           cellRendererParams: { 
             clicked: function(field: any) {
               workbookComponentScope.router.navigateByUrl(`/workbooks/${field.PrimaryKey}/edit`).then(x => {
@@ -169,7 +169,7 @@ export class WorkbooksComponent implements OnInit {
           headerName: 'Duplicate', 
           valueGetter: function (params: any) {
             return { ButtonText: 'Duplicate', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.WorkbookID, ObjectDisplayName: params.data.WorkbookName };
-          }, cellRendererFramework: ButtonRendererComponent,
+          }, cellRenderer: ButtonRendererComponent,
           cellRendererParams: { 
             clicked: function(field: any) {
                 workbookComponentScope.router.navigateByUrl(`/workbooks/${field.PrimaryKey}/duplicate`).then(x => {

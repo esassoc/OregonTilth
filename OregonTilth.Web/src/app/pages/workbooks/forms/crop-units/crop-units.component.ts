@@ -96,7 +96,7 @@ export class CropUnitsComponent implements OnInit {
         field: 'CropUnitName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -104,7 +104,7 @@ export class CropUnitsComponent implements OnInit {
       {
         headerName: 'Delete', field: 'CropUnitID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.CropUnitID, ObjectDisplayName: params.data.CropUnitName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Crop Unit?`)) {
@@ -134,7 +134,7 @@ export class CropUnitsComponent implements OnInit {
       data.node.setData(cropUnit);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -192,7 +192,7 @@ export class CropUnitsComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.cropUnitsGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropUnitsGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

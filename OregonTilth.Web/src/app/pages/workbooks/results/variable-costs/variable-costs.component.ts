@@ -236,7 +236,7 @@ export class VariableCostsComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.cropCropUnitGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropCropUnitGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

@@ -157,7 +157,7 @@ export class TransplantProductionInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.cropDtos.map(x => x.CropName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true,
@@ -180,7 +180,7 @@ export class TransplantProductionInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.phaseDtos.map(x => x.PhaseDisplayName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true,
@@ -204,7 +204,7 @@ export class TransplantProductionInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.tpTrayTypeDtos.map(x => x.TransplantProductionTrayTypeName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true,
@@ -214,7 +214,7 @@ export class TransplantProductionInformationComponent implements OnInit {
         headerName: 'Cells/Plugs per Tray', 
         field: 'SeedsPerTray',
         editable: true,
-        cellEditorFramework: IntegerEditor,
+        cellEditor: IntegerEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -223,20 +223,20 @@ export class TransplantProductionInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true
       },
       {
         headerName: 'Percentage Plantable', 
         field: 'UsageRate',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         valueFormatter: params => {
           return params.value + '%';
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true
       },
       {
@@ -248,7 +248,7 @@ export class TransplantProductionInformationComponent implements OnInit {
           }
           return true;
         },
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         valueFormatter: params => {
@@ -267,7 +267,7 @@ export class TransplantProductionInformationComponent implements OnInit {
           }
           return {backgroundColor: '#ccf5cc'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
         width:175
       },
@@ -275,20 +275,20 @@ export class TransplantProductionInformationComponent implements OnInit {
         headerName: 'Crop Specific Input Costs per Tray', 
         field: 'CropSpecificInputCostsPerTray',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         valueFormatter: params => {
           return params.value ? '$' + params.value : '$0';
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:250,
         resizable: true
       },
       {
         headerName: 'Delete', field: 'TransplantProductionInformationID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionInformationID, ObjectDisplayName: params.data.TransplantProductionInformationID };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -319,7 +319,7 @@ export class TransplantProductionInformationComponent implements OnInit {
       data.node.setData(tpInfoDto);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
       this.alertService.pushAlert(new Alert("Successfully updated Transplant Production Information.", AlertContext.Success));
@@ -384,7 +384,7 @@ export class TransplantProductionInformationComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.tpInfoGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.tpInfoGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

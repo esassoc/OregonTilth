@@ -128,7 +128,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
         valueGetter: params => {
           return params.data.TransplantProductionInput.TransplantProductionInputName;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -150,7 +150,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
         valueGetter: params => {
           return params.data.TransplantProductionTrayType.TransplantProductionTrayTypeName;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -168,7 +168,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
         valueGetter: params => {
           return params.data.CostPerTray;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -178,7 +178,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         filter: true,
         sortable: true, 
         resizable: true
@@ -186,7 +186,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
       {
         headerName: 'Delete', field: 'TransplantProductionInputCostID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionInputCostID, ObjectDisplayName: params.data.TransplantProductionInputCostID };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this input cost?`)) {
@@ -217,7 +217,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
       data.node.setData(tpInputCost);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -260,7 +260,9 @@ export class TransplantProductionInputCostsComponent implements OnInit {
       this.isLoadingSubmit = false;
 
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.alertService.pushAlert(new Alert("Successfully added Transplant Production Input Cost.", AlertContext.Success));
       this.resetForm();
       this.cdr.detectChanges();
@@ -279,12 +281,12 @@ export class TransplantProductionInputCostsComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.TransplantProductionInputCostID.toString();
+  getRowId(params)  {
+    return params.data.TransplantProductionInputCostID.toString();
   }
   
   public exportToCsv() {
-    let columnsKeys = this.transplantProductionInputCostsGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.transplantProductionInputCostsGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

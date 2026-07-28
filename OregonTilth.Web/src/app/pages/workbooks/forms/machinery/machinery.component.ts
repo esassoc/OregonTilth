@@ -106,16 +106,16 @@ export class MachineryComponent implements OnInit {
         field: 'MachineryName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable:true,
       },
       {
         headerName: 'Hourly Machinery Operating Cost', 
         field: 'StandardMachineryCost',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         valueFormatter: this.gridService.currencyFormatter,
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
       },
       {
@@ -123,7 +123,7 @@ export class MachineryComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agLargeTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
         cellEditorParams: {
           maxLength: 2000,
@@ -132,7 +132,7 @@ export class MachineryComponent implements OnInit {
       {
         headerName: 'Delete', field: 'MachineryID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.MachineryID, ObjectDisplayName: params.data.MachineryName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the '${field.ObjectDisplayName}' Machinery?`)) {
@@ -164,7 +164,7 @@ export class MachineryComponent implements OnInit {
       data.node.setData(machinery);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -204,7 +204,9 @@ export class MachineryComponent implements OnInit {
     this.addMachineryRequest = this.workbookService.addMachinery(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -222,12 +224,12 @@ export class MachineryComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.MachineryID.toString();
+  getRowId(params)  {
+    return params.data.MachineryID.toString();
   }
 
   public exportToCsv() {
-    let columnsKeys = this.fieldLaborActivitiesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldLaborActivitiesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

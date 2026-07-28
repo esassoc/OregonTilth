@@ -45,7 +45,7 @@
 
         <div class="row mt-2">
           <div class="col">
-            <ag-grid-angular #transplantProductionTrayTypesGrid style="width: 100%; height: 500px;" class="ag-theme-balham" [rowData]="transplantProductionTrayTypes"
+            <ag-grid-angular theme="legacy" #transplantProductionTrayTypesGrid style="width: 100%; height: 500px;" class="ag-theme-balham" [rowData]="transplantProductionTrayTypes"
               [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" (cellValueChanged)="onCellValueChanged($event)" (gridReady)="onGridReady($event)" [suppressDragLeaveHidesColumns]="true">
             </ag-grid-angular>
           </div>

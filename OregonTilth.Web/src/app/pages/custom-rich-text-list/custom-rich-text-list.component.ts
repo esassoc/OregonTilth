@@ -27,7 +27,7 @@ export class CustomRichTextListComponent {
       field: 'CustomRichTextType.CustomRichTextTypeDisplayName',
       valueGetter: function (params: any) {
         return { LinkValue: params.data.CustomRichTextType.CustomRichTextTypeID, LinkDisplay: params.data.CustomRichTextType.CustomRichTextTypeDisplayName };
-      }, cellRendererFramework: LinkRendererComponent,
+      }, cellRenderer: LinkRendererComponent,
       cellRendererParams: { inRouterLink: "/custom-rich-text/" },
       filterValueGetter: function (params: any) {
         return params.data.CustomRichTextType.CustomRichTextTypeDisplayName;

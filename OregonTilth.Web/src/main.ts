@@ -9,6 +9,7 @@ import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 
 import { environment } from './environments/environment';
 import { routes } from './app/app.routes';
@@ -21,6 +22,11 @@ import { GlobalErrorHandlerService } from './app/shared/services/global-error-ha
 if (environment.production) {
   enableProdMode();
 }
+
+// AG Grid v33+ requires modules to be registered explicitly; nothing renders without
+// this. AllCommunityModule pulls in every community feature, matching the pre-v31
+// behaviour where the whole community bundle was always available.
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 bootstrapApplication(AppComponent, {
     providers: [

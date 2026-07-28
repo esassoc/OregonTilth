@@ -82,8 +82,8 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
   public updateStandardTimeRequest: any;
   private deleteStandardTimeRequest: any;
   
-  getRowNodeId(data)  {
-    return data.TransplantProductionStandardTimeID.toString();
+  getRowId(params)  {
+    return params.data.TransplantProductionStandardTimeID.toString();
   }
   
   ngOnInit() {
@@ -143,7 +143,9 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
 
     this.initializeStandardTimeRequest = this.workbookService.initializeTransplantProductionTimeStudy(this.model).subscribe(response => {
       var transactionRows = this.gridApi.applyTransaction({add: [response] });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       
       this.resetForm();
@@ -183,7 +185,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.transplantProductionLaborActivities.map(x => x.TransplantProductionLaborActivityName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:true,
         sortable: true, 
         filter: true,
@@ -209,7 +211,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.trayTypes.map(x => x.TransplantProductionTrayTypeName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:true,
         sortable: true, 
         filter: true,
@@ -243,7 +245,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
           return number ? number.toFixed(4) : null
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -252,7 +254,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150
       },
       {
@@ -262,7 +264,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
           var downloadDisplay = TimeStudyCellRendererComponent.downloadDisplay(params.data)
           return { TransplantProductionStandardTime: params.data, count: params.data.TimeStudies.length, DownloadDisplay: downloadDisplay };
         }, 
-        cellRendererFramework: TimeStudyCellRendererComponent,
+        cellRenderer: TimeStudyCellRendererComponent,
         cellRendererParams: { 
           clicked: function(data: any) {
             componentScope.launchModal(TimeStudyModal, 'Transplant Production Time Studies', data.TransplantProductionStandardTime);
@@ -276,7 +278,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionStandardTimeID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -327,7 +329,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
       data.node.setData(standardTime);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -370,7 +372,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.tpStandardTimesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.tpStandardTimesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

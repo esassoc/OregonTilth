@@ -148,7 +148,7 @@ export class CropYieldInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.crops.map(x => x.CropName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         //editable:true,
         sortable: true, 
         filter: true,
@@ -174,7 +174,7 @@ export class CropYieldInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.cropUnits.map(x => x.CropUnitName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         // editable:true,
         sortable: true, 
         filter: true,
@@ -189,7 +189,7 @@ export class CropYieldInformationComponent implements OnInit {
           return params.data.PricePerCropUnit
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -198,7 +198,7 @@ export class CropYieldInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true,
       },
@@ -209,7 +209,7 @@ export class CropYieldInformationComponent implements OnInit {
           return params.data.HarvestedYieldPerStandardUnitOfSpace
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -218,7 +218,7 @@ export class CropYieldInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true,
       },
@@ -229,7 +229,7 @@ export class CropYieldInformationComponent implements OnInit {
           return params.data.MarketableYieldPerStandardUnitOfSpace
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -238,7 +238,7 @@ export class CropYieldInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true,
       },
@@ -251,7 +251,7 @@ export class CropYieldInformationComponent implements OnInit {
           return params.data.PackagingCostPerCropUnit
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -260,14 +260,14 @@ export class CropYieldInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true,
       },
       {
         headerName: 'Delete', field: 'CropYieldInformationID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.CropYieldInformationID, ObjectDisplayName: '' };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -300,7 +300,7 @@ export class CropYieldInformationComponent implements OnInit {
       data.node.setData(cropYieldInfoDto);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -340,7 +340,9 @@ export class CropYieldInformationComponent implements OnInit {
     this.addCropYieldInformationRequest = this.workbookService.addCropYieldInformation(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -359,11 +361,11 @@ export class CropYieldInformationComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.CropYieldInformationID.toString();
+  getRowId(params)  {
+    return params.data.CropYieldInformationID.toString();
   }
   public exportToCsv() {
-    let columnsKeys = this.cropYieldInformationGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropYieldInformationGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

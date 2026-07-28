@@ -204,7 +204,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agLargeTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
         sortable: true,
         filter: true,
@@ -216,7 +216,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
         headerName: 'Occurrences', 
         field: 'Occurrences',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -225,13 +225,13 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true
       },
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionLaborActivityByCropID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -264,7 +264,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
       data.node.setData(transplantProductionLaborByCrop);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -314,7 +314,9 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
     this.addTransplantProductionLaborByCropRequest = this.workbookService.addTransplantProductionLaborByCrop(this.model).subscribe(response => {
       this.transplantProductionLaborByCropDtos.push(...response);
       var transactionRows = this.gridApi.applyTransaction({add: response });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       if(response.length > 0){
         this.alertService.pushAlert(new Alert(`Successfully added ${response.length} Transplant Production Labor(s) for Crop '${response[0].TransplantProductionInformation.Crop.CropName}'.`, AlertContext.Success));
@@ -337,7 +339,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.tpLaborByCropGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.tpLaborByCropGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 
