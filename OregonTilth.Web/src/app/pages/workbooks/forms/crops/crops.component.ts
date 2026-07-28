@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -17,13 +17,19 @@ import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/butto
 import { CropCreateDto } from 'src/app/shared/models/forms/crops/crop-create-dto';
 import { CropDto } from 'src/app/shared/models/generated/crop-dto';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'crops',
-  templateUrl: './crops.component.html',
-  styleUrls: ['./crops.component.scss']
+    selector: 'crops',
+    templateUrl: './crops.component.html',
+    styleUrls: ['./crops.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgbTooltip, AgGridModule]
 })
 export class CropsComponent implements OnInit {
   @ViewChild('cropsGrid') cropsGrid: AgGridAngular;
@@ -73,7 +79,7 @@ export class CropsComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getCropsRequest = this.workbookService.getCrops(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getCropsRequest]).subscribe(([workbook, crops]: [WorkbookDto, CropDto[]]) => {
+    forkJoin<[WorkbookDto, CropDto[]]>([this.getWorkbookRequest, this.getCropsRequest]).subscribe(([workbook, crops]: [WorkbookDto, CropDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Crops'}]);
 
@@ -92,7 +98,7 @@ export class CropsComponent implements OnInit {
         field: 'CropName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -100,7 +106,7 @@ export class CropsComponent implements OnInit {
       {
         headerName: 'Delete', field: 'CropID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.CropID, ObjectDisplayName: params.data.CropName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Crop?`)) {
@@ -130,7 +136,7 @@ export class CropsComponent implements OnInit {
       data.node.setData(crop);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -169,7 +175,9 @@ export class CropsComponent implements OnInit {
     this.addCropRequest = this.workbookService.addCrop(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -188,7 +196,7 @@ export class CropsComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.cropsGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropsGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

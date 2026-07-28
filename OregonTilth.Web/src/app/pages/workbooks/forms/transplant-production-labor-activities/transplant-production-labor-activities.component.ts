@@ -18,14 +18,21 @@ import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/butto
 import { TransplantProductionLaborActivityCreateDto } from 'src/app/shared/models/forms/transplant-production-labor-activities/transplant-production-labor-activity-create-dto';
 import { TransplantProductionLaborActivityDto } from 'src/app/shared/models/generated/transplant-production-labor-activity-dto';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'transplant-production-labor-activities',
-  templateUrl: './transplant-production-labor-activities.component.html',
-  styleUrls: ['./transplant-production-labor-activities.component.scss']
+    selector: 'transplant-production-labor-activities',
+    templateUrl: './transplant-production-labor-activities.component.html',
+    styleUrls: ['./transplant-production-labor-activities.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgbTooltip, AgGridModule]
 })
 export class TransplantProductionLaborActivitiesComponent implements OnInit {
   @ViewChild('transplantProductionLaborActivitiesGrid') transplantProductionLaborActivitiesGrid: AgGridAngular;
@@ -76,7 +83,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getTransplantProductionLaborActivitiesRequest = this.workbookService.getTransplantProductionLaborActivities(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getTransplantProductionLaborActivitiesRequest]).subscribe(([workbook, fieldLaborActivities]: [WorkbookDto, TransplantProductionLaborActivityDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionLaborActivityDto[]]>([this.getWorkbookRequest, this.getTransplantProductionLaborActivitiesRequest]).subscribe(([workbook, fieldLaborActivities]: [WorkbookDto, TransplantProductionLaborActivityDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Transplant Production Labor Activities'}]);
 
@@ -94,7 +101,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
         field: 'TransplantProductionLaborActivityName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -102,7 +109,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
       {
         headerName: 'Delete', field: 'TransplantProductionLaborActivityID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionLaborActivityID, ObjectDisplayName: params.data.TransplantProductionLaborActivityName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} TP Labor Activity?`)) {
@@ -132,7 +139,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
       data.node.setData(fieldLaborActivity);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -172,7 +179,9 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
     this.addTransplantProductionLaborActivityRequest = this.workbookService.addTransplantProductionLaborActivity(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -191,7 +200,7 @@ export class TransplantProductionLaborActivitiesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.transplantProductionLaborActivitiesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.transplantProductionLaborActivitiesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

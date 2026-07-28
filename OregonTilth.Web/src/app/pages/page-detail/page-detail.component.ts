@@ -8,11 +8,15 @@ import { PageMinimalDto } from 'src/app/shared/models/generated/page-minimal-dto
 import { PageTreeDto } from 'src/app/shared/models/page/page-tree-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { PageService } from 'src/app/shared/services/page-service';
+import { NgIf } from '@angular/common';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
 
 @Component({
-  selector: 'oregontilth-page-detail',
-  templateUrl: './page-detail.component.html',
-  styleUrls: ['./page-detail.component.scss']
+    selector: 'oregontilth-page-detail',
+    templateUrl: './page-detail.component.html',
+    styleUrls: ['./page-detail.component.scss'],
+    standalone: true,
+    imports: [NgIf, AlertDisplayComponent]
 })
 export class PageDetailComponent implements OnInit, OnDestroy {
 

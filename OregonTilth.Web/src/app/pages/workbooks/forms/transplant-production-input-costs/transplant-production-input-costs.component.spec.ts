@@ -8,8 +8,8 @@ describe('TransplantProductionInputCostsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ TransplantProductionInputCostsComponent ]
-    })
+    imports: [TransplantProductionInputCostsComponent]
+})
     .compileComponents();
   }));
 

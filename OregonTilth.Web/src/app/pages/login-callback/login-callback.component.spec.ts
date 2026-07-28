@@ -8,8 +8,8 @@ describe('LoginCallbackComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ LoginCallbackComponent ]
-    })
+    imports: [LoginCallbackComponent]
+})
     .compileComponents();
   }));
 

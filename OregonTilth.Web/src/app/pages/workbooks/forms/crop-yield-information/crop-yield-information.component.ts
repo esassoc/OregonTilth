@@ -6,7 +6,7 @@ import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
 import { AlertService } from 'src/app/shared/services/alert.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LookupTablesService } from 'src/app/services/lookup-tables/lookup-tables.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/button-renderer/button-renderer.component';
@@ -17,15 +17,22 @@ import { CropUnitDto } from 'src/app/shared/models/generated/crop-unit-dto';
 import { CropYieldInformationSummaryDto } from 'src/app/shared/models/forms/crop-yield-information/crop-yield-information-summary-dto';
 import { CropYieldInformationCreateDto } from 'src/app/shared/models/forms/crop-yield-information/crop-yield-information-create-dto';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { AvailableCropYieldInformationDto } from 'src/app/shared/models/forms/crop-yield-information/available-crop-yield-information-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'crop-yield-information',
-  templateUrl: './crop-yield-information.component.html',
-  styleUrls: ['./crop-yield-information.component.scss']
+    selector: 'crop-yield-information',
+    templateUrl: './crop-yield-information.component.html',
+    styleUrls: ['./crop-yield-information.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, RouterLink, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class CropYieldInformationComponent implements OnInit {
   @ViewChild('cropYieldInformationGrid') cropYieldInformationGrid: AgGridAngular;
@@ -92,7 +99,7 @@ export class CropYieldInformationComponent implements OnInit {
     this.getCropYieldInformationDtosRequest = this.workbookService.getCropYieldInformation(this.workbookID);
     this.availableCropCropUnitCombinationsRequest = this.workbookService.getAvailableCropUnitCombinationsForCropYieldInformation(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getCropsRequest, this.getCropUnitsRequest, this.getCropYieldInformationDtosRequest, this.availableCropCropUnitCombinationsRequest]).subscribe(([workbook, cropDtos, cropUnitDtos, cropYieldInfoDtos, availableCropCropUnitCombinations]: [WorkbookDto, CropDto[], CropUnitDto[], CropYieldInformationSummaryDto[], AvailableCropYieldInformationDto[]]) => {
+    forkJoin<[WorkbookDto, CropDto[], CropUnitDto[], CropYieldInformationSummaryDto[], AvailableCropYieldInformationDto[]]>([this.getWorkbookRequest, this.getCropsRequest, this.getCropUnitsRequest, this.getCropYieldInformationDtosRequest, this.availableCropCropUnitCombinationsRequest]).subscribe(([workbook, cropDtos, cropUnitDtos, cropYieldInfoDtos, availableCropCropUnitCombinations]: [WorkbookDto, CropDto[], CropUnitDto[], CropYieldInformationSummaryDto[], AvailableCropYieldInformationDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Crop Yield and Price Information'}]);
       this.crops = cropDtos;
@@ -141,7 +148,7 @@ export class CropYieldInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.crops.map(x => x.CropName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         //editable:true,
         sortable: true, 
         filter: true,
@@ -167,7 +174,7 @@ export class CropYieldInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.cropUnits.map(x => x.CropUnitName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         // editable:true,
         sortable: true, 
         filter: true,
@@ -182,7 +189,7 @@ export class CropYieldInformationComponent implements OnInit {
           return params.data.PricePerCropUnit
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -191,7 +198,7 @@ export class CropYieldInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true,
       },
@@ -202,7 +209,7 @@ export class CropYieldInformationComponent implements OnInit {
           return params.data.HarvestedYieldPerStandardUnitOfSpace
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -211,7 +218,7 @@ export class CropYieldInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true,
       },
@@ -222,7 +229,7 @@ export class CropYieldInformationComponent implements OnInit {
           return params.data.MarketableYieldPerStandardUnitOfSpace
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -231,7 +238,7 @@ export class CropYieldInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true,
       },
@@ -244,7 +251,7 @@ export class CropYieldInformationComponent implements OnInit {
           return params.data.PackagingCostPerCropUnit
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -253,14 +260,14 @@ export class CropYieldInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true,
       },
       {
         headerName: 'Delete', field: 'CropYieldInformationID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.CropYieldInformationID, ObjectDisplayName: '' };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -293,7 +300,7 @@ export class CropYieldInformationComponent implements OnInit {
       data.node.setData(cropYieldInfoDto);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -333,7 +340,9 @@ export class CropYieldInformationComponent implements OnInit {
     this.addCropYieldInformationRequest = this.workbookService.addCropYieldInformation(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -352,11 +361,11 @@ export class CropYieldInformationComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.CropYieldInformationID.toString();
+  getRowId(params)  {
+    return params.data.CropYieldInformationID.toString();
   }
   public exportToCsv() {
-    let columnsKeys = this.cropYieldInformationGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropYieldInformationGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

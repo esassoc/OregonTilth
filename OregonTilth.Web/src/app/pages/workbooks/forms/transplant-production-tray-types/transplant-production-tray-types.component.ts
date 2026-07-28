@@ -16,14 +16,21 @@ import { TransplantProductionInputCreateDto } from 'src/app/shared/models/forms/
 import { TransplantProductionTrayTypeCreateDto } from 'src/app/shared/models/forms/transplant-production-tray-types/transplant-production-tray-type-create-dto';
 import { TransplantProductionTrayTypeDto } from 'src/app/shared/models/generated/transplant-production-tray-type-dto';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'transplant-production-tray-types',
-  templateUrl: './transplant-production-tray-types.component.html',
-  styleUrls: ['./transplant-production-tray-types.component.scss']
+    selector: 'transplant-production-tray-types',
+    templateUrl: './transplant-production-tray-types.component.html',
+    styleUrls: ['./transplant-production-tray-types.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgbTooltip, AgGridModule]
 })
 export class TransplantProductionTrayTypesComponent implements OnInit {
   @ViewChild('transplantProductionTrayTypesGrid') transplantProductionTrayTypesGrid: AgGridAngular;
@@ -74,7 +81,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getTransplantProductionTrayTypesRequest = this.workbookService.getTransplantProductionTrayTypes(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getTransplantProductionTrayTypesRequest]).subscribe(([workbook, tpTrayTypes]: [WorkbookDto, TransplantProductionTrayTypeDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionTrayTypeDto[]]>([this.getWorkbookRequest, this.getTransplantProductionTrayTypesRequest]).subscribe(([workbook, tpTrayTypes]: [WorkbookDto, TransplantProductionTrayTypeDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Transplant Production Tray Types'}]);
 
@@ -92,7 +99,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
         field: 'TransplantProductionTrayTypeName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -100,7 +107,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
       {
         headerName: 'Delete', field: 'TransplantProductionTrayTypeID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionTrayTypeID, ObjectDisplayName: params.data.TransplantProductionTrayTypeName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Transplant Production Tray Type?`)) {
@@ -130,7 +137,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
       data.node.setData(tpTrayTypeDto);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -170,7 +177,9 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
     this.addTransplantProductionTrayTypeRequest = this.workbookService.addTransplantProductionTrayType(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       
       this.resetForm();
       this.cdr.detectChanges();
@@ -190,7 +199,7 @@ export class TransplantProductionTrayTypesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.transplantProductionTrayTypesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.transplantProductionTrayTypesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

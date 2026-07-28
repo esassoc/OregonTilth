@@ -5,21 +5,27 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
 import { ColDef } from 'ag-grid-community';
 import { LinkRendererComponent } from 'src/app/shared/components/ag-grid/link-renderer/link-renderer.component';
 import { FontAwesomeIconLinkRendererComponent } from 'src/app/shared/components/ag-grid/fontawesome-icon-link-renderer/fontawesome-icon-link-renderer.component';
-import { DecimalPipe } from '@angular/common';
-import { AgGridAngular } from 'ag-grid-angular';
+import { DecimalPipe, NgIf } from '@angular/common';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserCreateDto } from 'src/app/shared/models/user/user-create-dto';
 import { RoleEnum } from 'src/app/shared/models/enums/role.enum';
 import { DatePipe } from '@angular/common';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { SystemInfoService } from 'src/app/services/user/system-info.service';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
+import { RouterLink } from '@angular/router';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
 
 declare var $:any;
 
 @Component({
-  selector: 'fresca-user-list',
-  templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.scss']
+    selector: 'fresca-user-list',
+    templateUrl: './user-list.component.html',
+    styleUrls: ['./user-list.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, NgIf, AgGridModule, RouterLink, NgbTooltip, FormsModule]
 })
 export class UserListComponent implements OnInit, OnDestroy {
 
@@ -66,7 +72,7 @@ export class UserListComponent implements OnInit, OnDestroy {
         {
           headerName: 'Name', valueGetter: function (params: any) {
             return { LinkValue: params.data.UserID, LinkDisplay: params.data.FullName };
-          }, cellRendererFramework: LinkRendererComponent,
+          }, cellRenderer: LinkRendererComponent,
           cellRendererParams: { inRouterLink: "/users/" },
           filterValueGetter: function (params: any) {
             return params.data.FullName;
@@ -140,7 +146,7 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   public exportToCsv() {
     // we need to grab all columns except the first one (trash icon)
-    let columnsKeys = this.usersGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.usersGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

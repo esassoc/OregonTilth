@@ -1,4 +1,4 @@
-﻿using IdentityServer4.AccessTokenValidation;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +22,7 @@ using System.Net.Http;
 using OregonTilth.API.Services.Logging;
 using OregonTilth.API.Services.SitkaSmtpClientService;
 using ILogger = Serilog.ILogger;
-using SendGrid.Extensions.DependencyInjection;
+using SendGrid;
 
 namespace OregonTilth.API
 {
@@ -75,12 +75,12 @@ namespace OregonTilth.API
             var frescaConfiguration = services.BuildServiceProvider().GetService<IOptions<FrescaConfiguration>>().Value;
 
             var keystoneHost = frescaConfiguration.KEYSTONE_HOST;
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme).AddIdentityServerAuthentication(options =>
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 if (_environment.IsDevelopment())
                 {
                     // NOTE: CG 3/22 - This allows the self-signed cert on Keystone to work locally.
-                    options.JwtBackChannelHandler = new HttpClientHandler()
+                    options.BackchannelHttpHandler = new HttpClientHandler()
                     {
                         ServerCertificateCustomValidationCallback = (message, certificate2, arg3, arg4) => true
                     };
@@ -88,9 +88,16 @@ namespace OregonTilth.API
 
                 options.Authority = keystoneHost;
                 options.RequireHttpsMetadata = false;
-                options.LegacyAudienceValidation = true;
-                options.EnableCaching = false;
-                options.SupportedTokens = SupportedTokens.Jwt;
+
+                // Keystone issues JWTs with no API-specific audience, so audience validation is off.
+                // Issuer, lifetime and signature are still validated against Keystone's discovery document.
+                options.TokenValidationParameters.ValidateAudience = false;
+
+                // Keep the short JWT claim types instead of mapping them to the WS-Fed URIs, so that
+                // lookups like Claims.Single(c => c.Type == "sub") in UserContext continue to resolve.
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters.NameClaimType = "name";
+                options.TokenValidationParameters.RoleClaimType = "role";
             });
 
             services.AddDbContext<OregonTilthDbContext>(c =>
@@ -105,7 +112,11 @@ namespace OregonTilth.API
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddTransient(s => new KeystoneService(s.GetService<IHttpContextAccessor>(), keystoneHost));
-            services.AddSendGrid(options => { options.ApiKey = frescaConfiguration.SendGridApiKey; });
+            // Factory overload (rather than a pre-built instance) so the client is not constructed
+            // until it is first resolved. SendGridClient's ctor throws on a null key, and unlike
+            // Beacon this project ships no SendGridApiKey default in appsettings.json, so building
+            // it eagerly here would stop keyless environments from starting at all.
+            services.AddSingleton<ISendGridClient>(_ => new SendGridClient(frescaConfiguration.SendGridApiKey));
             services.AddSingleton<SitkaSmtpClientService>();
 
             services.AddHealthChecks().AddDbContextCheck<OregonTilthDbContext>();

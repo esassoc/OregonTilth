@@ -3,7 +3,8 @@ import { EditorComponent } from '@tinymce/tinymce-angular';
 import TinyMCEHelpers from '../helpers/tiny-mce-helpers';
 
 @Pipe({
-  name: 'tinyMceConfig'
+    name: 'tinyMceConfig',
+    standalone: true
 })
 /**
  * Pipe to transform the TinyMCE editor configuration. 

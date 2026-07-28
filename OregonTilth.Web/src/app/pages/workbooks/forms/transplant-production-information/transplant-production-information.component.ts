@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf, NgFor } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -25,13 +25,19 @@ import { IntegerEditor } from 'src/app/shared/components/ag-grid/integer-editor/
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { PhaseEnum } from 'src/app/shared/models/enums/phase.enum';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'transplant-production-information',
-  templateUrl: './transplant-production-information.component.html',
-  styleUrls: ['./transplant-production-information.component.scss']
+    selector: 'transplant-production-information',
+    templateUrl: './transplant-production-information.component.html',
+    styleUrls: ['./transplant-production-information.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class TransplantProductionInformationComponent implements OnInit {
   @ViewChild('tpInfoGrid') tpInfoGrid: AgGridAngular;
@@ -99,7 +105,7 @@ export class TransplantProductionInformationComponent implements OnInit {
     this.getTrayTypesRequest = this.workbookService.getTransplantProductionTrayTypes(this.workbookID);
 
 
-    forkJoin([this.getWorkbookRequest, this.getTpInfoDtosRequest, this.getCropsRequest, this.getPhasesRequest, this.getTrayTypesRequest]).subscribe(([workbook, tpInfoDtos, cropDtos, phaseDtos, trayTypeDtos]: [WorkbookDto, TransplantProductionInformationDto[], CropDto[], PhaseDto[], TransplantProductionTrayTypeDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionInformationDto[], CropDto[], PhaseDto[], TransplantProductionTrayTypeDto[]]>([this.getWorkbookRequest, this.getTpInfoDtosRequest, this.getCropsRequest, this.getPhasesRequest, this.getTrayTypesRequest]).subscribe(([workbook, tpInfoDtos, cropDtos, phaseDtos, trayTypeDtos]: [WorkbookDto, TransplantProductionInformationDto[], CropDto[], PhaseDto[], TransplantProductionTrayTypeDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Transplant Production Information'}]);
       this.transplantProductionInformationDtos = tpInfoDtos;
@@ -151,7 +157,7 @@ export class TransplantProductionInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.cropDtos.map(x => x.CropName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true,
@@ -174,7 +180,7 @@ export class TransplantProductionInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.phaseDtos.map(x => x.PhaseDisplayName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true,
@@ -198,7 +204,7 @@ export class TransplantProductionInformationComponent implements OnInit {
         // cellEditorParams: {
         //   values: this.tpTrayTypeDtos.map(x => x.TransplantProductionTrayTypeName)
         // },
-        // cellRendererFramework: EditableRendererComponent,
+        // cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true,
@@ -208,7 +214,7 @@ export class TransplantProductionInformationComponent implements OnInit {
         headerName: 'Cells/Plugs per Tray', 
         field: 'SeedsPerTray',
         editable: true,
-        cellEditorFramework: IntegerEditor,
+        cellEditor: IntegerEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -217,20 +223,20 @@ export class TransplantProductionInformationComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true
       },
       {
         headerName: 'Percentage Plantable', 
         field: 'UsageRate',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         valueFormatter: params => {
           return params.value + '%';
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true
       },
       {
@@ -242,7 +248,7 @@ export class TransplantProductionInformationComponent implements OnInit {
           }
           return true;
         },
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         valueFormatter: params => {
@@ -261,7 +267,7 @@ export class TransplantProductionInformationComponent implements OnInit {
           }
           return {backgroundColor: '#ccf5cc'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
         width:175
       },
@@ -269,20 +275,20 @@ export class TransplantProductionInformationComponent implements OnInit {
         headerName: 'Crop Specific Input Costs per Tray', 
         field: 'CropSpecificInputCostsPerTray',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         valueFormatter: params => {
           return params.value ? '$' + params.value : '$0';
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:250,
         resizable: true
       },
       {
         headerName: 'Delete', field: 'TransplantProductionInformationID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionInformationID, ObjectDisplayName: params.data.TransplantProductionInformationID };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -313,7 +319,7 @@ export class TransplantProductionInformationComponent implements OnInit {
       data.node.setData(tpInfoDto);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
       this.alertService.pushAlert(new Alert("Successfully updated Transplant Production Information.", AlertContext.Success));
@@ -378,7 +384,7 @@ export class TransplantProductionInformationComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.tpInfoGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.tpInfoGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

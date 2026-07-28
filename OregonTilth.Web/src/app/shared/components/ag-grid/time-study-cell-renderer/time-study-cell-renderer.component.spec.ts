@@ -8,8 +8,8 @@ describe('TimeStudyCellRendererComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ TimeStudyCellRendererComponent ]
-    })
+    imports: [TimeStudyCellRendererComponent]
+})
     .compileComponents();
   }));
 

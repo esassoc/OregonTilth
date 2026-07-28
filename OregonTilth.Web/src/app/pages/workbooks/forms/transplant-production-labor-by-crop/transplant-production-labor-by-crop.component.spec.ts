@@ -8,8 +8,8 @@ describe('TransplantProductionLaborByCropComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ TransplantProductionLaborByCropComponent ]
-    })
+    imports: [TransplantProductionLaborByCropComponent]
+})
     .compileComponents();
   }));
 

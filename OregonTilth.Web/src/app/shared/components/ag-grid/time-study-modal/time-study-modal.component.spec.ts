@@ -8,8 +8,8 @@ describe('TimeStudyModal', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ TimeStudyModal ]
-    })
+    imports: [TimeStudyModal]
+})
     .compileComponents();
   }));
 

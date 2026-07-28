@@ -487,6 +487,8 @@ stages:
                                       global.secrets.sendGridApiKey="$(kv-sendGridApiKey)"
                                       kyctg-api.image.repository=$(kv-containerRegistry)/oregontilth/api
                                       kyctg-api.image.tag=$(Build.BuildNumber)-$(environment)
+                                      kyctg-api.ingress.hosts[0]=$(domainApi)
                                       kyctg-web.image.repository=$(kv-containerRegistry)/oregontilth/web
                                       kyctg-web.image.tag=$(Build.BuildNumber)-$(environment)
+                                      kyctg-web.ingress.hosts[0]=$(domainWeb)
                                   force: false

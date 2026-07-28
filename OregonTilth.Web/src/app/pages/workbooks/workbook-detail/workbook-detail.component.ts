@@ -4,7 +4,7 @@ import { CustomRichTextType } from "src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { UtilityFunctionsService } from "src/app/services/utility-functions.service";
 import { UserService } from "src/app/services/user/user.service";
-import { DatePipe, DecimalPipe } from "@angular/common";
+import { DatePipe, DecimalPipe, NgIf } from "@angular/common";
 import { WorkbookService } from "src/app/services/workbook/workbook.service";
 import { WorkbookDto } from "src/app/shared/models/generated/workbook-dto";
 import { ColDef } from "ag-grid-community";
@@ -17,11 +17,21 @@ import { AlertContext } from "src/app/shared/models/enums/alert-context.enum";
 import { Subject, Subscription } from "rxjs";
 import { BreadcrumbsService } from "src/app/shared/services/breadcrumbs.service";
 import { WorkbookCreatedService } from "src/app/shared/services/workbook-created.service";
+import { AlertDisplayComponent } from "../../../shared/components/alert-display/alert-display.component";
+import { FormsModule } from "@angular/forms";
+import { CustomRichTextComponent } from "../../../shared/components/custom-rich-text/custom-rich-text.component";
 
 @Component({
     selector: "workbook-detail",
     templateUrl: "./workbook-detail.component.html",
     styleUrls: ["./workbook-detail.component.scss"],
+    standalone: true,
+    imports: [
+        AlertDisplayComponent,
+        NgIf,
+        FormsModule,
+        CustomRichTextComponent,
+    ],
 })
 export class WorkbookDetailComponent implements OnInit {
     private workbookChanged: Subject<WorkbookDto> = new Subject<WorkbookDto>();

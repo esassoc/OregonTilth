@@ -19,7 +19,7 @@
     <div class="row mb-2">
         <div class="col">
             <div class="table-responsive">
-                <ag-grid-angular #usersGrid style="width: 100%; height: 400px;" class="ag-theme-balham" [rowData]="workbooks"
+                <ag-grid-angular theme="legacy" #usersGrid style="width: 100%; height: 400px;" class="ag-theme-balham" [rowData]="workbooks"
                     [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" [suppressDragLeaveHidesColumns]="true">
                 </ag-grid-angular>
             </div>

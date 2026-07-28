@@ -22,20 +22,25 @@ import { FieldStandardTimeCreateDto } from 'src/app/shared/models/forms/field-st
 import { LaborTypeEnum } from 'src/app/shared/models/enums/labor-type.enum';
 import { TimeStudyCellRendererComponent } from 'src/app/shared/components/ag-grid/time-study-cell-renderer/time-study-cell-renderer.component';
 import { TimeStudyDto } from 'src/app/shared/models/generated/time-study-dto';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef, NgbAlert, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators,FormsModule, ReactiveFormsModule  } from '@angular/forms';
 import { TimeStudyModal } from 'src/app/shared/components/ag-grid/time-study-modal/time-study-modal.component';
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { FieldUnitTypeEnum } from 'src/app/shared/generated/enum/field-unit-type-enum';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
 
 @Component({
-  selector: 'field-standard-times',
-  templateUrl: './field-standard-times.component.html',
-  styleUrls: ['./field-standard-times.component.scss']
+    selector: 'field-standard-times',
+    templateUrl: './field-standard-times.component.html',
+    styleUrls: ['./field-standard-times.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgbAlert, NgIf, NgFor, FormsModule, NgbTooltip, AgGridModule]
 })
 export class FieldStandardTimesComponent implements OnInit {
 
@@ -105,8 +110,8 @@ export class FieldStandardTimesComponent implements OnInit {
       this.screenWidth = width;
   }
 
-  getRowNodeId(data)  {
-    return data.FieldStandardTimeID.toString();
+  getRowId(params)  {
+    return params.data.FieldStandardTimeID.toString();
   }
   
   ngOnInit() {
@@ -131,7 +136,7 @@ export class FieldStandardTimesComponent implements OnInit {
     this.getMachineryRequest = this.workbookService.getMachinery(this.workbookID);
     this.getFieldUnitsRequest = this.lookupTablesService.getFieldUnitTypes();
 
-    forkJoin(
+    forkJoin<[WorkbookDto, FieldLaborActivityDto[], FieldStandardTimeSummaryDto[], vFieldLaborActivityForTimeStudyDto[], LaborTypeDto[], MachineryDto[], FieldUnitTypeDto[]]>(
       [
         this.getWorkbookRequest,
         this.getFieldLaborActivitiesRequest,
@@ -253,7 +258,7 @@ export class FieldStandardTimesComponent implements OnInit {
         valueGetter: params => {
           return params.data.Machinery ? params.data.Machinery.MachineryName : 'N/A';
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: this.machinery.map(x => x.MachineryName)
@@ -276,7 +281,7 @@ export class FieldStandardTimesComponent implements OnInit {
         valueGetter: params => {
           return params.data.FieldUnitType.FieldUnitTypeDisplayName;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: this.fieldUnits.map(x => x.FieldUnitTypeDisplayName)
@@ -313,8 +318,8 @@ export class FieldStandardTimesComponent implements OnInit {
           return number ? number.toFixed(4) : null
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
-        cellRendererFramework: EditableRendererComponent,
+        cellEditor: DecimalEditor,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -332,7 +337,7 @@ export class FieldStandardTimesComponent implements OnInit {
           var downloadDisplay = TimeStudyCellRendererComponent.downloadDisplay(params.data)
           return { FieldStandardTime: params.data, count: params.data.TimeStudies.length, DownloadDisplay: downloadDisplay };
         }, 
-        cellRendererFramework: TimeStudyCellRendererComponent,
+        cellRenderer: TimeStudyCellRendererComponent,
         cellRendererParams: { 
           clicked: function(data: any) {
             componentScope.launchModal(TimeStudyModal, 'Field Time Studies', data.FieldStandardTime);
@@ -346,7 +351,7 @@ export class FieldStandardTimesComponent implements OnInit {
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete Record', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldStandardTimeID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -402,7 +407,9 @@ export class FieldStandardTimesComponent implements OnInit {
 
     this.initializeTimeStudyRequest = this.workbookService.initializeFieldTimeStudy(createDto).subscribe(fieldStandardTimeDto => {
         var transactionRows = this.gridApi.applyTransaction({add: [fieldStandardTimeDto]});
-        this.gridApi.flashCells({ rowNodes: transactionRows.add });
+        this.gridApi.flashCells({
+          rowNodes: transactionRows.add
+        });
         var createDtoIndexToRemove = this.createDtos.findIndex(x => {
           return x.LaborTypeID == createDto.LaborTypeID && x.FieldLaborActivityID == createDto.FieldLaborActivityID;
         });
@@ -422,7 +429,7 @@ export class FieldStandardTimesComponent implements OnInit {
       data.node.setData(fieldStandardTime);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -463,7 +470,7 @@ export class FieldStandardTimesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.fieldStandardTimesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldStandardTimesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

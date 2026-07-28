@@ -8,8 +8,8 @@ describe('TransplantProductionInputsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ TransplantProductionInputsComponent ]
-    })
+    imports: [TransplantProductionInputsComponent]
+})
     .compileComponents();
   }));
 

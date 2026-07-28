@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ColDef } from 'ag-grid-community';
 import { Subscription } from 'rxjs';
 import { AuthenticationService } from 'src/app/services/authentication.service';
@@ -12,11 +12,16 @@ import { RoleDto } from 'src/app/shared/models/generated/role-dto';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { AlertService } from 'src/app/shared/services/alert.service';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../shared/components/alert-display/alert-display.component';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'oregontilth-duplicate',
-  templateUrl: './duplicate.component.html',
-  styleUrls: ['./duplicate.component.scss']
+    selector: 'oregontilth-duplicate',
+    templateUrl: './duplicate.component.html',
+    styleUrls: ['./duplicate.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, NgIf, FormsModule, RouterLink]
 })
 export class DuplicateComponent implements OnInit {
 

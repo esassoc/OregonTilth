@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf, NgFor } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -29,18 +29,24 @@ import { CropSpecificInfoSummaryDto } from 'src/app/shared/models/forms/crop-spe
 import { IntegerEditor } from 'src/app/shared/components/ag-grid/integer-editor/integer-editor.component';
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { FieldLaborActivityDto } from 'src/app/shared/models/generated/field-labor-activity-dto';
 import { FieldStandardTimeDto } from 'src/app/shared/models/generated/field-standard-time-dto';
 import { FieldLaborByCropDto } from 'src/app/shared/models/generated/field-labor-by-crop-dto';
 import { FieldUnitTypeEnum } from 'src/app/shared/models/enums/field-unit-type.enum';
 import { FieldInputByCropDto } from 'src/app/shared/models/generated/field-input-by-crop-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'crop-specific-info',
-  templateUrl: './crop-specific-info.component.html',
-  styleUrls: ['./crop-specific-info.component.scss']
+    selector: 'crop-specific-info',
+    templateUrl: './crop-specific-info.component.html',
+    styleUrls: ['./crop-specific-info.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class CropSpecificInfoComponent implements OnInit {
   @ViewChild('cropSpecificInfoGrid') cropSpecificInfoGrid: AgGridAngular;
@@ -112,7 +118,7 @@ export class CropSpecificInfoComponent implements OnInit {
     this.getCropSpecificInfosRequest = this.workbookService.getCropSpecificInfos(this.workbookID);
     this.getCropsRequest = this.workbookService.getCrops(this.workbookID);
 
-    forkJoin([
+    forkJoin<[WorkbookDto, TpOrDsTypeDto[], CropSpecificInfoSummaryDto[], CropDto[], FieldLaborByCropDto[], FieldInputByCropDto[]]>([
         this.getWorkbookRequest, 
         this.getTpOrDsTypesRequest, 
         this.getCropSpecificInfosRequest, 
@@ -156,7 +162,9 @@ export class CropSpecificInfoComponent implements OnInit {
       this.isLoadingSubmit = false;
       this.cropSpecificInfos.push(response);
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -193,7 +201,9 @@ export class CropSpecificInfoComponent implements OnInit {
     this.initializeCropSpecificInfoRequest = this.workbookService.initializeCropSpecificInfo(createDto).subscribe(cropSpecificInfoDto => {
       this.cropSpecificInfos.push(cropSpecificInfoDto)
         var transactionRows = this.gridApi.applyTransaction({add: [cropSpecificInfoDto]});
-        this.gridApi.flashCells({ rowNodes: transactionRows.add });
+        this.gridApi.flashCells({
+          rowNodes: transactionRows.add
+        });
         var createDtoIndexToRemove = this.createDtos.findIndex(x => {
           return x.CropID == createDto.CropID;// only one crop specific info for each crop
         });
@@ -246,7 +256,7 @@ export class CropSpecificInfoComponent implements OnInit {
           return params.data.RowsPerStandardWidth
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -259,7 +269,7 @@ export class CropSpecificInfoComponent implements OnInit {
           params.data.RowsPerStandardWidth = params.newValue ? params.newValue : 0;
           return true;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true
       },
@@ -270,8 +280,8 @@ export class CropSpecificInfoComponent implements OnInit {
           return params.data.DripTapeRowsPerStandardWidth
         },
         editable: true,
-        cellEditorFramework: IntegerEditor,
-        cellRendererFramework: EditableRendererComponent,
+        cellEditor: IntegerEditor,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -301,7 +311,7 @@ export class CropSpecificInfoComponent implements OnInit {
         editable: params => {
           return params.data.TpOrDsType.TpOrDsTypeID == TpOrDsTypeEnum.DirectSeeded;
         },
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         valueFormatter: this.gridService.currencyFormatter,
         sortable: true, 
         filter: true,
@@ -315,7 +325,7 @@ export class CropSpecificInfoComponent implements OnInit {
           } 
           return {backgroundColor: '#ddd'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150,
         resizable: true
       },
@@ -331,8 +341,8 @@ export class CropSpecificInfoComponent implements OnInit {
         editable: params => {
           return params.data.TpOrDsType.TpOrDsTypeID == TpOrDsTypeEnum.TransplantFarmProduced || params.data.TpOrDsType.TpOrDsTypeID == TpOrDsTypeEnum.TransplantOutsourced;
         },
-        cellEditorFramework: DecimalEditor,
-        cellRendererFramework: EditableRendererComponent,
+        cellEditor: DecimalEditor,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -360,8 +370,8 @@ export class CropSpecificInfoComponent implements OnInit {
         editable: params => {
           return params.data.TpOrDsType.TpOrDsTypeID == TpOrDsTypeEnum.TransplantOutsourced;
         },
-        cellEditorFramework: DecimalEditor,
-        cellRendererFramework: EditableRendererComponent,
+        cellEditor: DecimalEditor,
+        cellRenderer: EditableRendererComponent,
         valueFormatter: this.gridService.currencyFormatter,
         sortable: true, 
         filter: true,
@@ -383,7 +393,7 @@ export class CropSpecificInfoComponent implements OnInit {
       {
         headerName: 'Delete', field: 'CropSpecificInfoID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.CropSpecificInfoID, ObjectDisplayName: params.data.CropSpecificInfoName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Crop Planting Info?`)) {
@@ -421,7 +431,7 @@ export class CropSpecificInfoComponent implements OnInit {
       data.node.setData(cropSpecificInfo);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -436,8 +446,8 @@ export class CropSpecificInfoComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.CropSpecificInfoID.toString();
+  getRowId(params)  {
+    return params.data.CropSpecificInfoID.toString();
   }
 
   private routeSubscription : Subscription = Subscription.EMPTY;
@@ -473,7 +483,7 @@ export class CropSpecificInfoComponent implements OnInit {
     this.refreshCropsRequired();
   }
   public exportToCsv() {
-    let columnsKeys = this.cropSpecificInfoGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropSpecificInfoGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

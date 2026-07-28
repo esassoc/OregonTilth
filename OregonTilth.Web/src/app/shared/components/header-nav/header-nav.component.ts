@@ -7,11 +7,16 @@ import { AlertService } from '../../services/alert.service';
 import { Alert } from '../../models/alert';
 import { environment } from 'src/environments/environment';
 import { AlertContext } from '../../models/enums/alert-context.enum';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NgbCollapse, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem } from '@ng-bootstrap/ng-bootstrap';
+import { NgIf } from '@angular/common';
 
 @Component({
     selector: 'header-nav',
     templateUrl: './header-nav.component.html',
-    styleUrls: ['./header-nav.component.scss']
+    styleUrls: ['./header-nav.component.scss'],
+    standalone: true,
+    imports: [RouterLink, RouterLinkActive, NgbCollapse, NgIf, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem]
 })
 
 export class HeaderNavComponent implements OnInit, OnDestroy {
@@ -21,7 +26,9 @@ export class HeaderNavComponent implements OnInit, OnDestroy {
     private getUnassignedUserReportRequest: any;
     windowWidth: number;
 
-    @HostListener('window:resize', ['$event'])
+    // Angular 21 type-checks @HostListener args against the handler signature; resize()
+    // takes no parameters and reads window.innerWidth directly, so '$event' is dropped.
+    @HostListener('window:resize')
     resize() {
         this.windowWidth = window.innerWidth;
     }

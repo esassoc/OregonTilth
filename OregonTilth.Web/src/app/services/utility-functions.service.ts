@@ -37,7 +37,7 @@ export class UtilityFunctionsService {
             return value;
           }
           
-          if (params.column.getColDef().cellRendererFramework && params.value && (params.value.DownloadDisplay || params.value.LinkDisplay)) {
+          if (params.column.getColDef().cellRenderer && params.value && (params.value.DownloadDisplay || params.value.LinkDisplay)) {
             if (params.value.DownloadDisplay) {
               return params.value.DownloadDisplay;
             } else {

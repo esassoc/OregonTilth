@@ -19,15 +19,23 @@ import { FieldInputCostDto } from 'src/app/shared/models/generated/field-input-c
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { CropSpecificInfoSummaryDto } from 'src/app/shared/models/forms/crop-specific-info/crop-specific-info-summary-dto';
 import { FieldUnitTypeEnum } from 'src/app/shared/models/enums/field-unit-type.enum';
 import { TpOrDsTypeEnum } from 'src/app/shared/models/enums/tp-or-ds-type.enum';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 @Component({
-  selector: 'field-input-labor-by-crop',
-  templateUrl: './field-input-by-crop.component.html',
-  styleUrls: ['./field-input-by-crop.component.scss']
+    selector: 'field-input-labor-by-crop',
+    templateUrl: './field-input-by-crop.component.html',
+    styleUrls: ['./field-input-by-crop.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgMultiSelectDropDownModule, NgbTooltip, AgGridModule]
 })
 export class FieldInputByCropComponent implements OnInit {
   @ViewChild('fieldInputByCropGrid') fieldInputByCropGrid: AgGridAngular;
@@ -91,7 +99,7 @@ export class FieldInputByCropComponent implements OnInit {
 
     this.getFieldInputByCropsRequest = this.workbookService.getFieldInputByCrops(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getCropDtosRequest, this.getFieldInputCostDtosRequest, this.getFieldInputByCropsRequest, this.workbookService.getCropSpecificInfos(this.workbookID)])
+    forkJoin<[WorkbookDto, CropDto[], FieldInputCostDto[], FieldInputByCropDto[], CropSpecificInfoSummaryDto[]]>([this.getWorkbookRequest, this.getCropDtosRequest, this.getFieldInputCostDtosRequest, this.getFieldInputByCropsRequest, this.workbookService.getCropSpecificInfos(this.workbookID)])
     .subscribe(([workbookDto, cropDtos, fieldInputCostDtos, fieldInputByCrops, cropSpecificInfos]
       : [WorkbookDto, CropDto[], FieldInputCostDto[], FieldInputByCropDto[],CropSpecificInfoSummaryDto[]]) => {
       this.workbook = workbookDto;
@@ -136,7 +144,7 @@ export class FieldInputByCropComponent implements OnInit {
         cellEditorParams: {
           values: this.cropDtos.map(x => x.CropName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -158,7 +166,7 @@ export class FieldInputByCropComponent implements OnInit {
         cellEditorParams: {
           values: this.fieldInputCostDtos.map(x => x.FieldInputCostName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -168,7 +176,7 @@ export class FieldInputByCropComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agLargeTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
         cellEditorParams: {
           maxLength: 2000,
@@ -178,7 +186,7 @@ export class FieldInputByCropComponent implements OnInit {
         headerName: 'Occurrences', 
         field: 'Occurrences',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -187,13 +195,13 @@ export class FieldInputByCropComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true
       },
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldInputByCropID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -224,7 +232,7 @@ export class FieldInputByCropComponent implements OnInit {
       data.node.setData(fieldInputByCrop);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -273,7 +281,9 @@ export class FieldInputByCropComponent implements OnInit {
     this.isLoadingSubmit = true;
     this.addFieldInputByCropRequest = this.workbookService.addFieldInputByCrop(this.model).subscribe(response => {
       var transactionRows = this.gridApi.applyTransaction({add: response });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       if(response.length > 0){
         var successMessage = `Successfully added ${response.length} Field Input By Crop(s) for Crop '${response[0].Crop.CropName}'.`;
@@ -302,7 +312,7 @@ export class FieldInputByCropComponent implements OnInit {
     this.model = new FieldInputByCropCreateDto({WorkbookID: this.workbookID});
   }
   public exportToCsv() {
-    let columnsKeys = this.fieldInputByCropGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldInputByCropGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

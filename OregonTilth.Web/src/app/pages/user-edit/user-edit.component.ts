@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { UserService } from 'src/app/services/user/user.service';
-import { FormArray, FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormArray, FormControl, FormGroup, Validators, FormsModule } from "@angular/forms";
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { RoleService } from 'src/app/services/role/role.service';
 import { UserDetailedDto } from 'src/app/shared/models';
 import { RoleDto } from 'src/app/shared/models/generated/role-dto';
@@ -12,13 +12,23 @@ import { Alert } from 'src/app/shared/models/alert';
 import { AlertContext } from 'src/app/shared/models/enums/alert-context.enum';
 import { UserUpdateDto } from 'src/app/shared/models/user/user-update-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { NgIf, NgFor } from '@angular/common';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
 
 
 @Component({
-  selector: 'fresca-user-edit',
-  templateUrl: './user-edit.component.html',
-  styleUrls: ['./user-edit.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'fresca-user-edit',
+    templateUrl: './user-edit.component.html',
+    styleUrls: ['./user-edit.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgIf,
+        AlertDisplayComponent,
+        FormsModule,
+        NgFor,
+        RouterLink,
+    ],
 })
 export class UserEditComponent implements OnInit, OnDestroy {
   private watchUserChangeSubscription: any;

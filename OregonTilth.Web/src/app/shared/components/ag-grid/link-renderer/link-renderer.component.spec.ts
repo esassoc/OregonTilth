@@ -8,8 +8,8 @@ describe('LandOwnerRendererComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ LinkRendererComponent ]
-    })
+    imports: [LinkRendererComponent]
+})
     .compileComponents();
   }));
 

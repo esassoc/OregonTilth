@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf, NgFor } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -23,14 +23,20 @@ import { forkJoin, Subscription } from 'rxjs';
 import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/button-renderer/button-renderer.component';
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { FieldUnitTypeEnum } from 'src/app/shared/generated/enum/field-unit-type-enum';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgbAlert, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'field-input-costs',
-  templateUrl: './field-input-costs.component.html',
-  styleUrls: ['./field-input-costs.component.scss']
+    selector: 'field-input-costs',
+    templateUrl: './field-input-costs.component.html',
+    styleUrls: ['./field-input-costs.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgbAlert, NgIf, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class FieldInputCostsComponent implements OnInit {
   @ViewChild('fieldInputCostGrid') fieldInputCostGrid: AgGridAngular;
@@ -87,7 +93,7 @@ export class FieldInputCostsComponent implements OnInit {
     this.getFieldUnitTypesRequest = this.lookupTablesService.getFieldUnitTypes();
     this.getFieldInputCostsRequest = this.workbookService.getFieldInputCosts(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getFieldUnitTypesRequest, this.getFieldInputCostsRequest]).subscribe(([workbook, fieldUnitTypes, fieldInputCosts]: [WorkbookDto, FieldUnitTypeDto[], FieldInputCostDto[]]) => {
+    forkJoin<[WorkbookDto, FieldUnitTypeDto[], FieldInputCostDto[]]>([this.getWorkbookRequest, this.getFieldUnitTypesRequest, this.getFieldInputCostsRequest]).subscribe(([workbook, fieldUnitTypes, fieldInputCosts]: [WorkbookDto, FieldUnitTypeDto[], FieldInputCostDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Field Input Costs'}]);
       this.fieldUnitTypes = fieldUnitTypes.filter(x => x.Enabled);
@@ -107,7 +113,7 @@ export class FieldInputCostsComponent implements OnInit {
         field: 'FieldInputCostName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -129,7 +135,7 @@ export class FieldInputCostsComponent implements OnInit {
         valueGetter: params => {
           return params.data.FieldUnitType ? params.data.FieldUnitType.FieldUnitTypeDisplayName : '';
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -138,8 +144,8 @@ export class FieldInputCostsComponent implements OnInit {
         headerName: 'Cost Per Field Unit', 
         field: 'CostPerFieldUnit',
         editable: true,
-        cellEditorFramework: DecimalEditor,
-        cellRendererFramework: EditableRendererComponent,
+        cellEditor: DecimalEditor,
+        cellRenderer: EditableRendererComponent,
         valueFormatter: this.gridService.currencyFormatter,
         resizable: true
       },
@@ -148,14 +154,14 @@ export class FieldInputCostsComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         filter: true,
         resizable: true
       },
       {
         headerName: 'Delete', field: 'FieldInputCostID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldInputCostID, ObjectDisplayName: params.data.FieldInputCostName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Field Input?`)) {
@@ -187,7 +193,7 @@ export class FieldInputCostsComponent implements OnInit {
       data.node.setData(fieldInputCost);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
     }, error => {
       this.refreshData();
@@ -229,7 +235,9 @@ export class FieldInputCostsComponent implements OnInit {
     this.addFieldInputCostRequest = this.workbookService.addFieldInputCost(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       
       this.resetForm();
       this.cdr.detectChanges();
@@ -248,12 +256,12 @@ export class FieldInputCostsComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.FieldInputCostID.toString();
+  getRowId(params)  {
+    return params.data.FieldInputCostID.toString();
   }
 
   public exportToCsv() {
-    let columnsKeys = this.fieldInputCostGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldInputCostGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

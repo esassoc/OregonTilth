@@ -121,7 +121,7 @@ export class AuthenticationService {
 
   public getCurrentUser(): Observable<UserDto> {
     return race(
-      new Observable(subscriber => {
+      new Observable<UserDto>(subscriber => {
         if (this.currentUser) {
           subscriber.next(this.currentUser);
           subscriber.complete();
@@ -133,7 +133,7 @@ export class AuthenticationService {
 
   public getCurrentUserID(): Observable<number> {
     return race(
-      new Observable(subscriber => {
+      new Observable<number>(subscriber => {
         if (this.currentUser) {
           subscriber.next(this.currentUser.UserID);
           subscriber.complete();

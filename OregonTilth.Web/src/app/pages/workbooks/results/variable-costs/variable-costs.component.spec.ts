@@ -8,8 +8,8 @@ describe('VariableCostsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ VariableCostsComponent ]
-    })
+    imports: [VariableCostsComponent]
+})
     .compileComponents();
   }));
 

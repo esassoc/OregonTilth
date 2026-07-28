@@ -1,21 +1,25 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, DOCUMENT } from '@angular/core';
 import { OAuthService, OAuthSuccessEvent } from 'angular-oauth2-oidc';
 import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
 import { Subject, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { CookieStorageService } from './shared/services/cookies/cookie-storage.service';
-import { Router, RouteConfigLoadStart, RouteConfigLoadEnd, NavigationEnd } from '@angular/router';
+import { Router, RouteConfigLoadStart, RouteConfigLoadEnd, NavigationEnd, RouterOutlet } from '@angular/router';
 import { BusyService } from './shared/services';
 import { AuthenticationService } from './services/authentication.service';
 import { Title } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
+import { HeaderNavComponent } from './shared/components/header-nav/header-nav.component';
+import { BreadcrumbsComponent } from './shared/components/breadcrumbs/breadcrumbs.component';
+import { SideNavComponent } from './shared/components/side-nav/side-nav.component';
 
 declare var require: any
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss']
+    styleUrls: ['./app.component.scss'],
+    standalone: true,
+    imports: [HeaderNavComponent, BreadcrumbsComponent, SideNavComponent, RouterOutlet]
 })
 export class AppComponent {
 

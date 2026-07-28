@@ -51,8 +51,8 @@
         <div class="row mt-2">
           <div class="col">
             
-            <ag-grid-angular #fieldStandardTimesGrid style="width: 100%; height: 800px;" class="ag-theme-balham" [rowData]="fieldStandardTimes"
-              [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" (cellValueChanged)="onCellValueChanged($event)" (gridReady)="onGridReady($event)" [getRowNodeId]="getRowNodeId" [suppressDragLeaveHidesColumns]="true">
+            <ag-grid-angular theme="legacy" #fieldStandardTimesGrid style="width: 100%; height: 800px;" class="ag-theme-balham" [rowData]="fieldStandardTimes"
+              [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" (cellValueChanged)="onCellValueChanged($event)" (gridReady)="onGridReady($event)" [getRowId]="getRowId" [suppressDragLeaveHidesColumns]="true">
             </ag-grid-angular>
           </div>
         </div>

@@ -8,8 +8,8 @@ describe('PageListComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ PageListComponent ]
-    })
+    imports: [PageListComponent]
+})
     .compileComponents();
   }));
 

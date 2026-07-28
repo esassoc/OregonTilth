@@ -4,11 +4,16 @@ import { UserService } from 'src/app/services/user/user.service';
 import { AuthenticationService } from 'src/app/services/authentication.service'
 import { UserDetailedDto } from 'src/app/shared/models';
 import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text-type.enum';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf } from '@angular/common';
 
 @Component({
-  selector: 'fresca-disclaimer',
-  templateUrl: './disclaimer.component.html',
-  styleUrls: ['./disclaimer.component.scss']
+    selector: 'fresca-disclaimer',
+    templateUrl: './disclaimer.component.html',
+    styleUrls: ['./disclaimer.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf]
 })
 export class DisclaimerComponent implements OnInit {
 

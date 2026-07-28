@@ -8,8 +8,8 @@ describe('SubscriptionInsufficientComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ SubscriptionInsufficientComponent ]
-    })
+    imports: [SubscriptionInsufficientComponent]
+})
     .compileComponents();
   }));
 

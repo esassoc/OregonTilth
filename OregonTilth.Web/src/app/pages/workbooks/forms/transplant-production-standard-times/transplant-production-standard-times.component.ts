@@ -12,7 +12,7 @@ import { AlertContext } from 'src/app/shared/models/enums/alert-context.enum';
 import { forkJoin, Subscription } from 'rxjs';
 import { LookupTablesService } from 'src/app/services/lookup-tables/lookup-tables.service';
 import { TimeStudyCellRendererComponent } from 'src/app/shared/components/ag-grid/time-study-cell-renderer/time-study-cell-renderer.component';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TimeStudyModal } from 'src/app/shared/components/ag-grid/time-study-modal/time-study-modal.component';
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { TransplantProductionLaborActivityDto } from 'src/app/shared/models/generated/transplant-production-labor-activity-dto';
@@ -20,15 +20,21 @@ import { TransplantProductionTrayTypeDto } from 'src/app/shared/models/generated
 import { TransplantProductionStandardTimeCreateDto } from 'src/app/shared/models/forms/transplant-production-standard-times/transplant-production-standard-time-create-dto';
 import { TransplantProductionStandardTimeSummaryDto } from 'src/app/shared/models/forms/transplant-production-standard-times/transplant-production-standard-time-summary-dto';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/button-renderer/button-renderer.component';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'transplant-production-standard-times',
-  templateUrl: './transplant-production-standard-times.component.html',
-  styleUrls: ['./transplant-production-standard-times.component.scss']
+    selector: 'transplant-production-standard-times',
+    templateUrl: './transplant-production-standard-times.component.html',
+    styleUrls: ['./transplant-production-standard-times.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class TransplantProductionStandardTimesComponent implements OnInit {
 
@@ -76,8 +82,8 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
   public updateStandardTimeRequest: any;
   private deleteStandardTimeRequest: any;
   
-  getRowNodeId(data)  {
-    return data.TransplantProductionStandardTimeID.toString();
+  getRowId(params)  {
+    return params.data.TransplantProductionStandardTimeID.toString();
   }
   
   ngOnInit() {
@@ -98,7 +104,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
     this.getTransplantProductionLaborActivitiesRequest = this.workbookService.getTransplantProductionLaborActivities(this.workbookID);
     this.getTransplantProductionTrayTypesRequest = this.workbookService.getTransplantProductionTrayTypes(this.workbookID);
 
-    forkJoin(
+    forkJoin<[WorkbookDto, TransplantProductionStandardTimeSummaryDto[], TransplantProductionLaborActivityDto[], TransplantProductionTrayTypeDto[]]>(
       [
         this.getWorkbookRequest,
         this.getTransplantProductionStandardTimesRequest,
@@ -137,7 +143,9 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
 
     this.initializeStandardTimeRequest = this.workbookService.initializeTransplantProductionTimeStudy(this.model).subscribe(response => {
       var transactionRows = this.gridApi.applyTransaction({add: [response] });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       
       this.resetForm();
@@ -177,7 +185,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.transplantProductionLaborActivities.map(x => x.TransplantProductionLaborActivityName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:true,
         sortable: true, 
         filter: true,
@@ -203,7 +211,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.trayTypes.map(x => x.TransplantProductionTrayTypeName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:true,
         sortable: true, 
         filter: true,
@@ -237,7 +245,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
           return number ? number.toFixed(4) : null
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -246,7 +254,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150
       },
       {
@@ -256,7 +264,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
           var downloadDisplay = TimeStudyCellRendererComponent.downloadDisplay(params.data)
           return { TransplantProductionStandardTime: params.data, count: params.data.TimeStudies.length, DownloadDisplay: downloadDisplay };
         }, 
-        cellRendererFramework: TimeStudyCellRendererComponent,
+        cellRenderer: TimeStudyCellRendererComponent,
         cellRendererParams: { 
           clicked: function(data: any) {
             componentScope.launchModal(TimeStudyModal, 'Transplant Production Time Studies', data.TransplantProductionStandardTime);
@@ -270,7 +278,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionStandardTimeID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -321,7 +329,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
       data.node.setData(standardTime);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -364,7 +372,7 @@ export class TransplantProductionStandardTimesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.tpStandardTimesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.tpStandardTimesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 
