@@ -1,31 +1,38 @@
-<div *ngIf="isLoading" class="text-center">
-    <span class="fa fa-spinner loading-spinner"></span>
-</div>
-
-<div *ngIf="!isLoading">
-    <ng-container *ngIf="!isEditing">
-        <div *ngIf="showEditButton()" class="customRichTextContent" style="position: relative; min-height: 30px;">
-            <div class="hoverEditButton">
-                <div style="margin-top: 10px">
-                    <button type="button" class="btn btn-fresca btn-sm" (click)="enterEdit()">
-                        Edit
-                    </button>
+@if (isBusy()) {
+    <div class="text-center">
+        <span class="fa fa-spinner loading-spinner"></span>
+    </div>
+} @else {
+    <div>
+        @if (isEditing()) {
+            <div>
+                <editor #tinyMceEditor
+                        [init]="editorConfig"
+                        [ngModel]="editedContent()"
+                        (ngModelChange)="editedContent.set($event)"
+                        ></editor>
+                <div style="float:right;" >
+                    <button type="button" class="btn btn-fresca mt-1 mr-1" (click)="saveEdit()">Save</button>
+                    <button type="button" class="btn btn-secondary mt-1" (click)="cancelEdit()">Cancel</button>
                 </div>
             </div>
-            <div *ngIf="!isEmptyContent" [innerHtml]="customRichTextContent"></div>
-
-            <div *ngIf="isEmptyContent" class="hoverEmptySpace"></div>
-        </div>
-        <div *ngIf="!showEditButton()" [innerHtml]="customRichTextContent"></div>
-    </ng-container>
-    <div *ngIf="isEditing">
-        <editor #tinyMceEditor
-                [init]="tinyMceEditor | tinyMceConfig"
-                [(ngModel)]="editedContent"
-                ></editor>
-        <div style="float:right;" >
-            <button type="button" class="btn btn-fresca mt-1 mr-1" (click)="saveEdit()">Save</button>
-            <button type="button" class="btn btn-secondary mt-1" (click)="cancelEdit()">Cancel</button>
-        </div>
+        } @else if (canEdit()) {
+            <div class="customRichTextContent" style="position: relative; min-height: 30px;">
+                <div class="hoverEditButton">
+                    <div style="margin-top: 10px">
+                        <button type="button" class="btn btn-fresca btn-sm" (click)="enterEdit()">
+                            Edit
+                        </button>
+                    </div>
+                </div>
+                @if (isEmptyContent()) {
+                    <div class="hoverEmptySpace"></div>
+                } @else {
+                    <div [innerHtml]="customRichTextContent()"></div>
+                }
+            </div>
+        } @else {
+            <div [innerHtml]="customRichTextContent()"></div>
+        }
     </div>
-</div>
+}
