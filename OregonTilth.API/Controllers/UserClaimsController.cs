@@ -38,7 +38,7 @@ namespace OregonTilth.API.Controllers
                 return BadRequest("The access token carried no claims.");
             }
 
-            var globalID = claimsPrincipal.Claims.SingleOrDefault(c => c.Type == ClaimsConstants.Sub)?.Value;
+            var globalID = ClaimsConstants.FindFirstValue(claimsPrincipal, ClaimsConstants.Sub);
             var existingUser = EFModels.Entities.User.GetByUserGlobalID(_dbContext, globalID);
 
             var userDto = EFModels.Entities.User.UpdateClaims(_dbContext, existingUser?.UserID, claimsPrincipal, out var isNewUser);

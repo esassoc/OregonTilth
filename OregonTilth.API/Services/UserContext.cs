@@ -34,7 +34,7 @@ namespace OregonTilth.API.Services
             }
 
             // The Auth0 'sub' is an opaque string ("auth0|68f...", "google-oauth2|..."), not a Guid.
-            var userGlobalID = claimsPrincipal.Claims.SingleOrDefault(c => c.Type == ClaimsConstants.Sub)?.Value;
+            var userGlobalID = ClaimsConstants.FindFirstValue(claimsPrincipal, ClaimsConstants.Sub);
             if (string.IsNullOrEmpty(userGlobalID))
             {
                 return null;

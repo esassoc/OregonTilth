@@ -167,10 +167,12 @@ namespace OregonTilth.EFModels.Entities
         {
             isNewUser = false;
 
-            var email = claims?.Claims.SingleOrDefault(c => c.Type == ClaimsConstants.Emails)?.Value;
-            var globalID = claims?.Claims.SingleOrDefault(c => c.Type == ClaimsConstants.Sub)?.Value;
-            var firstName = claims?.Claims.SingleOrDefault(c => c.Type == ClaimsConstants.GivenName)?.Value;
-            var lastName = claims?.Claims.SingleOrDefault(c => c.Type == ClaimsConstants.FamilyName)?.Value;
+            // Accepts either the namespaced Auth0 custom claim or the mapped standard claim; see
+            // ClaimsConstants.CustomClaimNamespace for why an access token may only carry the former.
+            var email = ClaimsConstants.FindFirstValue(claims, ClaimsConstants.NamespacedEmail, ClaimsConstants.Emails);
+            var globalID = ClaimsConstants.FindFirstValue(claims, ClaimsConstants.Sub);
+            var firstName = ClaimsConstants.FindFirstValue(claims, ClaimsConstants.NamespacedGivenName, ClaimsConstants.GivenName);
+            var lastName = ClaimsConstants.FindFirstValue(claims, ClaimsConstants.NamespacedFamilyName, ClaimsConstants.FamilyName);
 
             var user = userID.HasValue
                 ? dbContext.Users.SingleOrDefault(x => x.UserID == userID)

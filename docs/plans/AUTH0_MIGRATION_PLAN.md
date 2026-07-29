@@ -147,17 +147,26 @@ between Keystone GUIDs and Auth0 subs is required.
 This depends on Auth0 accounts being created with the same email addresses (bulk import or
 first-login self-signup) — see prerequisites.
 
-### D5 — Access-token claims (verify before implementing)
+### D5 — Access-token claims → **namespaced custom claims via a required Login Action**
 
 `Users.UpdateClaims` in noria reads `email`, `given_name` and `family_name` off the
-`ClaimsPrincipal` built from the **access token**. Auth0 access tokens do not carry those claims
-by default — only `sub`/`iss`/`aud`/`scope`/`azp`. noria's tenant therefore almost certainly has a
-Login Action enriching the access token.
+`ClaimsPrincipal` built from the **access token**. Auth0 access tokens do not carry those claims by
+default — only `sub`/`iss`/`aud`/`scope`/`azp` — and Auth0 *silently drops* custom claims that are
+not namespaced with a URI. noria's repo contains no Action code and its `TestAuthHandler` injects
+only `sub`, so nothing in the reference implementation confirms those claims ever arrive; noria may
+simply never exercise the insert path.
 
-**This needs confirming against the noria Auth0 tenant before we rely on it.** If there is no such
-Action, the options are: add one to the OregonTilth tenant (preferred, keeps the server-side
-upsert), or have the SPA send the id-token profile fields in the `POST /user-claims` body. Without
-one of the two, `UpdateClaims` can only stamp `GlobalID` and would blank names/email on insert.
+This matters more here than it does in noria, because D3's invite adoption depends on matching the
+signed email server-side. The tempting workaround — having the SPA post its id-token profile in the
+request body — is a **privilege-escalation hole**: a caller could submit someone else's email and
+adopt the row, and the role, an admin pre-provisioned for them. Email must stay signed.
+
+**Resolution.** A Login Action on the OregonTilth tenant adds the profile fields to the access token
+under the `https://kyctg.oregontilth.org/` namespace (the exact snippet is documented on
+`ClaimsConstants.CustomClaimNamespace`). `ClaimsConstants.FindFirstValue` accepts either the
+namespaced claim or the mapped standard claim, so the code works whether or not a given tenant
+enriches tokens, and `POST /user-claims` fails loudly with a diagnostic rather than inserting a
+half-populated row when no email claim is present at all.
 
 ---
 
@@ -169,7 +178,9 @@ one of the two, `UpdateClaims` can only stamp `GlobalID` and would blank names/e
    URLs, and web origins for local (`http://localhost.oregontilth.org:8887`), QA, and prod.
 2. API: register an API with an identifier (noria uses the literal `NoriaAPI`; propose `KYCTGAPI`)
    and RS256 signing. This identifier is the `audience` on both sides.
-3. Login Action to add `email`/`given_name`/`family_name` to the access token (per D5).
+3. **Required** Login Action adding `email`/`given_name`/`family_name` to the access token under the
+   `https://kyctg.oregontilth.org/` namespace (per D5). Without it, first-time sign-in and invite
+   adoption both fail with "the access token has no email claim".
 4. Decide user seeding: bulk-import existing Keystone users by email, or let them self-signup and
    re-link via the email fallback (D4).
 5. Capture `domain`, `clientId`, `audience` for the three environments.
@@ -265,7 +276,7 @@ one of the two, `UpdateClaims` can only stamp `GlobalID` and would blank names/e
 
 | Risk | Mitigation |
 | --- | --- |
-| Access token lacks profile claims (D5) | Verify the noria tenant's Login Action first; fall back to sending id-token claims in the `POST /user-claims` body |
+| Access token lacks profile claims (D5) | Login Action adding namespaced claims is a tenant prerequisite; the claim lookup accepts namespaced or standard, and `POST /user-claims` fails loudly rather than inserting a partial row |
 | Users whose Auth0 email differs from their `dbo.User` email won't auto-link | Reconcile the email list before cutover; admin can correct `GlobalID` after the fact |
 | Two Auth0 identities for one person (e.g. Google + password) produce two `sub`s for one email | Enable Auth0 account linking, or treat email as the identity of record |
 | `UserGuid` drop is destructive | Keep the column through one release before dropping it, so a rollback is possible |
