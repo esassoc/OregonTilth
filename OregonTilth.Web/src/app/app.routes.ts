@@ -7,7 +7,6 @@ import { HomeIndexComponent } from './pages/home/home-index/home-index.component
 import { UserDetailComponent } from './pages/user-detail/user-detail.component';
 import { UserInviteComponent } from './pages/user-invite/user-invite.component';
 import { UserEditComponent } from './pages/user-edit/user-edit.component';
-import { LoginCallbackComponent } from './pages/login-callback/login-callback.component';
 import { CreateUserCallbackComponent } from './pages/create-user-callback/create-user-callback.component';
 import { AboutComponent } from './pages/about/about.component';
 import { DisclaimerComponent } from './pages/disclaimer/disclaimer.component';
@@ -43,7 +42,6 @@ import { PageEditComponent } from './pages/page-edit/page-edit.component';
 import { PageDetailComponent } from './pages/page-detail/page-detail.component';
 import { CustomRichTextListComponent } from './pages/custom-rich-text-list/custom-rich-text-list.component';
 import { CustomRichTextEditComponent } from './pages/custom-rich-text-edit/custom-rich-text-edit.component';
-import { LogoutCallbackComponent } from './pages/logout-callback/logout-callback.component';
 
 export const routes: Routes = [
   { path: "labels-and-definitions/:id", component: FieldDefinitionEditComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard] },
@@ -87,8 +85,8 @@ export const routes: Routes = [
   { path: "workbooks/:workbookID/results/variable-costs", component: VariableCostsComponent},
   { path: "workbooks/:workbookID/duplicate", component: DuplicateComponent},
   { path: "workbooks/:workbookID", component: WorkbookDetailComponent},
-  { path: "login-callback", component: LoginCallbackComponent },
-  { path: "logout-callback", component: LogoutCallbackComponent },
+  // No /login-callback or /logout-callback: Auth0 returns to the app origin and
+  // @auth0/auth0-angular handles the callback wherever the user happens to land.
   { path: "create-user-callback", component: CreateUserCallbackComponent },
   { path: "not-found", component: NotFoundComponent },
   { path: 'subscription-insufficient', component: SubscriptionInsufficientComponent },

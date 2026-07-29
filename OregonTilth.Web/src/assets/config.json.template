@@ -3,28 +3,18 @@
     "staging": [TODO],
     "dev": [TODO],
     "apiHostName": [TODO],
-    "createAccountUrl": [TODO],
-    "createAccountRedirectUrl": [TODO],
-  
-    "keystoneSupportBaseUrl": [TODO],
+
     "geoserverMapServiceUrl": [TODO],
-    
+
     "platformLongName": [TODO],
     "platformShortName": [TODO],
-    "leadOrganizationLongName": [TODO], 
+    "leadOrganizationLongName": [TODO],
     "leadOrganizationHomeUrl": [TODO],
 
-  
-    "keystoneAuthConfiguration": {
-      "clientId": [TODO],
-      "issuer": [TODO],
-      "responseType": [TODO],
-      "disablePKCE": [TODO],
-      "redirectUriRelative": [TODO],
-      "scope": [TODO]",
-      "sessionChecksEnabled": [TODO],
-      "logoutUrl": [TODO]",
-      "postLogoutRedirectUri": [TODO],
-      "waitForTokenInMsec": [TODO]
+
+    "auth0": {
+      "domain": "TODO_AUTH0_DOMAIN",
+      "clientId": "TODO_AUTH0_CLIENT_ID",
+      "audience": "TODO_AUTH0_AUDIENCE"
     }
   }

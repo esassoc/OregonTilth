@@ -109,11 +109,8 @@ namespace Fresca.Web
             Staging = bool.Parse(configuration["Staging"]);
             Dev = bool.Parse(configuration["Dev"]);
             ApiHostName = configuration["ApiHostName"];
-            CreateAccountUrl = configuration["CreateAccountUrl"];
-            CreateAccountRedirectUrl = configuration["CreateAccountRedirectUrl"];
-            KeystoneSupportBaseUrl = configuration["KeystoneSupportBaseUrl"];
             GeoserverMapServiceUrl = configuration["GeoserverMapServiceUrl"];
-            KeystoneAuthConfiguration = new KeystoneAuthConfigurationDto(configuration);
+            Auth0Configuration = new Auth0ConfigurationDto(configuration);
             PlatformLongName = configuration["PlatformLongName"];
             PlatformShortName = configuration["PlatformShortName"];
             LeadOrganizationLongName = configuration["LeadOrganizationLongName"];
@@ -128,16 +125,10 @@ namespace Fresca.Web
         public bool Dev { get; set; }
         [JsonProperty("apiHostName")]
         public string ApiHostName { get; set; }
-        [JsonProperty("createAccountUrl")]
-        public string CreateAccountUrl { get; set; }
-        [JsonProperty("createAccountRedirectUrl")]
-        public string CreateAccountRedirectUrl { get; set; }
-        [JsonProperty("keystoneSupportBaseUrl")]
-        public string KeystoneSupportBaseUrl { get; set; }
         [JsonProperty("geoserverMapServiceUrl")]
         public string GeoserverMapServiceUrl { get; set; }
-        [JsonProperty("keystoneAuthConfiguration")]
-        public KeystoneAuthConfigurationDto KeystoneAuthConfiguration { get; set; }
+        [JsonProperty("auth0")]
+        public Auth0ConfigurationDto Auth0Configuration { get; set; }
         [JsonProperty("platformLongName")]
         public string PlatformLongName { get; set; }
         [JsonProperty("platformShortName")]
@@ -149,41 +140,23 @@ namespace Fresca.Web
         
     }
 
-    public class KeystoneAuthConfigurationDto
+    // Serialized as the "auth0" block of GET /assets/config.json and fed straight into the SPA's
+    // provideAuth0({...}) call. Everything else the Auth0 SDK needs (redirect_uri, scopes) is
+    // derived in main.ts, so only these three values are environment-specific.
+    public class Auth0ConfigurationDto
     {
-        public KeystoneAuthConfigurationDto(IConfiguration configuration)
+        public Auth0ConfigurationDto(IConfiguration configuration)
         {
-            ClientID = configuration["Keystone_ClientID"];
-            Issuer = configuration["Keystone_Issuer"];
-            RedirectUriRelative = configuration["Keystone_RedirectUriRelative"];
-            Scope = configuration["Keystone_Scope"];
-            SessionChecksEnabled = bool.Parse(configuration["Keystone_SessionCheckEnabled"]);
-            LogoutUrl = configuration["Keystone_LogoutUrl"];
-            PostLogoutRedirectUri = configuration["Keystone_PostLogoutRedirectUri"];
-            WaitForTokenInMsec = int.Parse(configuration["Keystone_WaitForTokenInMsec"]);
-            ResponseType = configuration["Keystone_ResponseType"];
-            DisablePKCE = bool.Parse(configuration["Keystone_DisablePKCE"]);
+            Domain = configuration["Auth0_Domain"];
+            ClientID = configuration["Auth0_ClientID"];
+            Audience = configuration["Auth0_Audience"];
         }
 
+        [JsonProperty("domain")]
+        public string Domain { get; set; }
         [JsonProperty("clientId")]
         public string ClientID { get; set; }
-        [JsonProperty("issuer")]
-        public string Issuer { get; set; }
-        [JsonProperty("redirectUriRelative")]
-        public string RedirectUriRelative { get; set; }
-        [JsonProperty("scope")]
-        public string Scope { get; set; }
-        [JsonProperty("sessionChecksEnabled")]
-        public bool SessionChecksEnabled { get; set; }
-        [JsonProperty("logoutUrl")]
-        public string LogoutUrl { get; set; }
-        [JsonProperty("postLogoutRedirectUri")]
-        public string PostLogoutRedirectUri { get; set; }
-        [JsonProperty("waitForTokenInMsec")]
-        public int WaitForTokenInMsec { get; set; }
-        [JsonProperty("responseType")]
-        public string ResponseType {get; set;}
-        [JsonProperty("disablePKCE")]
-        public bool DisablePKCE {get; set;}
+        [JsonProperty("audience")]
+        public string Audience { get; set; }
     }
 }

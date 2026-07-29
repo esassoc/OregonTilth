@@ -61,7 +61,7 @@ export class UserInviteComponent implements OnInit, OnDestroy {
                 forkJoin(
                     this.userService.getUserFromUserID(userID)
                 ).subscribe(([user]) => {
-                    if(user.UserGuid === null)
+                    if(user.GlobalID === null)
                     {
                         let userToInvite = user instanceof Array
                             ? null

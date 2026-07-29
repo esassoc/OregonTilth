@@ -1,5 +1,5 @@
 <div class="container-fluid mt-sm-4" *ngIf="user">
-    <div style="margin: 1rem 0 1rem 0;" *ngIf="user.UserGuid === null">
+    <div style="margin: 1rem 0 1rem 0;" *ngIf="user.GlobalID === null">
         <a class="float-end btn btn-fresca btn-sm mr-3" routerLink="/invite-user/{{user.UserID}}">Invite User</a>
     </div>  
     <h2 class="d-inline-block">

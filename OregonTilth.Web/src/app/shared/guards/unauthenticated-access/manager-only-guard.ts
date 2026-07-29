@@ -26,7 +26,8 @@ export class ManagerOnlyGuard  {
     return this.authenticationService.currentUserSetObservable
       .pipe(
         map(x => {
-          if (x.Role.RoleID == RoleEnum.Admin) {
+          // Auth0's user$ emits null when nobody is signed in, so the subject can carry null now.
+          if (x && x.Role && x.Role.RoleID == RoleEnum.Admin) {
             return true;
           } else {
             this.alertService.pushNotFoundUnauthorizedAlert();

@@ -166,8 +166,11 @@ namespace OregonTilth.API.Controllers
             SitkaSmtpClientService smtpClient)
         {
             var applicationName = _frescaConfiguration.PlatformLongName;
+            // /create-user-callback opens Auth0's sign-up screen directly, the same role the old
+            // KEYSTONE_REDIRECT_URL played.
+            var signUpUrl = $"{frescaUrl}/create-user-callback";
             var messageBody = $@"You are receiving this notification because an administrator of {applicationName} has invited you to create an account. <br/><br/>
-To get started, go to <a href='{frescaUrl}'>{applicationName}</a> and choose ""Create Account"". Be sure to sign up with this email address ({inviteDto.Email}) so your account is linked to the access you have been granted. <br/><br/>
+To get started, <a href='{signUpUrl}'>create your {applicationName} account</a>. Be sure to sign up with this email address ({inviteDto.Email}) so your account is linked to the access you have been granted. <br/><br/>
 {smtpClient.GetDefaultEmailSignature()}";
 
             var mailMessage = new MailMessage
