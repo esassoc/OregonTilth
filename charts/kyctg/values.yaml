@@ -9,6 +9,12 @@ global:
   domains:
     web: "kyctg.esa-qa.sitkatech.com"
     api: "kyctg-api.esa-qa.sitkatech.com"
+  # Shared by the api and web charts: the api validates tokens against authority+audience, the web
+  # app signs users in with domain+clientId and requests tokens for the same audience.
+  auth0:
+    domain: "TODO_AUTH0_DOMAIN"
+    clientId: "TODO_AUTH0_CLIENT_ID"
+    audience: "TODO_AUTH0_AUDIENCE"
   secrets:
     apiSqlPassword: "passwordhere"
     sendGridApiKey: "sendgridapikeyhere"

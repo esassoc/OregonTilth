@@ -8,10 +8,15 @@ namespace OregonTilth.EFModels.Entities;
 
 [Table("User")]
 [Index("Email", Name = "AK_User_Email", IsUnique = true)]
+[Index("GlobalID", Name = "AK_User_GlobalID", IsUnique = true)]
 public partial class User
 {
     [Key]
     public int UserID { get; set; }
+
+    [StringLength(255)]
+    [Unicode(false)]
+    public string GlobalID { get; set; }
 
     public Guid? UserGuid { get; set; }
 

@@ -19,9 +19,8 @@ namespace OregonTilth.API.Controllers;
 public class SystemInfoController(
     OregonTilthDbContext dbContext,
     ILogger<SystemInfoController> logger,
-    KeystoneService keystoneService,
     IOptions<FrescaConfiguration> frescaConfiguration)
-    : SitkaController<SystemInfoController>(dbContext, logger, keystoneService, frescaConfiguration)
+    : SitkaController<SystemInfoController>(dbContext, logger, frescaConfiguration)
 {
     [HttpGet("/", Name = "GetSystemInfo")]
     public ActionResult<SystemInfoDto> GetSystemInfo([FromServices] IWebHostEnvironment environment)
@@ -55,4 +54,4 @@ public class SystemInfoController(
     public class TestEmailDto {
         public string EmailAddress { get; set; }
     }
-}
+}

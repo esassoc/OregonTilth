@@ -10,7 +10,7 @@ namespace OregonTilth.API.Controllers
     [ApiController]
     public class RoleController : SitkaController<RoleController>
     {
-        public RoleController(OregonTilthDbContext dbContext, ILogger<RoleController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public RoleController(OregonTilthDbContext dbContext, ILogger<RoleController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 
@@ -22,4 +22,4 @@ namespace OregonTilth.API.Controllers
             return Ok(roleDtos);
         }
     }
-}
+}

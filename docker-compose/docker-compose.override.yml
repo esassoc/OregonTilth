@@ -4,11 +4,11 @@ services:
             - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
             - ASPNETCORE_HTTP_PORTS=8080
             - ASPNETCORE_HTTPS_PORTS=8081
-            - KEYSTONE_HOST=${KEYSTONE_HOST}
+            - Auth0__Authority=${Auth0__Authority}
+            - Auth0__Audience=${Auth0__Audience}
             - SITKA_EMAIL_REDIRECT=${SITKA_EMAIL_REDIRECT}
             - WEB_URL=${WEB_URL}
             - SECRET_PATH=${SECRET_PATH}
-            - KEYSTONE_REDIRECT_URL=${KEYSTONE_REDIRECT_URL}
             - PlatformLongName=${PlatformLongName}
             - LeadOrganizationLongName=${LeadOrganizationLongName}
             - LeadOrganizationHomeUrl=${LeadOrganizationHomeUrl}

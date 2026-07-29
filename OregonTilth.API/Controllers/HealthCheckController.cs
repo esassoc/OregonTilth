@@ -10,7 +10,7 @@ namespace OregonTilth.API.Controllers
 {
     public class HealthCheckController : SitkaController<HealthCheckController>
     {
-        public HealthCheckController(OregonTilthDbContext dbContext, ILogger<HealthCheckController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public HealthCheckController(OregonTilthDbContext dbContext, ILogger<HealthCheckController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 
@@ -35,4 +35,4 @@ namespace OregonTilth.API.Controllers
         }
 
     }
-}
+}

@@ -16,8 +16,8 @@ namespace OregonTilth.API.Controllers
     public class TimeStudyController : SitkaController<TimeStudyController>
     {
         public TimeStudyController(OregonTilthDbContext dbContext, ILogger<TimeStudyController> logger,
-            KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext,
-            logger, keystoneService, frescaConfiguration)
+            IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext,
+            logger, frescaConfiguration)
         {
         }
 
@@ -74,4 +74,4 @@ namespace OregonTilth.API.Controllers
         }
 
     }
-}
+}

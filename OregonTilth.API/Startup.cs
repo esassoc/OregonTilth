@@ -18,7 +18,6 @@ using Serilog;
 using System;
 using System.IO.Compression;
 using System.Linq;
-using System.Net.Http;
 using OregonTilth.API.Services.Logging;
 using OregonTilth.API.Services.SitkaSmtpClientService;
 using ILogger = Serilog.ILogger;
@@ -74,30 +73,13 @@ namespace OregonTilth.API
             // Consider alternatives such as dependency injecting services as parameters to 'Configure'.
             var frescaConfiguration = services.BuildServiceProvider().GetService<IOptions<FrescaConfiguration>>().Value;
 
-            var keystoneHost = frescaConfiguration.KEYSTONE_HOST;
+            // Auth0 issues tokens with a real API-specific audience, so unlike Keystone both the
+            // issuer and the audience are validated. Inbound claim mapping is left at its default
+            // (on), which is why UserContext reads the WS-Fed URIs from ClaimsConstants.
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
-                if (_environment.IsDevelopment())
-                {
-                    // NOTE: CG 3/22 - This allows the self-signed cert on Keystone to work locally.
-                    options.BackchannelHttpHandler = new HttpClientHandler()
-                    {
-                        ServerCertificateCustomValidationCallback = (message, certificate2, arg3, arg4) => true
-                    };
-                }
-
-                options.Authority = keystoneHost;
-                options.RequireHttpsMetadata = false;
-
-                // Keystone issues JWTs with no API-specific audience, so audience validation is off.
-                // Issuer, lifetime and signature are still validated against Keystone's discovery document.
-                options.TokenValidationParameters.ValidateAudience = false;
-
-                // Keep the short JWT claim types instead of mapping them to the WS-Fed URIs, so that
-                // lookups like Claims.Single(c => c.Type == "sub") in UserContext continue to resolve.
-                options.MapInboundClaims = false;
-                options.TokenValidationParameters.NameClaimType = "name";
-                options.TokenValidationParameters.RoleClaimType = "role";
+                options.Authority = frescaConfiguration.Auth0.Authority;
+                options.Audience = frescaConfiguration.Auth0.Audience;
             });
 
             services.AddDbContext<OregonTilthDbContext>(c =>
@@ -111,7 +93,6 @@ namespace OregonTilth.API
             services.AddSingleton(Configuration);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddTransient(s => new KeystoneService(s.GetService<IHttpContextAccessor>(), keystoneHost));
             // Factory overload (rather than a pre-built instance) so the client is not constructed
             // until it is first resolved. SendGridClient's ctor throws on a null key, and unlike
             // Beacon this project ships no SendGridApiKey default in appsettings.json, so building

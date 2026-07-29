@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net.Mail;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OregonTilth.API.Services;
+using OregonTilth.API.Services.SitkaSmtpClientService;
 using OregonTilth.EFModels.Entities;
 
 namespace OregonTilth.API.Controllers
@@ -10,14 +12,12 @@ namespace OregonTilth.API.Controllers
     {
         protected readonly OregonTilthDbContext _dbContext;
         protected readonly ILogger<T> _logger;
-        protected readonly KeystoneService _keystoneService;
         protected readonly FrescaConfiguration _frescaConfiguration;
 
-        protected SitkaController(OregonTilthDbContext dbContext, ILogger<T> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration)
+        protected SitkaController(OregonTilthDbContext dbContext, ILogger<T> logger, IOptions<FrescaConfiguration> frescaConfiguration)
         {
             _dbContext = dbContext;
             _logger = logger;
-            _keystoneService = keystoneService;
             _frescaConfiguration = frescaConfiguration.Value;
         }
 
@@ -41,5 +41,13 @@ namespace OregonTilth.API.Controllers
             actionResult = null;
             return false;
         }
+
+        protected void SendEmailMessage(SitkaSmtpClientService smtpClient, MailMessage mailMessage)
+        {
+            mailMessage.IsBodyHtml = true;
+            mailMessage.From = smtpClient.GetDefaultEmailFrom();
+            mailMessage.ReplyToList.Add(!string.IsNullOrWhiteSpace(_frescaConfiguration.LeadOrganizationEmail) ? _frescaConfiguration.LeadOrganizationEmail : "donotreply@sitkatech.com");
+            smtpClient.SendEmailMessage(mailMessage).Wait();
+        }
     }
-}
+}

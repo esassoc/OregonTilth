@@ -12,7 +12,7 @@ namespace OregonTilth.API.Controllers
     [ApiController]
     public class FieldDefinitionController : SitkaController<FieldDefinitionController>
     {
-        public FieldDefinitionController(OregonTilthDbContext dbContext, ILogger<FieldDefinitionController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public FieldDefinitionController(OregonTilthDbContext dbContext, ILogger<FieldDefinitionController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 
