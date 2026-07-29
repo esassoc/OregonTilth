@@ -147,26 +147,27 @@ between Keystone GUIDs and Auth0 subs is required.
 This depends on Auth0 accounts being created with the same email addresses (bulk import or
 first-login self-signup) — see prerequisites.
 
-### D5 — Access-token claims → **namespaced custom claims via a required Login Action**
+### D5 — Access-token claims → **satisfied by the tenant's existing post-login Action**
 
 `Users.UpdateClaims` in noria reads `email`, `given_name` and `family_name` off the
-`ClaimsPrincipal` built from the **access token**. Auth0 access tokens do not carry those claims by
-default — only `sub`/`iss`/`aud`/`scope`/`azp` — and Auth0 *silently drops* custom claims that are
-not namespaced with a URI. noria's repo contains no Action code and its `TestAuthHandler` injects
-only `sub`, so nothing in the reference implementation confirms those claims ever arrive; noria may
-simply never exercise the insert path.
+`ClaimsPrincipal` built from the **access token**, and an Auth0 access token carries only
+`sub`/`iss`/`aud`/`scope`/`azp` by default. noria's repo contains no Action code and its
+`TestAuthHandler` injects only `sub`, so the reference implementation does not show where those
+claims come from.
 
-This matters more here than it does in noria, because D3's invite adoption depends on matching the
-signed email server-side. The tempting workaround — having the SPA post its id-token profile in the
-request body — is a **privilege-escalation hole**: a caller could submit someone else's email and
-adopt the row, and the role, an admin pre-provisioned for them. Email must stay signed.
+The answer is a post-login Action on the tenant, which already exists and sets `email`, `name`,
+`given_name`, `family_name` and `nickname` on the access token. Those names are **not** namespaced,
+so ASP.NET Core's inbound claim mapping rewrites them to the WS-Fed URIs and the standard
+`ClaimsConstants` entries resolve them — which is also how noria works. No tenant change was needed.
 
-**Resolution.** A Login Action on the OregonTilth tenant adds the profile fields to the access token
-under the `https://kyctg.oregontilth.org/` namespace (the exact snippet is documented on
-`ClaimsConstants.CustomClaimNamespace`). `ClaimsConstants.FindFirstValue` accepts either the
-namespaced claim or the mapped standard claim, so the code works whether or not a given tenant
-enriches tokens, and `POST /user-claims` fails loudly with a diagnostic rather than inserting a
-half-populated row when no email claim is present at all.
+`ClaimsConstants.FindFirstValue` additionally accepts URI-namespaced equivalents, so the same code
+holds up if a tenant is ever configured that way instead. `POST /user-claims` fails loudly with a
+diagnostic rather than inserting a half-populated row if no email claim arrives at all.
+
+Note for future changes: the SPA must **not** send profile fields in the request body instead. D3's
+invite adoption matches on email to decide which pre-provisioned row — and therefore which
+admin-granted role — a caller receives, so a client-supplied email would be a privilege-escalation
+hole. Email stays signed.
 
 ---
 
@@ -174,16 +175,19 @@ half-populated row when no email claim is present at all.
 
 ### Phase 0 — Auth0 tenant setup (prerequisite, outside the repo)
 
-1. Tenant/application: SPA application (`Know Your Cost To Grow`) — allowed callback URLs, logout
-   URLs, and web origins for local (`http://localhost.oregontilth.org:8887`), QA, and prod.
-2. API: register an API with an identifier (noria uses the literal `NoriaAPI`; propose `KYCTGAPI`)
-   and RS256 signing. This identifier is the `audience` on both sides.
-3. **Required** Login Action adding `email`/`given_name`/`family_name` to the access token under the
-   `https://kyctg.oregontilth.org/` namespace (per D5). Without it, first-time sign-in and invite
-   adoption both fail with "the access token has no email claim".
+A single tenant, `knowyourcosttogrow.us.auth0.com`, serves every environment. Client ID
+`NMcg7B6cTWgARMnzK6GLSULHtXXtjOvh`, API identifier / audience `KnowYourCostToGrowAPI`. These are
+committed to `charts/kyctg/values.yaml` and the two `config.json.template` files; none are secrets.
+
+Remaining tenant-side items:
+
+1. Allowed Callback URLs, Allowed Logout URLs and Allowed Web Origins must list the bare origins —
+   `http://localhost.oregontilth.org:8887`, `https://kyctg.esa-qa.sitkatech.com`, and the prod web
+   domain. There is no `/login-callback` path any more; `redirect_uri` is `window.location.origin`.
+2. `offline_access` must be enabled on the registered API, since the SPA uses `useRefreshTokens`.
+3. The post-login Action supplying profile claims is already in place — see D5.
 4. Decide user seeding: bulk-import existing Keystone users by email, or let them self-signup and
    re-link via the email fallback (D4).
-5. Capture `domain`, `clientId`, `audience` for the three environments.
 
 ### Phase 1 — Database
 
@@ -276,7 +280,7 @@ half-populated row when no email claim is present at all.
 
 | Risk | Mitigation |
 | --- | --- |
-| Access token lacks profile claims (D5) | Login Action adding namespaced claims is a tenant prerequisite; the claim lookup accepts namespaced or standard, and `POST /user-claims` fails loudly rather than inserting a partial row |
+| Access token lacks profile claims (D5) | Resolved — the tenant's post-login Action already supplies them; the claim lookup accepts standard or namespaced, and `POST /user-claims` fails loudly rather than inserting a partial row |
 | Users whose Auth0 email differs from their `dbo.User` email won't auto-link | Reconcile the email list before cutover; admin can correct `GlobalID` after the fact |
 | Two Auth0 identities for one person (e.g. Google + password) produce two `sub`s for one email | Enable Auth0 account linking, or treat email as the identity of record |
 | `UserGuid` drop is destructive | Keep the column through one release before dropping it, so a rollback is possible |

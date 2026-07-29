@@ -17,23 +17,29 @@ namespace OregonTilth.Models.Helpers
         public static string GivenName = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
 
         /// <summary>
-        /// Auth0 puts only sub/iss/aud/scope/azp on an access token, and it silently drops custom
-        /// claims that are not namespaced with a URI. So the profile fields this app needs have to be
-        /// added by a Login Action under this namespace:
+        /// An Auth0 access token carries only sub/iss/aud/scope/azp by default, so the profile fields
+        /// this app needs come from a post-login Action on the tenant:
         /// <code>
         /// exports.onExecutePostLogin = async (event, api) => {
-        ///   const ns = 'https://kyctg.oregontilth.org/';
-        ///   api.accessToken.setCustomClaim(ns + 'email', event.user.email);
-        ///   api.accessToken.setCustomClaim(ns + 'given_name', event.user.given_name);
-        ///   api.accessToken.setCustomClaim(ns + 'family_name', event.user.family_name);
+        ///   if (event.authorization) {
+        ///     api.accessToken.setCustomClaim(`email`, event.user.email);
+        ///     api.accessToken.setCustomClaim(`given_name`, event.user.given_name);
+        ///     api.accessToken.setCustomClaim(`family_name`, event.user.family_name);
+        ///   }
         /// };
         /// </code>
-        /// Namespaced claims are not touched by inbound claim mapping, hence the separate constants.
-        /// Email in particular must come from the signed token and never from the request body: it is
-        /// what <c>User.UpdateClaims</c> matches on to adopt a pre-provisioned invite row, so a
+        /// Those names are not namespaced, so ASP.NET Core's inbound claim mapping rewrites them to
+        /// the WS-Fed URIs above and <see cref="Emails"/>/<see cref="GivenName"/>/
+        /// <see cref="FamilyName"/> resolve them. The Namespaced* constants below cover a tenant that
+        /// instead emits URI-prefixed custom claims, which mapping leaves alone; the lookups accept
+        /// either, so the same code works against both arrangements.
+        /// <para>
+        /// Email must always come from the signed token and never from the request body: it is what
+        /// <c>User.UpdateClaims</c> matches on to adopt a pre-provisioned invite row, so a
         /// client-supplied value would let a caller claim the role an admin granted someone else.
+        /// </para>
         /// </summary>
-        public const string CustomClaimNamespace = "https://kyctg.oregontilth.org/";
+        public const string CustomClaimNamespace = "https://knowyourcosttogrow.org/";
 
         public static string NamespacedEmail = CustomClaimNamespace + "email";
         public static string NamespacedGivenName = CustomClaimNamespace + "given_name";

@@ -11,10 +11,11 @@ global:
     api: "kyctg-api.esa-qa.sitkatech.com"
   # Shared by the api and web charts: the api validates tokens against authority+audience, the web
   # app signs users in with domain+clientId and requests tokens for the same audience.
+  # A single Auth0 tenant serves every environment, so these are not overridden per-env.
   auth0:
-    domain: "TODO_AUTH0_DOMAIN"
-    clientId: "TODO_AUTH0_CLIENT_ID"
-    audience: "TODO_AUTH0_AUDIENCE"
+    domain: "knowyourcosttogrow.us.auth0.com"
+    clientId: "NMcg7B6cTWgARMnzK6GLSULHtXXtjOvh"
+    audience: "KnowYourCostToGrowAPI"
   secrets:
     apiSqlPassword: "passwordhere"
     sendGridApiKey: "sendgridapikeyhere"
