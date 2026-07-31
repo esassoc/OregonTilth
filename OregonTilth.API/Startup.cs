@@ -120,8 +120,11 @@ namespace OregonTilth.API
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+                // Dev is excluded: Visual Studio injects ASPNETCORE_HTTPS_PORT with the *host*-published
+                // port, so in a container this would bounce plain-http callers to a different port than
+                // the one they dialed, which is confusing when several stacks share host ports.
+                app.UseHttpsRedirection();
             }
-            app.UseHttpsRedirection();
             app.UseResponseCompression();
             app.UseSerilogRequestLogging(opts =>
             {

@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,8 +43,6 @@ namespace Fresca.Web
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                var options = new RewriteOptions().AddRedirectToHttps(301, 9001);
-                app.UseRewriter(options);
             }
             
             app.Use(async (context, next) =>

@@ -182,7 +182,7 @@ committed to `charts/kyctg/values.yaml` and the two `config.json.template` files
 Remaining tenant-side items:
 
 1. Allowed Callback URLs, Allowed Logout URLs and Allowed Web Origins must list the bare origins —
-   `http://localhost.oregontilth.org:8887`, `https://kyctg.esa-qa.sitkatech.com`, and the prod web
+   `http://localhost:11852`, `https://kyctg.esa-qa.sitkatech.com`, and the prod web
    domain. There is no `/login-callback` path any more; `redirect_uri` is `window.location.origin`.
 2. `offline_access` must be enabled on the registered API, since the SPA uses `useRefreshTokens`.
 3. The post-login Action supplying profile claims is already in place — see D5.

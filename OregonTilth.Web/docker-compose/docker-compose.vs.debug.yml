@@ -5,5 +5,7 @@ services:
                 source: ${DOCKER_BUILD_SOURCE}
         image: oregontilth/web
         ports:
-            - "8887:80"
-            - "8886:443"
+            # Compass slot-0 offset +2 = web. This nginx/Kestrel container and `npm start`
+            # both claim 11852, so only one may run at a time. http only: the image EXPOSEs
+            # 80 and no cert is configured, so the old 443 mapping never served anything.
+            - "11852:80"
