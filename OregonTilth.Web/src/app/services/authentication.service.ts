@@ -36,9 +36,14 @@ export class AuthenticationService implements OnDestroy {
           this.claimsUser = user;
           this.postUser();
         } else {
+          // Internal state is cleared so isAuthenticated() is correct, but deliberately NOT
+          // pushed onto the subject. currentUserSetObservable only ever emitted a loaded user
+          // under Keystone - it stayed silent while signed out - and 43 components subscribe to
+          // it and immediately use the value. Emitting null here makes every one of them run
+          // their "user is ready" path with no user, which is how anonymous page loads ended up
+          // firing authenticated API calls.
           this.claimsUser = null;
           this.currentUser = null;
-          this._currentUserSetSubject.next(this.currentUser);
         }
       });
   }
