@@ -1,6 +1,4 @@
-using System;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
@@ -19,14 +17,10 @@ namespace Fresca.Web
                 .UseStartup<Startup>()
                 .UseKestrel(options =>
                 {
-                    var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"); // Same as env.IsDevelopment()
-
+                    // http only. Local dev is plain http on the host-published port (compass slot
+                    // offset +2 = 11852); the dev_cert.pfx that used to back a 443 listener here is
+                    // not in the repo, so this threw on startup in Development.
                     options.Listen(IPAddress.Any, 80);
-                    // 1/23 CG & MK - This is done so that Azure wont load the cert, it will only be used locally.
-                    if (env == Microsoft.Extensions.Hosting.Environments.Development)
-                    {
-                        options.Listen(IPAddress.Any, 443, configure => { configure.UseHttps(new X509Certificate2("dev_cert.pfx", "password#1")); });
-                    }
                 })
                 .Build();
             return host;

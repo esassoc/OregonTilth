@@ -4,8 +4,7 @@
   "scripts": {
     "ng": "ng",
     "prestart": "@powershell nvm install $(Get-Content .nvmrc) && @powershell nvm use $(Get-Content .nvmrc)",
-    "start": "ng serve --host 0.0.0.0 --disable-host-check true --port 8887",
-    "start-ssl": "ng serve --host 0.0.0.0 --disable-host-check true --port 8886 --ssl --ssl-cert dev_cert.pfx --ssl-key password#1",
+    "start": "ng serve --port 11852",
     "build": "ng build",
     "build-dev": "ng build",
     "build-qa": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng build --configuration=qa --configuration production",
