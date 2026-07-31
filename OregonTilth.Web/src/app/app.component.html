@@ -4,8 +4,12 @@
     <div class="container-fluid">
         
         <div class="row">
-            <side-nav class="col-lg-2"></side-nav>
-            <div class="col-lg-10">
+            @if (showSideNav()) {
+                <side-nav class="col-lg-2"></side-nav>
+            }
+            <!-- Full width when the nav is hidden, so a signed-out page does not sit next to an
+                 empty two-column gutter. -->
+            <div [class]="showSideNav() ? 'col-lg-10' : 'col-lg-12'">
                 <router-outlet></router-outlet>
             </div>
         </div>

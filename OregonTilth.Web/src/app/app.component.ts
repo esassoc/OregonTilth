@@ -1,4 +1,5 @@
-import { Component, Inject, DOCUMENT } from '@angular/core';
+import { Component, Inject, DOCUMENT, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '../environments/environment';
 import { Router, RouteConfigLoadStart, RouteConfigLoadEnd, NavigationEnd, RouterOutlet } from '@angular/router';
 import { BusyService } from './shared/services';
@@ -19,9 +20,19 @@ export class AppComponent {
 
     public currentYear: number = new Date().getFullYear();
 
-    // AuthenticationService is injected purely so it is constructed at bootstrap: its constructor
-    // is what subscribes to Auth0's user$ stream and kicks off the POST /user-claims upsert.
-    constructor(private router: Router, private busyService: BusyService, private authenticationService: AuthenticationService, private titleService: Title, @Inject(DOCUMENT) private _document: HTMLDocument) {
+    // Injected here so it is constructed at bootstrap: its constructor is what subscribes to
+    // Auth0's user$ stream and kicks off the POST /user-claims upsert.
+    private readonly authenticationService = inject(AuthenticationService);
+
+    // currentUserSetObservable stays silent while signed out, so this is undefined until the user
+    // has actually been loaded. Gating on it rather than on isAuthenticated() avoids briefly
+    // rendering an empty side nav in the window between Auth0 restoring the session and
+    // POST /user-claims returning - everything in the nav needs the user anyway.
+    private readonly currentUser = toSignal(this.authenticationService.currentUserSetObservable);
+
+    protected readonly showSideNav = computed(() => !!this.currentUser());
+
+    constructor(private router: Router, private busyService: BusyService, private titleService: Title, @Inject(DOCUMENT) private _document: HTMLDocument) {
     }
 
     ngOnInit() {
