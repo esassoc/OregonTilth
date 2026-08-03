@@ -30,12 +30,20 @@ CREATE TABLE [dbo].[User](
 (
 	[Email] ASC
 ),
- CONSTRAINT [AK_User_GlobalID] UNIQUE NONCLUSTERED
-(
-	[GlobalID] ASC
-),
 CONSTRAINT [FK_User_Role_RoleID] FOREIGN KEY([RoleID]) REFERENCES [dbo].[Role] ([RoleID])
 
 );
+
+GO
+
+-- A UNIQUE CONSTRAINT treats every NULL as the same value, so it allows only one row without a
+-- GlobalID; publishing one fails with "Cannot insert duplicate key ... The duplicate key value is
+-- (<NULL>)" because every pre-Auth0 user has NULL here, as do pre-provisioned invite rows. A
+-- filtered unique index still guarantees one row per Auth0 'sub' but ignores the NULLs. Keeps the
+-- AK_ name so it reads like the alternate key it stands in for.
+CREATE UNIQUE NONCLUSTERED INDEX [AK_User_GlobalID] ON [dbo].[User]
+(
+	[GlobalID] ASC
+) WHERE [GlobalID] IS NOT NULL;
 
 GO
