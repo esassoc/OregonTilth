@@ -8,13 +8,14 @@ import { Title } from '@angular/platform-browser';
 import { HeaderNavComponent } from './shared/components/header-nav/header-nav.component';
 import { BreadcrumbsComponent } from './shared/components/breadcrumbs/breadcrumbs.component';
 import { SideNavComponent } from './shared/components/side-nav/side-nav.component';
+import { MigrationNoticeComponent } from './shared/components/migration-notice/migration-notice.component';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
     standalone: true,
-    imports: [HeaderNavComponent, BreadcrumbsComponent, SideNavComponent, RouterOutlet]
+    imports: [HeaderNavComponent, BreadcrumbsComponent, SideNavComponent, RouterOutlet, MigrationNoticeComponent]
 })
 export class AppComponent {
 
