@@ -47,4 +47,4 @@ namespace OregonTilth.Models.DataTransferObjects
         public string Company { get; set; }
     }
 
-}
+}

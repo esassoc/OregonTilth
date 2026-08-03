@@ -63,4 +63,4 @@ namespace OregonTilth.EFModels.Entities
 
         static partial void DoCustomSimpleDtoMappings(User user, UserSimpleDto userSimpleDto);
     }
-}
+}

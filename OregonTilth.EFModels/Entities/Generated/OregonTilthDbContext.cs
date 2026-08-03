@@ -225,6 +225,10 @@ public partial class OregonTilthDbContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserID).HasName("PK_User_UserID");
+
+            entity.HasIndex(e => e.GlobalID, "AK_User_GlobalID")
+                .IsUnique()
+                .HasFilter("([GlobalID] IS NOT NULL)");
         });
 
         modelBuilder.Entity<Workbook>(entity =>
