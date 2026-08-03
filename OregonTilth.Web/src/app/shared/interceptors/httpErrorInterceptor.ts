@@ -48,19 +48,15 @@ export class HttpErrorInterceptor implements HttpInterceptor {
                             });
                         }
                         if (error.status == 404) {
-                            if(error.error.includes("User with GUID "))
-                            {
-                                // we want the login-callback to create the user to trigger so we just let it pass through and have authentication-service handle it
-                                return throwError(error);
-                            }
-                            else
-                            {
-                                this.router.navigateByUrl("/not-found", { replaceUrl: false}).then(x => {
-                                    if(typeof error.error === "string") {
-                                        this.alertService.pushAlert(new Alert(error.error, AlertContext.Danger));
-                                    }
-                                });
-                            }
+                            // The old "User with GUID ..." pass-through existed so the Keystone
+                            // login callback could create the user after a 404 from
+                            // GET /user-claims/{globalID}. POST /user-claims now upserts, so a 404
+                            // here really is a 404.
+                            this.router.navigateByUrl("/not-found", { replaceUrl: false}).then(x => {
+                                if(typeof error.error === "string") {
+                                    this.alertService.pushAlert(new Alert(error.error, AlertContext.Danger));
+                                }
+                            });
                         }
                     }
                 }

@@ -7,7 +7,6 @@ import { HomeIndexComponent } from './pages/home/home-index/home-index.component
 import { UserDetailComponent } from './pages/user-detail/user-detail.component';
 import { UserInviteComponent } from './pages/user-invite/user-invite.component';
 import { UserEditComponent } from './pages/user-edit/user-edit.component';
-import { LoginCallbackComponent } from './pages/login-callback/login-callback.component';
 import { CreateUserCallbackComponent } from './pages/create-user-callback/create-user-callback.component';
 import { AboutComponent } from './pages/about/about.component';
 import { DisclaimerComponent } from './pages/disclaimer/disclaimer.component';
@@ -43,7 +42,6 @@ import { PageEditComponent } from './pages/page-edit/page-edit.component';
 import { PageDetailComponent } from './pages/page-detail/page-detail.component';
 import { CustomRichTextListComponent } from './pages/custom-rich-text-list/custom-rich-text-list.component';
 import { CustomRichTextEditComponent } from './pages/custom-rich-text-edit/custom-rich-text-edit.component';
-import { LogoutCallbackComponent } from './pages/logout-callback/logout-callback.component';
 
 export const routes: Routes = [
   { path: "labels-and-definitions/:id", component: FieldDefinitionEditComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard] },
@@ -62,33 +60,33 @@ export const routes: Routes = [
   { path: "disclaimer", component: DisclaimerComponent },
   { path: "disclaimer/:forced", component: DisclaimerComponent },
   { path: "about", component: AboutComponent},
-  { path: "workbooks", component: WorkbooksComponent},
-  { path: "workbooks/new", component: NewWorkbookComponent},
-  { path: "workbooks/:workbookID/forms/field-labor-activities", component: FieldLaborActivitiesComponent},
-  { path: "workbooks/:workbookID/forms/transplant-production-labor-activities", component: TransplantProductionLaborActivitiesComponent},
-  { path: "workbooks/:workbookID/forms/transplant-production-inputs", component: TransplantProductionInputsComponent},
-  { path: "workbooks/:workbookID/forms/transplant-production-tray-types", component: TransplantProductionTrayTypesComponent},
-  { path: "workbooks/:workbookID/forms/machinery", component: MachineryComponent},
-  { path: "workbooks/:workbookID/forms/field-labor-by-crop", component: FieldLaborByCropComponent},
-  { path: "workbooks/:workbookID/forms/transplant-production-labor-by-crop", component: TransplantProductionLaborByCropComponent},
-  { path: "workbooks/:workbookID/forms/field-input-by-crop", component: FieldInputByCropComponent},
-  { path: "workbooks/:workbookID/forms/crops", component: CropsComponent},
-  { path: "workbooks/:workbookID/forms/crop-units", component: CropUnitsComponent},
-  { path: "workbooks/:workbookID/forms/field-input-costs", component: FieldInputCostsComponent},
-  { path: "workbooks/:workbookID/forms/transplant-production-input-costs", component: TransplantProductionInputCostsComponent},
-  { path: "workbooks/:workbookID/forms/transplant-production-information", component: TransplantProductionInformationComponent},
-  { path: "workbooks/:workbookID/forms/field-standard-times", component: FieldStandardTimesComponent},
-  { path: "workbooks/:workbookID/forms/harvest-post-harvest-standard-times", component: HarvestPostHarvestStandardTimesComponent},
-  { path: "workbooks/:workbookID/forms/transplant-production-standard-times", component: TransplantProductionStandardTimesComponent},
-  { path: "workbooks/:workbookID/forms/crop-yield-information", component: CropYieldInformationComponent},
-  { path: "workbooks/:workbookID/forms/crop-specific-info", component: CropSpecificInfoComponent},
-  { path: "workbooks/:workbookID/results/crop-crop-unit", component: CropCropUnitComponent},
-  { path: "workbooks/:workbookID/results/labor-hours", component: LaborHoursComponent},
-  { path: "workbooks/:workbookID/results/variable-costs", component: VariableCostsComponent},
-  { path: "workbooks/:workbookID/duplicate", component: DuplicateComponent},
-  { path: "workbooks/:workbookID", component: WorkbookDetailComponent},
-  { path: "login-callback", component: LoginCallbackComponent },
-  { path: "logout-callback", component: LogoutCallbackComponent },
+  { path: "workbooks", component: WorkbooksComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/new", component: NewWorkbookComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/field-labor-activities", component: FieldLaborActivitiesComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/transplant-production-labor-activities", component: TransplantProductionLaborActivitiesComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/transplant-production-inputs", component: TransplantProductionInputsComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/transplant-production-tray-types", component: TransplantProductionTrayTypesComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/machinery", component: MachineryComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/field-labor-by-crop", component: FieldLaborByCropComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/transplant-production-labor-by-crop", component: TransplantProductionLaborByCropComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/field-input-by-crop", component: FieldInputByCropComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/crops", component: CropsComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/crop-units", component: CropUnitsComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/field-input-costs", component: FieldInputCostsComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/transplant-production-input-costs", component: TransplantProductionInputCostsComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/transplant-production-information", component: TransplantProductionInformationComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/field-standard-times", component: FieldStandardTimesComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/harvest-post-harvest-standard-times", component: HarvestPostHarvestStandardTimesComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/transplant-production-standard-times", component: TransplantProductionStandardTimesComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/crop-yield-information", component: CropYieldInformationComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/forms/crop-specific-info", component: CropSpecificInfoComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/results/crop-crop-unit", component: CropCropUnitComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/results/labor-hours", component: LaborHoursComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/results/variable-costs", component: VariableCostsComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID/duplicate", component: DuplicateComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "workbooks/:workbookID", component: WorkbookDetailComponent, canActivate: [UnauthenticatedAccessGuard]},
+  // No /login-callback or /logout-callback: Auth0 returns to the app origin and
+  // @auth0/auth0-angular handles the callback wherever the user happens to land.
   { path: "create-user-callback", component: CreateUserCallbackComponent },
   { path: "not-found", component: NotFoundComponent },
   { path: 'subscription-insufficient', component: SubscriptionInsufficientComponent },

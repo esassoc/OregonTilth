@@ -12,13 +12,8 @@ data:
   platformShortName: "Know Your Cost To Grow"
   leadOrganizationLongName: "Oregon Tilth"
   leadOrganizationHomeUrl: "https://tilth.org"
-  keystone_clientId: "OregonTilth"
-  keystone_issuer: "https://identity{{ eq .Values.global.env.aspNetEnvironment "Production" | ternary "" "-qa" }}.sitkatech.com"
-  keystone_redirectUriRelative: "/login-callback"
-  keystone_scope: "openid profile offline_access keystone"
-  keystone_sessionCheckEnabled: "false"
-  keystone_logoutUrl: "https://identity{{eq .Values.global.env.aspNetEnvironment "Production" | ternary "" "-qa" }}.sitkatech.com/account/logout"
-  keystone_postLogoutRedirectUri: "/logout-callback"
-  keystone_waitForTokenInMsec: "500"
-  keystone_responseType: "code"
-  keystone_disablePKCE: "false"
+  # Read from global.auth0 in values.yaml, same source the api chart uses for
+  # Auth0__Authority / Auth0__Audience, so the SPA and the API can never drift apart.
+  auth0_domain: "{{ .Values.global.auth0.domain }}"
+  auth0_clientId: "{{ .Values.global.auth0.clientId }}"
+  auth0_audience: "{{ .Values.global.auth0.audience }}"

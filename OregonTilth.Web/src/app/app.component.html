@@ -1,11 +1,16 @@
 <header-nav></header-nav>
+<oregontilth-migration-notice></oregontilth-migration-notice>
 <div class="mh-auto min-vh-100 page-content">
     <oregontilth-breadcrumbs></oregontilth-breadcrumbs>
     <div class="container-fluid">
         
         <div class="row">
-            <side-nav class="col-lg-2"></side-nav>
-            <div class="col-lg-10">
+            @if (showSideNav()) {
+                <side-nav class="col-lg-2"></side-nav>
+            }
+            <!-- Full width when the nav is hidden, so a signed-out page does not sit next to an
+                 empty two-column gutter. -->
+            <div [class]="showSideNav() ? 'col-lg-10' : 'col-lg-12'">
                 <router-outlet></router-outlet>
             </div>
         </div>

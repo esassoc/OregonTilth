@@ -6,7 +6,7 @@ import { RoleDto } from './role-dto'
 
 export class UserDto {
 	UserID : number
-	UserGuid : string
+	GlobalID : string
 	FirstName : string
 	LastName : string
 	Email : string

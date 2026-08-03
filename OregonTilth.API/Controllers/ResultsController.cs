@@ -14,8 +14,8 @@ namespace OregonTilth.API.Controllers
     public class ResultsController : SitkaController<ResultsController>
     {
         public ResultsController(OregonTilthDbContext dbContext, ILogger<ResultsController> logger,
-            KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext,
-            logger, keystoneService, frescaConfiguration)
+            IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext,
+            logger, frescaConfiguration)
         {
         }
 
@@ -49,4 +49,4 @@ namespace OregonTilth.API.Controllers
             return Ok(cropYieldInfos);
         }
     }
-}
+}

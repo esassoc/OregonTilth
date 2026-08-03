@@ -1,5 +1,4 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { CookieStorageService } from '../../services/cookies/cookie-storage.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UserDetailedDto } from '../../models';
 import { UserService } from 'src/app/services/user/user.service';
@@ -35,7 +34,6 @@ export class HeaderNavComponent implements OnInit, OnDestroy {
 
     constructor(
         private authenticationService: AuthenticationService,
-        private cookieStorageService: CookieStorageService,
         private userService: UserService,
         private alertService: AlertService,
         private cdr: ChangeDetectorRef) {
@@ -89,12 +87,9 @@ export class HeaderNavComponent implements OnInit, OnDestroy {
     }
 
     public logout(): void {
+        // Auth0 clears its own token cache and redirects to the tenant logout endpoint, which
+        // sends the browser back to window.location.origin; nothing left to clean up locally.
         this.authenticationService.logout();
-
-        setTimeout(() => {
-            this.cookieStorageService.removeAll();
-            this.cdr.detectChanges();
-        });
     }
 
 

@@ -8,7 +8,6 @@ import { FontAwesomeIconLinkRendererComponent } from 'src/app/shared/components/
 import { DecimalPipe, NgIf } from '@angular/common';
 import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
-import { UserCreateDto } from 'src/app/shared/models/user/user-create-dto';
 import { RoleEnum } from 'src/app/shared/models/enums/role.enum';
 import { DatePipe } from '@angular/common';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';

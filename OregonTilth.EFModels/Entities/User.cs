@@ -1,29 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OregonTilth.Models.DataTransferObjects;
+using OregonTilth.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 
 namespace OregonTilth.EFModels.Entities
 {
     public partial class User
     {
-        public static UserDto CreateUnassignedUser(OregonTilthDbContext dbContext, UserCreateDto userCreateDto)
-        {
-            var userUpsertDto = new UserUpsertDto()
-            {
-                FirstName = userCreateDto.FirstName,
-                LastName = userCreateDto.LastName,
-                OrganizationName = userCreateDto.OrganizationName,
-                Email = userCreateDto.Email,
-                PhoneNumber = userCreateDto.PhoneNumber,
-                RoleID = (int) RoleEnum.Unassigned,  // don't allow non-admin user to set their role to something other than Unassigned
-                ReceiveSupportEmails = false  // don't allow non-admin users to hijack support emails
-            };
-            return CreateNewUser(dbContext, userUpsertDto, userCreateDto.LoginName, userCreateDto.UserGuid);
-        }
-
-        public static UserDto CreateNewUser(OregonTilthDbContext dbContext, UserUpsertDto userToCreate, string loginName, Guid userGuid)
+        /// <summary>
+        /// Creates a user row. <paramref name="globalID"/> is null for an admin invite: the row is
+        /// pre-provisioned with the role the admin chose, and the Auth0 identity is attached later by
+        /// <see cref="UpdateClaims"/> when the invitee first signs in and is matched on Email.
+        /// </summary>
+        public static UserDto CreateNewUser(OregonTilthDbContext dbContext, UserUpsertDto userToCreate, string loginName, string globalID)
         {
             if (!userToCreate.RoleID.HasValue)
             {
@@ -32,7 +24,7 @@ namespace OregonTilth.EFModels.Entities
 
             var user = new User
             {
-                UserGuid = userGuid,
+                GlobalID = globalID,
                 LoginName = loginName,
                 Email = userToCreate.Email,
                 FirstName = userToCreate.FirstName,
@@ -91,10 +83,15 @@ namespace OregonTilth.EFModels.Entities
             
         }
 
-        public static UserDto GetByUserGuid(OregonTilthDbContext dbContext, Guid userGuid)
+        public static UserDto GetByUserGlobalID(OregonTilthDbContext dbContext, string globalID)
         {
+            if (string.IsNullOrEmpty(globalID))
+            {
+                return null;
+            }
+
             var user = GetUserImpl(dbContext)
-                .SingleOrDefault(x => x.UserGuid == userGuid);
+                .SingleOrDefault(x => x.GlobalID == globalID);
 
             return user?.AsDto();
         }
@@ -155,17 +152,89 @@ namespace OregonTilth.EFModels.Entities
             return GetByUserID(dbContext, userID);
         }
 
-        public static UserDto UpdateUserGuid(OregonTilthDbContext dbContext, int userID, Guid userGuid)
+        /// <summary>
+        /// Upserts the signed-in user from their access token claims. This is the single point where
+        /// an Auth0 identity becomes an OregonTilth user, and it covers three cases:
+        /// <list type="bullet">
+        /// <item>a returning user, matched on GlobalID;</item>
+        /// <item>a user who predates Auth0 or was pre-provisioned by an admin invite, matched on
+        /// Email and stamped with their new GlobalID — their role and workbooks are preserved;</item>
+        /// <item>a brand new self-signup, created as Unassigned for an admin to triage.</item>
+        /// </list>
+        /// Returns null when the token carries no email claim, since Email is required and unique.
+        /// </summary>
+        public static UserDto UpdateClaims(OregonTilthDbContext dbContext, int? userID, ClaimsPrincipal claims, out bool isNewUser)
         {
-            var user = dbContext.Users
-                .Single(x => x.UserID == userID);
+            isNewUser = false;
 
-            user.UserGuid = userGuid;
-            user.UpdateDate = DateTime.UtcNow;
+            // Accepts either the namespaced Auth0 custom claim or the mapped standard claim; see
+            // ClaimsConstants.CustomClaimNamespace for why an access token may only carry the former.
+            var email = ClaimsConstants.FindFirstValue(claims, ClaimsConstants.NamespacedEmail, ClaimsConstants.Emails);
+            var globalID = ClaimsConstants.FindFirstValue(claims, ClaimsConstants.Sub);
+            var firstName = ClaimsConstants.FindFirstValue(claims, ClaimsConstants.NamespacedGivenName, ClaimsConstants.GivenName);
+            var lastName = ClaimsConstants.FindFirstValue(claims, ClaimsConstants.NamespacedFamilyName, ClaimsConstants.FamilyName);
+
+            var user = userID.HasValue
+                ? dbContext.Users.SingleOrDefault(x => x.UserID == userID)
+                : dbContext.Users.SingleOrDefault(x => x.Email == email);
+
+            if (user == null)
+            {
+                if (string.IsNullOrEmpty(email))
+                {
+                    return null;
+                }
+
+                user = new User
+                {
+                    GlobalID = globalID,
+                    Email = email,
+                    // FirstName and LastName are NOT NULL, and Auth0 does not guarantee a name claim
+                    // (a bare email/password signup has none), so seed them empty and let the claims
+                    // below fill them in when present.
+                    FirstName = string.Empty,
+                    LastName = string.Empty,
+                    IsActive = true,
+                    RoleID = (int) RoleEnum.Unassigned,
+                    ReceiveSupportEmails = false,
+                    CreateDate = DateTime.UtcNow
+                };
+
+                dbContext.Users.Add(user);
+                isNewUser = true;
+            }
+
+            // Deliberately does not touch RoleID on an existing row: an invited user's role was set by
+            // the admin who invited them, and a returning user's role is managed in the admin screens.
+            if (!string.IsNullOrEmpty(globalID))
+            {
+                user.GlobalID = globalID;
+            }
+
+            if (!string.IsNullOrEmpty(firstName))
+            {
+                user.FirstName = firstName;
+            }
+
+            if (!string.IsNullOrEmpty(lastName))
+            {
+                user.LastName = lastName;
+            }
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                user.Email = email;
+            }
+
+            if (!isNewUser)
+            {
+                user.UpdateDate = DateTime.UtcNow;
+            }
 
             dbContext.SaveChanges();
             dbContext.Entry(user).Reload();
-            return GetByUserID(dbContext, userID);
+
+            return GetByUserID(dbContext, user.UserID);
         }
 
         public static List<ErrorMessage> ValidateUpdate(OregonTilthDbContext dbContext, UserUpsertDto userEditDto, int userID)
@@ -179,23 +248,16 @@ namespace OregonTilth.EFModels.Entities
             return result;
         }
 
-        public static List<ErrorMessage> ValidateCreateUnassignedUser(OregonTilthDbContext dbContext, UserCreateDto userCreateDto)
+        public static UserDto SetUserRole(OregonTilthDbContext dbContext, int userID, int roleID)
         {
-            var result = new List<ErrorMessage>();
+            var user = dbContext.Users.Single(x => x.UserID == userID);
 
-            var userByGuidDto = GetByUserGuid(dbContext, userCreateDto.UserGuid);  // A duplicate Guid not only leads to 500s, it allows someone to hijack another user's account
-            if (userByGuidDto != null)
-            {
-                result.Add(new ErrorMessage() { Type = "User Creation", Message = "Invalid user information." });  // purposely vague; we don't want a naughty person realizing they figured out someone else's Guid
-            }
+            user.RoleID = roleID;
+            user.UpdateDate = DateTime.UtcNow;
 
-            var userByEmailDto = GetByEmail(dbContext, userCreateDto.Email);  // A duplicate email leads to 500s, so need to prevent duplicates
-            if (userByEmailDto != null)
-            {
-                result.Add(new ErrorMessage() { Type = "User Creation", Message = "There is already a user account with this email address." });
-            }
-
-            return result;
+            dbContext.SaveChanges();
+            dbContext.Entry(user).Reload();
+            return GetByUserID(dbContext, userID);
         }
     }
-}
+}

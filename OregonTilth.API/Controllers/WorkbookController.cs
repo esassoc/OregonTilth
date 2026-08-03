@@ -14,7 +14,7 @@ namespace OregonTilth.API.Controllers
     [ApiController]
     public class WorkbookController : SitkaController<WorkbookController>
     {
-        public WorkbookController(OregonTilthDbContext dbContext, ILogger<WorkbookController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public WorkbookController(OregonTilthDbContext dbContext, ILogger<WorkbookController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 

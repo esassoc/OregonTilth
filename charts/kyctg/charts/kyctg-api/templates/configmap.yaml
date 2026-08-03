@@ -5,9 +5,9 @@ metadata:
 data:
   SECRET_PATH: "/app/secrets/apiSecrets"
   DOCKER_BUILD_SOURCE: "."
-  KEYSTONE_HOST: "https://identity{{ eq .Values.global.env.aspNetEnvironment "Production" | ternary "" "-qa" }}.sitkatech.com"
+  Auth0__Authority: "https://{{ .Values.global.auth0.domain }}"
+  Auth0__Audience: "{{ .Values.global.auth0.audience }}"
   ASPNETCORE_ENVIRONMENT: "{{ .Values.global.env.aspNetEnvironment }}"
   SITKA_EMAIL_REDIRECT: "{{ eq .Values.global.env.aspNetEnvironment "Production" | ternary "" "notifications-qa@sitkatech.com" }}"
-  KEYSTONE_REDIRECT_URL: "https://{{ .Values.global.domains.web }}/create-user-callback"
   WEB_URL: "https://{{ .Values.global.domains.web }}"
   PlatformLongName: "Know Your Cost to Grow"

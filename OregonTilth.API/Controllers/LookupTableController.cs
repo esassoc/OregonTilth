@@ -12,7 +12,7 @@ namespace OregonTilth.API.Controllers
     [ApiController]
     public class LookupTableController : SitkaController<LookupTableController>
     {
-        public LookupTableController(OregonTilthDbContext dbContext, ILogger<LookupTableController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public LookupTableController(OregonTilthDbContext dbContext, ILogger<LookupTableController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using OregonTilth.Models.DataTransferObjects;
-using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using OregonTilth.EFModels.Entities;
+using OregonTilth.Models.Helpers;
 
 namespace OregonTilth.API.Services
 {
@@ -18,29 +18,29 @@ namespace OregonTilth.API.Services
 
         public static UserDto GetUserFromHttpContext(OregonTilthDbContext dbContext, HttpContext httpContext)
         {
-
-            var claimsPrincipal = httpContext.User;
-            if (!claimsPrincipal.Claims.Any())
-            {
-                return null;
-            }
-
-            var userGuid = Guid.Parse(claimsPrincipal.Claims.Single(c => c.Type == "sub").Value);
-            var keystoneUser = EFModels.Entities.User.GetByUserGuid(dbContext, userGuid);
-            return keystoneUser;
+            return GetUserFromClaimsPrincipal(dbContext, httpContext.User);
         }
 
         public static UserDto GetUserFromAuthorizationHandlerContext(OregonTilthDbContext dbContext, AuthorizationHandlerContext context)
         {
-            var claimsPrincipal = context.User;
-            if (!claimsPrincipal.Claims.Any())
+            return GetUserFromClaimsPrincipal(dbContext, context.User);
+        }
+
+        private static UserDto GetUserFromClaimsPrincipal(OregonTilthDbContext dbContext, System.Security.Claims.ClaimsPrincipal claimsPrincipal)
+        {
+            if (claimsPrincipal == null || !claimsPrincipal.Claims.Any())
             {
                 return null;
             }
 
-            var userGuid = Guid.Parse(claimsPrincipal.Claims.Single(c => c.Type == "sub").Value);
-            var keystoneUser = EFModels.Entities.User.GetByUserGuid(dbContext, userGuid);
-            return keystoneUser;
+            // The Auth0 'sub' is an opaque string ("auth0|68f...", "google-oauth2|..."), not a Guid.
+            var userGlobalID = ClaimsConstants.FindFirstValue(claimsPrincipal, ClaimsConstants.Sub);
+            if (string.IsNullOrEmpty(userGlobalID))
+            {
+                return null;
+            }
+
+            return EFModels.Entities.User.GetByUserGlobalID(dbContext, userGlobalID);
         }
     }
 }

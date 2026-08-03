@@ -35,10 +35,6 @@ export class HomeIndexComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.breadcrumbService.setBreadcrumbs([{label: "Home"}]);
-        if (localStorage.getItem("loginOnReturn")){
-            localStorage.removeItem("loginOnReturn");
-            this.authenticationService.login();
-        }
         this.watchUserChangeSubscription = this.authenticationService.currentUserSetObservable.subscribe(currentUser => { 
             this.currentUser = currentUser;
         });
@@ -92,16 +88,8 @@ export class HomeIndexComponent implements OnInit, OnDestroy {
         this.authenticationService.createAccount();
     }
 
-    public forgotPasswordUrl() :string{
-        return `${environment.keystoneSupportBaseUrl}/ForgotPassword`;
-    }
-
-    public forgotUsernameUrl() :string{
-        return `${environment.keystoneSupportBaseUrl}/ForgotUsername`;
-    }
-
-    public keystoneSupportUrl():string{
-        return `${environment.keystoneSupportBaseUrl}/Support/20`;
+    public resetPassword(): void{
+        this.authenticationService.resetPassword();
     }
 
     public platformLongName():string{
