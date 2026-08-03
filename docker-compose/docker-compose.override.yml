@@ -4,6 +4,16 @@ services:
             - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
             - ASPNETCORE_HTTP_PORTS=8080
             - ASPNETCORE_HTTPS_PORTS=8081
+            # ASPNETCORE_HTTPS_PORTS asks Kestrel for a TLS endpoint, and .NET's implicit
+            # "developer certificate" fallback looks in the host's certificate store, which does not
+            # exist inside a container - so the cert has to be named explicitly or startup throws
+            # "the default developer certificate could not be found". Visual Studio mounts
+            # %APPDATA%\ASP.NET\Https into compose containers but, unlike a single-project Docker
+            # launch, does not wire these two settings up; the volume below repeats that mount so a
+            # plain `docker compose up` behaves the same. Export the cert once per machine:
+            #   dotnet dev-certs https --export-path "$env:APPDATA\ASP.NET\Https\OregonTilth.API.pfx" --password <DEV_CERT_PASSWORD>
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/https/OregonTilth.API.pfx
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=${DEV_CERT_PASSWORD}
             - Auth0__Authority=${Auth0__Authority}
             - Auth0__Audience=${Auth0__Audience}
             - SITKA_EMAIL_REDIRECT=${SITKA_EMAIL_REDIRECT}
@@ -15,3 +25,8 @@ services:
             - LeadOrganizationEmail=${LeadOrganizationEmail}
             - APPINSIGHTS_INSTRUMENTATIONKEY=${APPINSIGHTS_INSTRUMENTATIONKEY}
             - SendGridApiKey=${SendGridApiKey}
+        volumes:
+            # The container runs as root, so HOME is /root. Visual Studio mounts this same pair of
+            # paths, and compose keys volumes by target, so the duplicate collapses instead of
+            # conflicting.
+            - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
