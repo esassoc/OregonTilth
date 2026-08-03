@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, race, ReplaySubject, Subject } from 'rxjs';
 import { first, map, switchMap, takeUntil } from 'rxjs/operators';
-import { AuthService as Auth0Service } from '@auth0/auth0-angular';
+import { AuthService as Auth0Service, GenericError } from '@auth0/auth0-angular';
 import { UserService } from './user/user.service';
 import { UserDetailedDto } from '../shared/models';
 import { RoleEnum } from '../shared/models/enums/role.enum';
@@ -46,6 +46,48 @@ export class AuthenticationService implements OnDestroy {
           this.currentUser = null;
         }
       });
+
+    // Auth0 reports a refused sign-in here instead of throwing: a post-login Action calling
+    // api.access.deny() (this tenant gates on a verified email), a blocked user and a declined
+    // consent all arrive as an error$ emission while user$ stays null. The SDK navigates to its
+    // errorPath and drops the ?error=...&error_description=... query string on the way, so
+    // without this the visitor lands on the home page with nothing to explain why they are still
+    // signed out. The SDK backs error$ with a ReplaySubject(1), so subscribing here - after it
+    // has already handled the redirect - still sees the error.
+    this.auth0.error$
+      .pipe(takeUntil(this._destroying$))
+      .subscribe(error => this.onAuth0Error(error));
+  }
+
+  // Not failures worth interrupting anyone over: the SDK raises these while probing for an
+  // existing session at startup, and anonymous visitors are free to read the public pages. The
+  // hidden side nav and the Sign In button already convey that nobody is signed in.
+  private static readonly SignedOutErrorCodes = ['login_required', 'missing_refresh_token'];
+
+  private static readonly Auth0ErrorAlertCode = 'Auth0Error';
+
+  private onAuth0Error(error: Error) {
+    const code = (error as GenericError)?.error;
+    if (!code || AuthenticationService.SignedOutErrorCodes.includes(code)) {
+      return;
+    }
+
+    // AlertDisplayComponent sits inside each page component and clears the queue in its
+    // ngOnDestroy, so an alert pushed while the SDK's errorPath navigation is still in flight
+    // would be thrown away. Navigating first and pushing in the callback is the ordering
+    // onGetUserError already relies on, and since the router runs navigations in sequence,
+    // awaiting ours also waits out the SDK's.
+    this.router.navigate(['/']).then(() => {
+      // error_description is authored in the tenant's Action - "Please verify your email before
+      // continuing." - which makes it the most useful thing to show. message covers errors the
+      // SDK raises itself, which carry no description.
+      const description = (error as GenericError)?.error_description || error?.message;
+      this.alertService.pushAlert(new Alert(
+        description || 'We could not sign you in. Please try again.',
+        AlertContext.Danger,
+        true,
+        AuthenticationService.Auth0ErrorAlertCode));
+    });
   }
 
   // POST /user-claims upserts the dbo.User row from the access token's claims and returns it.
