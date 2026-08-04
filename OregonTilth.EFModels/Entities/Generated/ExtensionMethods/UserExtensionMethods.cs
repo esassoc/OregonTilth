@@ -14,6 +14,7 @@ namespace OregonTilth.EFModels.Entities
             var userDto = new UserDto()
             {
                 UserID = user.UserID,
+                GlobalID = user.GlobalID,
                 UserGuid = user.UserGuid,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
@@ -40,6 +41,7 @@ namespace OregonTilth.EFModels.Entities
             var userSimpleDto = new UserSimpleDto()
             {
                 UserID = user.UserID,
+                GlobalID = user.GlobalID,
                 UserGuid = user.UserGuid,
                 FirstName = user.FirstName,
                 LastName = user.LastName,

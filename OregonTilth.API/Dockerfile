@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build-env
 
 WORKDIR /src
 COPY ./OregonTilth.Models ./OregonTilth.Models
@@ -7,7 +7,7 @@ COPY ./OregonTilth.API ./OregonTilth.API
 
 RUN dotnet publish ./OregonTilth.API/OregonTilth.API.csproj -c Release -o /app
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build-env /app /app
 EXPOSE 8080

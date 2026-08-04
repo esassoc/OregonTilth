@@ -8,8 +8,8 @@ describe('DuplicateComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ DuplicateComponent ]
-    })
+    imports: [DuplicateComponent]
+})
     .compileComponents();
   }));
 

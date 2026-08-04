@@ -8,8 +8,8 @@ describe('InviteUserDialogComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ UserInviteComponent ]
-    })
+    imports: [UserInviteComponent]
+})
     .compileComponents();
   }));
 

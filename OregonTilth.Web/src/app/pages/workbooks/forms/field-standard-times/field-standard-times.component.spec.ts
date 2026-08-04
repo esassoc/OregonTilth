@@ -8,8 +8,8 @@ describe('FieldStandardTimesComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ FieldStandardTimesComponent ]
-    })
+    imports: [FieldStandardTimesComponent]
+})
     .compileComponents();
   }));
 

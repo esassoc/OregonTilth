@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf, NgFor } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -23,15 +23,20 @@ import { TransplantProductionInputCostCreateDto } from 'src/app/shared/models/fo
 import { TransplantProductionInputCostDto } from 'src/app/shared/models/generated/transplant-production-input-cost-dto';
 import { TransplantProductionInputDto } from 'src/app/shared/models/generated/transplant-production-input-dto';
 import { TransplantProductionTrayTypeDto } from 'src/app/shared/models/generated/transplant-production-tray-type-dto';
-import { element } from 'protractor';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'transplant-production-input-costs',
-  templateUrl: './transplant-production-input-costs.component.html',
-  styleUrls: ['./transplant-production-input-costs.component.scss']
+    selector: 'transplant-production-input-costs',
+    templateUrl: './transplant-production-input-costs.component.html',
+    styleUrls: ['./transplant-production-input-costs.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class TransplantProductionInputCostsComponent implements OnInit {
   @ViewChild('transplantProductionInputCostsGrid') transplantProductionInputCostsGrid: AgGridAngular;
@@ -91,7 +96,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
     this.getTransplantProductionTrayTypesRequest = this.workbookService.getTransplantProductionTrayTypes(this.workbookID);
     this.getTransplantProductionInputCostsRequest = this.workbookService.getTransplantProductionInputCosts(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getTransplantProductionInputsRequest, this.getTransplantProductionTrayTypesRequest, this.getTransplantProductionInputCostsRequest]).subscribe(([workbook, tpInputs, tpTrayTypes, tpInputCosts]: [WorkbookDto, TransplantProductionInputDto[], TransplantProductionTrayTypeDto[], TransplantProductionInputCostDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionInputDto[], TransplantProductionTrayTypeDto[], TransplantProductionInputCostDto[]]>([this.getWorkbookRequest, this.getTransplantProductionInputsRequest, this.getTransplantProductionTrayTypesRequest, this.getTransplantProductionInputCostsRequest]).subscribe(([workbook, tpInputs, tpTrayTypes, tpInputCosts]: [WorkbookDto, TransplantProductionInputDto[], TransplantProductionTrayTypeDto[], TransplantProductionInputCostDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Transplant Production Input Costs'}]);
       this.transplantProductionInputs = tpInputs;
@@ -123,7 +128,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
         valueGetter: params => {
           return params.data.TransplantProductionInput.TransplantProductionInputName;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -145,7 +150,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
         valueGetter: params => {
           return params.data.TransplantProductionTrayType.TransplantProductionTrayTypeName;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -163,7 +168,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
         valueGetter: params => {
           return params.data.CostPerTray;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -173,7 +178,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         filter: true,
         sortable: true, 
         resizable: true
@@ -181,7 +186,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
       {
         headerName: 'Delete', field: 'TransplantProductionInputCostID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionInputCostID, ObjectDisplayName: params.data.TransplantProductionInputCostID };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this input cost?`)) {
@@ -212,7 +217,7 @@ export class TransplantProductionInputCostsComponent implements OnInit {
       data.node.setData(tpInputCost);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -255,7 +260,9 @@ export class TransplantProductionInputCostsComponent implements OnInit {
       this.isLoadingSubmit = false;
 
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.alertService.pushAlert(new Alert("Successfully added Transplant Production Input Cost.", AlertContext.Success));
       this.resetForm();
       this.cdr.detectChanges();
@@ -274,12 +281,12 @@ export class TransplantProductionInputCostsComponent implements OnInit {
     this.gridApi = params.api;
   }
 
-  getRowNodeId(data)  {
-    return data.TransplantProductionInputCostID.toString();
+  getRowId(params)  {
+    return params.data.TransplantProductionInputCostID.toString();
   }
   
   public exportToCsv() {
-    let columnsKeys = this.transplantProductionInputCostsGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.transplantProductionInputCostsGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

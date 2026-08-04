@@ -6,7 +6,7 @@
         <div class="col-12">
 
                 <editor #tinyMceEditor
-                    [init]="tinyMceEditor | tinyMceConfig"
+                    [init]="editorConfig"
                     [(ngModel)]="fieldDefinition.FieldDefinitionValue"
                 ></editor>
             <div style="float:right;">

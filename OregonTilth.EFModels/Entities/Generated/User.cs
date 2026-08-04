@@ -13,6 +13,10 @@ public partial class User
     [Key]
     public int UserID { get; set; }
 
+    [StringLength(255)]
+    [Unicode(false)]
+    public string GlobalID { get; set; }
+
     public Guid? UserGuid { get; set; }
 
     [Required]

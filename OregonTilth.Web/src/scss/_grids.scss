@@ -1,13 +1,24 @@
-@import "ag-grid-community/src/styles/ag-grid.scss";
-@import "ag-grid-community/src/styles/ag-theme-balham/sass/ag-theme-balham-mixin";
+// AG Grid styling.
+//
+// Up to v28 this file used the Sass mixin API:
+//   @import "ag-grid-community/src/styles/ag-grid.scss";
+//   @import "ag-grid-community/src/styles/ag-theme-balham/sass/ag-theme-balham-mixin";
+//   .ag-theme-balham { @include ag-theme-balham((balham-active-color: purple)); }
+//
+// That SCSS source tree no longer ships - modern AG Grid publishes compiled CSS under
+// ag-grid-community/styles/ instead. The legacy CSS themes are still provided, so we
+// import those and express the single theme parameter as its CSS custom property
+// equivalent (balham-active-color -> --ag-balham-active-color).
+//
+// This pairs with theme="legacy" on each <ag-grid-angular>: from v33 the new Theming
+// API is the default and would otherwise take precedence over these stylesheets.
+@import "ag-grid-community/styles/ag-grid.css";
+@import "ag-grid-community/styles/ag-theme-balham.css";
 
 $grid-header-background: #F0644B;
 
 .ag-theme-balham {
-  @include ag-theme-balham((
-      // use theme parameters where possible
-      balham-active-color: purple
-  ));
+  --ag-balham-active-color: purple;
 
   .ag-header {
     background-color: $grid-header-background;

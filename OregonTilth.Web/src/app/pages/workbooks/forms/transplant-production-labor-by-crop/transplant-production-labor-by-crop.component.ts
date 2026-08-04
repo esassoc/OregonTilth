@@ -20,16 +20,24 @@ import { TransplantProductionLaborByCropCreateDto } from 'src/app/shared/models/
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { TransplantProductionInformationDto } from 'src/app/shared/models/generated/transplant-production-information-dto';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { TransplantProductionStandardTimeCreateDto } from 'src/app/shared/models/forms/transplant-production-standard-times/transplant-production-standard-time-create-dto';
 import { TransplantProductionStandardTimeDto } from 'src/app/shared/models/generated/transplant-production-standard-time-dto';
 import { TransplantProductionStandardTimeSummaryDto } from 'src/app/shared/models/forms/transplant-production-standard-times/transplant-production-standard-time-summary-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 @Component({
-  selector: 'transplant-production-labor-by-crop',
-  templateUrl: './transplant-production-labor-by-crop.component.html',
-  styleUrls: ['./transplant-production-labor-by-crop.component.scss']
+    selector: 'transplant-production-labor-by-crop',
+    templateUrl: './transplant-production-labor-by-crop.component.html',
+    styleUrls: ['./transplant-production-labor-by-crop.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgMultiSelectDropDownModule, NgbTooltip, AgGridModule]
 })
 export class TransplantProductionLaborByCropComponent implements OnInit {
   @ViewChild('tpLaborByCropGrid') tpLaborByCropGrid: AgGridAngular;
@@ -119,7 +127,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
 
     this.getTransplantProductionStandardTimeDtosRequest = this.workbookService.getTransplantProductionStandardTimes(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getTransplantProductionInformationDtosRequest, this.getTransplantProductionLaborActivityDtosRequest, this.getTransplantProductionLaborByCropsRequest, this.getTransplantProductionStandardTimeDtosRequest]).subscribe(([workbookDto, transplantProductionInformationDtos, transplantProductionLaborActivityDtos, transplantProductionLaborByCrops, standardTimes]: [WorkbookDto, TransplantProductionInformationDto[], TransplantProductionLaborActivityDto[], TransplantProductionLaborActivityByCropDto[], TransplantProductionStandardTimeSummaryDto[]]) => {
+    forkJoin<[WorkbookDto, TransplantProductionInformationDto[], TransplantProductionLaborActivityDto[], TransplantProductionLaborActivityByCropDto[], TransplantProductionStandardTimeSummaryDto[]]>([this.getWorkbookRequest, this.getTransplantProductionInformationDtosRequest, this.getTransplantProductionLaborActivityDtosRequest, this.getTransplantProductionLaborByCropsRequest, this.getTransplantProductionStandardTimeDtosRequest]).subscribe(([workbookDto, transplantProductionInformationDtos, transplantProductionLaborActivityDtos, transplantProductionLaborByCrops, standardTimes]: [WorkbookDto, TransplantProductionInformationDto[], TransplantProductionLaborActivityDto[], TransplantProductionLaborActivityByCropDto[], TransplantProductionStandardTimeSummaryDto[]]) => {
       this.workbook = workbookDto;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbookDto.WorkbookName, routerLink:['/workbooks',workbookDto.WorkbookID.toString()]}, {label:'Transplant Production Labor By Crop'}]);
 
@@ -196,7 +204,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
         field: 'Notes',
         editable: true,
         cellEditor: 'agLargeTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true,
         sortable: true,
         filter: true,
@@ -208,7 +216,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
         headerName: 'Occurrences', 
         field: 'Occurrences',
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -217,13 +225,13 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         resizable: true
       },
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.TransplantProductionLaborActivityByCropID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -256,7 +264,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
       data.node.setData(transplantProductionLaborByCrop);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -306,7 +314,9 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
     this.addTransplantProductionLaborByCropRequest = this.workbookService.addTransplantProductionLaborByCrop(this.model).subscribe(response => {
       this.transplantProductionLaborByCropDtos.push(...response);
       var transactionRows = this.gridApi.applyTransaction({add: response });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       if(response.length > 0){
         this.alertService.pushAlert(new Alert(`Successfully added ${response.length} Transplant Production Labor(s) for Crop '${response[0].TransplantProductionInformation.Crop.CropName}'.`, AlertContext.Success));
@@ -329,7 +339,7 @@ export class TransplantProductionLaborByCropComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.tpLaborByCropGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.tpLaborByCropGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

@@ -5,6 +5,7 @@ import {
     ViewContainerRef,
   } from '@angular/core';
 import { AgEditorComponent } from 'ag-grid-angular';
+import { FormsModule } from '@angular/forms';
     
   const KEY_BACKSPACE = 8;
   const KEY_DELETE = 46;
@@ -20,7 +21,9 @@ import { AgEditorComponent } from 'ag-grid-angular';
       [(ngModel)]="value"
       style="width: 100%; border:none;"
     />`,
-  })
+    standalone: true,
+    imports: [FormsModule],
+})
   export class IntegerEditor implements AgEditorComponent, AfterViewInit {
     private params: any;
     public value: number;
@@ -62,9 +65,20 @@ import { AgEditorComponent } from 'ag-grid-angular';
     }
   
     getValue(): any {
-      return this.value;
+      // AG Grid 29+ validates the edited value against the column's cell data type and
+      // silently discards the edit (console warning #135) when it does not match. The
+      // [(ngModel)] binding on the <input> always produces a string, so coerce back to
+      // a number here. Prior to v29 the raw string was accepted as-is.
+      // An empty input clears the cell rather than becoming 0 - setInitialState() sets
+      // value to '' when editing starts with Backspace/Delete.
+      const raw: any = this.value;
+      if (raw === null || raw === undefined || raw === '') {
+        return null;
+      }
+      const parsed = Number(raw);
+      return isNaN(parsed) ? null : parsed;
     }
-  
+
     isCancelBeforeStart(): boolean {
       return this.cancelBeforeStart;
     }

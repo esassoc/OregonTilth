@@ -15,7 +15,7 @@ namespace OregonTilth.API.Controllers
     [ApiController]
     public class FileResourceController : SitkaController<FileResourceController>
     {
-        public FileResourceController(OregonTilthDbContext dbContext, ILogger<FileResourceController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public FileResourceController(OregonTilthDbContext dbContext, ILogger<FileResourceController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 

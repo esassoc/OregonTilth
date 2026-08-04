@@ -1,5 +1,5 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, forwardRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { AfterViewChecked, ChangeDetectorRef, Component, forwardRef, OnInit, ViewChild, viewChild } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UserDetailedDto } from 'src/app/shared/models';
@@ -10,14 +10,26 @@ import { PageUpdateDto } from 'src/app/shared/models/page/page-update-dto';
 import { AlertService } from 'src/app/shared/services/alert.service';
 import { PageService } from 'src/app/shared/services/page-service';
 import TinyMCEHelpers from 'src/app/shared/helpers/tiny-mce-helpers';
-import { EditorComponent } from '@tinymce/tinymce-angular';
+import { EditorComponent, EditorModule } from '@tinymce/tinymce-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
 import { PageDto } from 'src/app/shared/models/generated/page-dto';
 import { PageMinimalDto } from 'src/app/shared/models/generated/page-minimal-dto';
+import { NgIf, NgFor } from '@angular/common';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
+import { FormsModule } from '@angular/forms';
 @Component({
-  selector: 'oregontilth-page-edit',
-  templateUrl: './page-edit.component.html',
-  styleUrls: ['./page-edit.component.scss'],
+    selector: 'oregontilth-page-edit',
+    templateUrl: './page-edit.component.html',
+    styleUrls: ['./page-edit.component.scss'],
+    standalone: true,
+    imports: [
+        NgIf,
+        AlertDisplayComponent,
+        FormsModule,
+        NgFor,
+        EditorModule,
+        RouterLink,
+    ],
 })
 export class PageEditComponent implements OnInit {
   private watchUserChangeSubscription: any;
@@ -32,6 +44,10 @@ export class PageEditComponent implements OnInit {
   public isLoadingSubmit: boolean = false;
 
   public pageCannotHaveParent: boolean = false;
+
+  private readonly editorRef = viewChild<EditorComponent>('tinyMceEditor');
+  /** Built once: TinyMCE re-initializes whenever the object bound to [init] changes identity. */
+  public readonly editorConfig = TinyMCEHelpers.DefaultInitConfigFor(this.editorRef);
 
   constructor(
     private route: ActivatedRoute,

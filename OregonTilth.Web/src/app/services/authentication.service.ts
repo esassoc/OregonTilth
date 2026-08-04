@@ -1,119 +1,125 @@
-import { Injectable } from '@angular/core';
-import { OAuthService } from 'angular-oauth2-oidc';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable, race, ReplaySubject, Subject } from 'rxjs';
+import { first, map, switchMap, takeUntil } from 'rxjs/operators';
+import { AuthService as Auth0Service, GenericError } from '@auth0/auth0-angular';
 import { UserService } from './user/user.service';
 import { UserDetailedDto } from '../shared/models';
-import { Observable, race, ReplaySubject, Subject } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
-import { CookieStorageService } from '../shared/services/cookies/cookie-storage.service';
-import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { RoleEnum } from '../shared/models/enums/role.enum';
 import { AlertService } from '../shared/services/alert.service';
 import { Alert } from '../shared/models/alert';
 import { AlertContext } from '../shared/models/enums/alert-context.enum';
-import { UserCreateDto } from '../shared/models/user/user-create-dto';
-import { environment } from 'src/environments/environment';
 import { UserDto } from '../shared/models/generated/user-dto';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthenticationService {
+export class AuthenticationService implements OnDestroy {
   private currentUser: UserDetailedDto;
+  private claimsUser: any;
 
-  private getUserObservable: any;
-  private handlingError: boolean = false;
+  private readonly _destroying$ = new Subject<void>();
 
-  private _currentUserSetSubject = new ReplaySubject<UserDetailedDto>();
+  private _currentUserSetSubject = new ReplaySubject<UserDetailedDto>(1);
   public currentUserSetObservable = this._currentUserSetSubject.asObservable();
 
-
   constructor(private router: Router,
-    private oauthService: OAuthService,
-    private cookieStorageService: CookieStorageService,
+    private auth0: Auth0Service,
     private userService: UserService,
     private alertService: AlertService) {
-      this.oauthService.events
-      .pipe(filter(e => ['discovery_document_loaded'].includes(e.type)))
-      .subscribe(e => { 
-        this.checkAuthentication();
+    // @auth0/auth0-angular owns the redirect callback, silent refresh and token storage; all we
+    // have to do is react to the resulting user stream. user$ emits null when nobody is signed in.
+    this.auth0.user$
+      .pipe(takeUntil(this._destroying$))
+      .subscribe(user => {
+        if (user) {
+          this.claimsUser = user;
+          this.postUser();
+        } else {
+          // Internal state is cleared so isAuthenticated() is correct, but deliberately NOT
+          // pushed onto the subject. currentUserSetObservable only ever emitted a loaded user
+          // under Keystone - it stayed silent while signed out - and 43 components subscribe to
+          // it and immediately use the value. Emitting null here makes every one of them run
+          // their "user is ready" path with no user, which is how anonymous page loads ended up
+          // firing authenticated API calls.
+          this.claimsUser = null;
+          this.currentUser = null;
+        }
       });
 
-    this.oauthService.events
-      .pipe(filter(e => ['token_received'].includes(e.type)))
-      .subscribe(e => { 
-        this.checkAuthentication();
-        this.oauthService.loadUserProfile();
-      });
-
-    this.oauthService.events
-      .pipe(filter(e => ['session_terminated', 'session_error'].includes(e.type)))
-      .subscribe(e => this.router.navigateByUrl("/"));
-    
+    // Auth0 reports a refused sign-in here instead of throwing: a post-login Action calling
+    // api.access.deny() (this tenant gates on a verified email), a blocked user and a declined
+    // consent all arrive as an error$ emission while user$ stays null. The SDK navigates to its
+    // errorPath and drops the ?error=...&error_description=... query string on the way, so
+    // without this the visitor lands on the home page with nothing to explain why they are still
+    // signed out. The SDK backs error$ with a ReplaySubject(1), so subscribing here - after it
+    // has already handled the redirect - still sees the error.
+    this.auth0.error$
+      .pipe(takeUntil(this._destroying$))
+      .subscribe(error => this.onAuth0Error(error));
   }
 
-  
-  
-  public initialLoginSequence() {
-    this.oauthService.loadDiscoveryDocument()
-      .then(() => this.oauthService.tryLogin())
-      .then(() => Promise.resolve()).catch(() => {});
-  }
+  // Not failures worth interrupting anyone over: the SDK raises these while probing for an
+  // existing session at startup, and anonymous visitors are free to read the public pages. The
+  // hidden side nav and the Sign In button already convey that nobody is signed in.
+  private static readonly SignedOutErrorCodes = ['login_required', 'missing_refresh_token'];
 
-  public checkAuthentication() {
-    if (this.isAuthenticated() && !this.currentUser) {
-      console.log("Authenticated but no user found...");
-      var claims = this.oauthService.getIdentityClaims();
-      this.getUser(claims);
+  private static readonly Auth0ErrorAlertCode = 'Auth0Error';
+
+  private onAuth0Error(error: Error) {
+    const code = (error as GenericError)?.error;
+    if (!code || AuthenticationService.SignedOutErrorCodes.includes(code)) {
+      return;
     }
+
+    // AlertDisplayComponent sits inside each page component and clears the queue in its
+    // ngOnDestroy, so an alert pushed while the SDK's errorPath navigation is still in flight
+    // would be thrown away. Navigating first and pushing in the callback is the ordering
+    // onGetUserError already relies on, and since the router runs navigations in sequence,
+    // awaiting ours also waits out the SDK's.
+    this.router.navigate(['/']).then(() => {
+      // error_description is authored in the tenant's Action - "Please verify your email before
+      // continuing." - which makes it the most useful thing to show. message covers errors the
+      // SDK raises itself, which carry no description.
+      const description = (error as GenericError)?.error_description || error?.message;
+      this.alertService.pushAlert(new Alert(
+        description || 'We could not sign you in. Please try again.',
+        AlertContext.Danger,
+        true,
+        AuthenticationService.Auth0ErrorAlertCode));
+    });
   }
 
-  public getUser(claims: any) {
-    var globalID = claims["sub"];
-
-    this.userService.getUserFromGlobalID(globalID).subscribe(
-      result => { this.updateUser(result); },
-      error => { this.onGetUserError(error, claims) }
+  // POST /user-claims upserts the dbo.User row from the access token's claims and returns it.
+  // This replaces the old GET /user-claims/{globalID} -> 404 -> POST /users dance.
+  private postUser() {
+    this.userService.postUserClaims().subscribe(
+      result => {
+        this.updateUser(result);
+        // Used to happen in LoginCallbackComponent, which Auth0 no longer routes through.
+        if (result && !this.isUserRoleDisabled(result)) {
+          this.userService.updateLastActivityDate(result.UserID).subscribe();
+        }
+      },
+      () => { this.onGetUserError(); }
     );
   }
 
-  private onGetUserError(error: any, claims: any) {
-    if(this.handlingError) return;
-    this.handlingError = true;
-    if (error.status !== 404) {
-      this.alertService.pushAlert(new Alert("There was an error logging into the application.", AlertContext.Danger));
-      this.router.navigate(['/']);
-      this.handlingError = false;
-    } else {
-      this.alertService.clearAlerts();
-      const newUser = new UserCreateDto({
-        FirstName: claims["given_name"],
-        LastName: claims["family_name"],
-        Email: claims["email"],
-        LoginName: claims["login_name"],
-        UserGuid: claims["sub"],
-      });
-
-      this.userService.createNewUser(newUser).subscribe(user => {
-        this.updateUser(user);
-        this.handlingError = false;
-      })
-    }
+  private onGetUserError() {
+    this.router.navigate(['/']).then(() => {
+      this.alertService.pushAlert(new Alert(
+        "There was an error authorizing with the application. The application will force log you out in 3 seconds, please try to login again.",
+        AlertContext.Danger));
+      setTimeout(() => {
+        this.auth0.logout({ logoutParams: { returnTo: window.location.origin } });
+      }, 3000);
+    });
   }
 
   private updateUser(user: UserDetailedDto) {
     this.currentUser = user;
-
-    if (this.isUserRoleDisabled(this.currentUser)) {
-      this._currentUserSetSubject.next(this.currentUser);
-      return;
-    }
-
-    this.userService.getUserFromUserID(this.currentUser.UserID).subscribe(result => {
-      this._currentUserSetSubject.next(this.currentUser);
-    })
+    this._currentUserSetSubject.next(this.currentUser);
   }
-
- 
 
   public refreshUserInfo(user: UserDetailedDto) {
     this.updateUser(user);
@@ -121,7 +127,7 @@ export class AuthenticationService {
 
   public getCurrentUser(): Observable<UserDto> {
     return race(
-      new Observable(subscriber => {
+      new Observable<UserDto>(subscriber => {
         if (this.currentUser) {
           subscriber.next(this.currentUser);
           subscriber.complete();
@@ -133,39 +139,69 @@ export class AuthenticationService {
 
   public getCurrentUserID(): Observable<number> {
     return race(
-      new Observable(subscriber => {
+      new Observable<number>(subscriber => {
         if (this.currentUser) {
           subscriber.next(this.currentUser.UserID);
           subscriber.complete();
         }
       }),
+      // Optional chaining because the subject now emits null on sign-out, which the old
+      // Keystone flow never did.
       this.currentUserSetObservable.pipe(first(), map(
-        (user) => user.UserID
+        (user) => user?.UserID
       ))
     );
   }
 
   public isAuthenticated(): boolean {
-    return this.oauthService.hasValidAccessToken();
+    return this.claimsUser != null;
   }
 
-  public login() {
-    this.oauthService.initCodeFlow();
+  // Resolves once the Auth0 SDK has finished checking for an existing session, so guards do not
+  // bounce a returning user to the login page before their token has been restored.
+  public guardInitObservable(): Observable<boolean> {
+    return this.auth0.isLoading$.pipe(
+      first(loading => loading === false),
+      switchMap(() => this.auth0.isAuthenticated$.pipe(first()))
+    );
+  }
+
+  public login(returnUrl?: string) {
+    // appState.target is what @auth0/auth0-angular navigates to after handling the callback.
+    this.auth0.loginWithRedirect(returnUrl ? { appState: { target: returnUrl } } : undefined);
   }
 
   public createAccount() {
-    localStorage.setItem("loginOnReturn", "true");
-    window.location.href = `${environment.keystoneAuthConfiguration.issuer}/Account/Register?${this.getClientIDAndRedirectUrlForKeystone()}`;
+    this.auth0.loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } });
   }
 
-  public getClientIDAndRedirectUrlForKeystone() {
-    return `ClientID=${environment.keystoneAuthConfiguration.clientId}&RedirectUrl=${encodeURIComponent(environment.createAccountRedirectUrl)}`;
+  public resetPassword() {
+    this.auth0.loginWithRedirect({ authorizationParams: { screen_hint: 'reset-password' } });
   }
 
   public logout() {
-    
-    this.oauthService.logOut();
+    this.auth0.logout({ logoutParams: { returnTo: window.location.origin } });
+  }
 
+  public handleUnauthorized(): void {
+    this.forcedLogout();
+  }
+
+  public forcedLogout() {
+    this.setAuthRedirectUrl(window.location.href);
+    this.logout();
+  }
+
+  public getAuthRedirectUrl(): string {
+    return sessionStorage.authRedirectUrl;
+  }
+
+  public setAuthRedirectUrl(url: string) {
+    sessionStorage.authRedirectUrl = url;
+  }
+
+  public clearAuthRedirectUrl() {
+    this.setAuthRedirectUrl("");
   }
 
   public isUserAnAdministrator(user: UserDetailedDto): boolean {
@@ -199,5 +235,10 @@ export class AuthenticationService {
 
   public hasCurrentUserAcknowledgedDisclaimer(): boolean {
     return this.currentUser != null && this.currentUser.DisclaimerAcknowledgedDate != null;
+  }
+
+  ngOnDestroy(): void {
+    this._destroying$.next();
+    this._destroying$.complete();
   }
 }

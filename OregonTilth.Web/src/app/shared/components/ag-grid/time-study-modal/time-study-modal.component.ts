@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf, NgFor } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -16,17 +16,20 @@ import { Alert } from 'src/app/shared/models/alert';
 import { AlertContext } from 'src/app/shared/models/enums/alert-context.enum';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TimeStudyDto } from 'src/app/shared/models/generated/time-study-dto';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { TimeStudiesUpsertDto, TimeStudyUpsertDto } from 'src/app/shared/models/forms/time-studies/time-studies-upsert-dto';
 import { TimeStudiesService } from 'src/app/services/time-studies/time-studies.service';
 import { FieldStandardTimeSummaryDto } from 'src/app/shared/models/forms/field-standard-times/field-standard-time-summary-dto';
 import { HarvestPostHarvestStandardTimeSummaryDto } from 'src/app/shared/models/forms/harvest-post-harvest-standard-times/harvest-post-harvest-standard-time-summary-dto';
 import { TransplantProductionStandardTimeSummaryDto } from 'src/app/shared/models/forms/transplant-production-standard-times/transplant-production-standard-time-summary-dto';
+import { AlertDisplayComponent } from '../../alert-display/alert-display.component';
 
 @Component({
-  selector: 'time-study-modal',
-  templateUrl: './time-study-modal.component.html',
-  styleUrls: ['./time-study-modal.component.scss']
+    selector: 'time-study-modal',
+    templateUrl: './time-study-modal.component.html',
+    styleUrls: ['./time-study-modal.component.scss'],
+    standalone: true,
+    imports: [FormsModule, AlertDisplayComponent, NgIf, NgFor]
 })
 export class TimeStudyModal implements OnInit {
   @Input() fieldStandardTime: FieldStandardTimeSummaryDto;

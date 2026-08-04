@@ -1,11 +1,14 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AgRendererComponent } from 'ag-grid-angular';
+import { NgIf } from '@angular/common';
 
 @Component({
-  selector: 'fresca-link-renderer',
-  templateUrl: './link-renderer.component.html',
-  styleUrls: ['./link-renderer.component.scss']
+    selector: 'fresca-link-renderer',
+    templateUrl: './link-renderer.component.html',
+    styleUrls: ['./link-renderer.component.scss'],
+    standalone: true,
+    imports: [NgIf, RouterLink]
 })
 
 export class LinkRendererComponent implements AgRendererComponent {

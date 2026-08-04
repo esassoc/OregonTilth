@@ -25,24 +25,12 @@ export class DynamicEnvironment {
         return window.config.apiHostName;
     }
 
-    public get createAccountUrl() {
-        return window.config.createAccountUrl;
-    }
-
-    public get createAccountRedirectUrl() {
-        return window.config.createAccountRedirectUrl;
-    }
-
-    public get keystoneSupportBaseUrl() {
-        return window.config.keystoneSupportBaseUrl;
-    }
-
     public get geoserverMapServiceUrl() {
         return window.config.geoserverMapServiceUrl;
     }
 
-    public get keystoneAuthConfiguration() {
-        return window.config.keystoneAuthConfiguration;
+    public get auth0(): { domain: string, clientId: string, audience: string } {
+        return window.config.auth0;
     }
 
     public get platformLongName(){

@@ -1,5 +1,4 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { CookieStorageService } from '../../services/cookies/cookie-storage.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UserDetailedDto } from '../../models';
 import { UserService } from 'src/app/services/user/user.service';
@@ -7,11 +6,16 @@ import { AlertService } from '../../services/alert.service';
 import { Alert } from '../../models/alert';
 import { environment } from 'src/environments/environment';
 import { AlertContext } from '../../models/enums/alert-context.enum';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NgbCollapse, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem } from '@ng-bootstrap/ng-bootstrap';
+import { NgIf } from '@angular/common';
 
 @Component({
     selector: 'header-nav',
     templateUrl: './header-nav.component.html',
-    styleUrls: ['./header-nav.component.scss']
+    styleUrls: ['./header-nav.component.scss'],
+    standalone: true,
+    imports: [RouterLink, RouterLinkActive, NgbCollapse, NgIf, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem]
 })
 
 export class HeaderNavComponent implements OnInit, OnDestroy {
@@ -21,14 +25,15 @@ export class HeaderNavComponent implements OnInit, OnDestroy {
     private getUnassignedUserReportRequest: any;
     windowWidth: number;
 
-    @HostListener('window:resize', ['$event'])
+    // Angular 21 type-checks @HostListener args against the handler signature; resize()
+    // takes no parameters and reads window.innerWidth directly, so '$event' is dropped.
+    @HostListener('window:resize')
     resize() {
         this.windowWidth = window.innerWidth;
     }
 
     constructor(
         private authenticationService: AuthenticationService,
-        private cookieStorageService: CookieStorageService,
         private userService: UserService,
         private alertService: AlertService,
         private cdr: ChangeDetectorRef) {
@@ -82,12 +87,9 @@ export class HeaderNavComponent implements OnInit, OnDestroy {
     }
 
     public logout(): void {
+        // Auth0 clears its own token cache and redirects to the tenant logout endpoint, which
+        // sends the browser back to window.location.origin; nothing left to clean up locally.
         this.authenticationService.logout();
-
-        setTimeout(() => {
-            this.cookieStorageService.removeAll();
-            this.cdr.detectChanges();
-        });
     }
 
 

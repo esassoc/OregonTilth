@@ -7,12 +7,12 @@ import { LinkRendererComponent } from 'src/app/shared/components/ag-grid/link-re
 import { CustomRichTextDetailedDto } from 'src/app/shared/models/custom-rich-text-detailed-dto';
 import { CustomRichTextDto } from 'src/app/shared/models/generated/custom-rich-text-dto';
 import { CustomRichTextService } from 'src/app/shared/services/custom-rich-text.service';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { AlertDisplayComponent } from 'src/app/shared/components/alert-display/alert-display.component';
 
 @Component({
   selector: 'oregontilth-custom-rich-text-list',
   standalone: true,
-  imports: [AsyncPipe, AgGridModule, SharedModule],
+  imports: [AsyncPipe, AgGridModule, AlertDisplayComponent],
   templateUrl: './custom-rich-text-list.component.html',
   styleUrl: './custom-rich-text-list.component.scss'
 })
@@ -27,7 +27,7 @@ export class CustomRichTextListComponent {
       field: 'CustomRichTextType.CustomRichTextTypeDisplayName',
       valueGetter: function (params: any) {
         return { LinkValue: params.data.CustomRichTextType.CustomRichTextTypeID, LinkDisplay: params.data.CustomRichTextType.CustomRichTextTypeDisplayName };
-      }, cellRendererFramework: LinkRendererComponent,
+      }, cellRenderer: LinkRendererComponent,
       cellRendererParams: { inRouterLink: "/custom-rich-text/" },
       filterValueGetter: function (params: any) {
         return params.data.CustomRichTextType.CustomRichTextTypeDisplayName;

@@ -1,7 +1,8 @@
-﻿using IdentityServer4.AccessTokenValidation;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,11 +16,12 @@ using OregonTilth.API.Services.Hierarchy;
 using OregonTilth.EFModels.Entities;
 using Serilog;
 using System;
-using System.Net.Http;
+using System.IO.Compression;
+using System.Linq;
 using OregonTilth.API.Services.Logging;
 using OregonTilth.API.Services.SitkaSmtpClientService;
 using ILogger = Serilog.ILogger;
-using SendGrid.Extensions.DependencyInjection;
+using SendGrid;
 
 namespace OregonTilth.API
 {
@@ -55,29 +57,29 @@ namespace OregonTilth.API
                     }
                 });
 
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.Providers.Add<BrotliCompressionProvider>();
+                options.Providers.Add<GzipCompressionProvider>();
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/json" });
+            });
+            services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
+            services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
+
             services.Configure<FrescaConfiguration>(Configuration);
 
             // todo: Calling 'BuildServiceProvider' from application code results in an additional copy of singleton services being created.
             // Consider alternatives such as dependency injecting services as parameters to 'Configure'.
             var frescaConfiguration = services.BuildServiceProvider().GetService<IOptions<FrescaConfiguration>>().Value;
 
-            var keystoneHost = frescaConfiguration.KEYSTONE_HOST;
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme).AddIdentityServerAuthentication(options =>
+            // Auth0 issues tokens with a real API-specific audience, so unlike Keystone both the
+            // issuer and the audience are validated. Inbound claim mapping is left at its default
+            // (on), which is why UserContext reads the WS-Fed URIs from ClaimsConstants.
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
-                if (_environment.IsDevelopment())
-                {
-                    // NOTE: CG 3/22 - This allows the self-signed cert on Keystone to work locally.
-                    options.JwtBackChannelHandler = new HttpClientHandler()
-                    {
-                        ServerCertificateCustomValidationCallback = (message, certificate2, arg3, arg4) => true
-                    };
-                }
-
-                options.Authority = keystoneHost;
-                options.RequireHttpsMetadata = false;
-                options.LegacyAudienceValidation = true;
-                options.EnableCaching = false;
-                options.SupportedTokens = SupportedTokens.Jwt;
+                options.Authority = frescaConfiguration.Auth0.Authority;
+                options.Audience = frescaConfiguration.Auth0.Audience;
             });
 
             services.AddDbContext<OregonTilthDbContext>(c =>
@@ -91,8 +93,11 @@ namespace OregonTilth.API
             services.AddSingleton(Configuration);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddTransient(s => new KeystoneService(s.GetService<IHttpContextAccessor>(), keystoneHost));
-            services.AddSendGrid(options => { options.ApiKey = frescaConfiguration.SendGridApiKey; });
+            // Factory overload (rather than a pre-built instance) so the client is not constructed
+            // until it is first resolved. SendGridClient's ctor throws on a null key, and unlike
+            // Beacon this project ships no SendGridApiKey default in appsettings.json, so building
+            // it eagerly here would stop keyless environments from starting at all.
+            services.AddSingleton<ISendGridClient>(_ => new SendGridClient(frescaConfiguration.SendGridApiKey));
             services.AddSingleton<SitkaSmtpClientService>();
 
             services.AddHealthChecks().AddDbContextCheck<OregonTilthDbContext>();
@@ -115,8 +120,12 @@ namespace OregonTilth.API
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+                // Dev is excluded: Visual Studio injects ASPNETCORE_HTTPS_PORT with the *host*-published
+                // port, so in a container this would bounce plain-http callers to a different port than
+                // the one they dialed, which is confusing when several stacks share host ports.
+                app.UseHttpsRedirection();
             }
-            app.UseHttpsRedirection();
+            app.UseResponseCompression();
             app.UseSerilogRequestLogging(opts =>
             {
                 opts.EnrichDiagnosticContext = LogHelper.EnrichFromRequest;

@@ -8,8 +8,8 @@ describe('MachineryComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ MachineryComponent ]
-    })
+    imports: [MachineryComponent]
+})
     .compileComponents();
   }));
 

@@ -1,56 +1,68 @@
-<div *ngIf="isLoading" class="d-inline">
-    <span class="fa fa-spinner loading-spinner"></span>
-</div>
+@let def = fieldDefinition();
 
-<div *ngIf="!isLoading" class="d-inline">
-    <ng-template #popTitle>
-        <div class="row">
-            <div class="col-auto mr-auto">
-                <div class="mt-1">{{fieldDefinition.FieldDefinitionType.FieldDefinitionTypeDisplayName}}</div>
-            </div>
-            <div class="col-auto" *ngIf="!isEditing">
+@if (isBusy() || !def) {
+    <div class="d-inline">
+        <span class="fa fa-spinner loading-spinner"></span>
+    </div>
+} @else {
+    <div class="d-inline">
+        <ng-template #popTitle>
+            <div class="popoverHoverRegion" (mouseenter)="popoverMouseEnter()" (mouseleave)="popoverMouseLeave()">
                 <div class="row">
-                    <div class="col-sm-2 pl-0 pr-0">
-                        <button type="button" class="btn btn-link" (click)="enterEdit()">
-                            <i class="fa fa-pencil-square-o" attr.aria-label="Edit the definition for {{fieldDefinition.FieldDefinitionType.FieldDefinitionTypeDisplayName}}">
-                            </i>
-                        </button>
+                    <div class="col-auto mr-auto">
+                        <div class="mt-1">{{def.FieldDefinitionType.FieldDefinitionTypeDisplayName}}</div>
                     </div>
+                    @if (!isEditing()) {
+                        <div class="col-auto">
+                            <div class="row">
+                                <div class="col-sm-2 pl-0 pr-0">
+                                    <button type="button" class="btn btn-link" (click)="enterEdit()">
+                                        <i class="fa fa-pencil-square-o" attr.aria-label="Edit the definition for {{def.FieldDefinitionType.FieldDefinitionTypeDisplayName}}">
+                                        </i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
-    </ng-template>
-    <ng-template #popContent>
-        <ng-container *ngIf="!isEditing">
-            <div *ngIf="showEditButton()" style="position: relative; min-height: 30px;">
-                <div *ngIf="!emptyContent" [innerHtml]="fieldDefinition.FieldDefinitionValue"></div>
-                <div *ngIf="emptyContent" class="hoverEmptySpace"></div>
+        </ng-template>
+        <ng-template #popContent>
+            <div class="popoverHoverRegion" (mouseenter)="popoverMouseEnter()" (mouseleave)="popoverMouseLeave()">
+                @if (isEditing()) {
+                    <editor #tinyMceEditor [init]="editorConfig" [ngModel]="editedContent()" (ngModelChange)="editedContent.set($event)"></editor>
+                    <div style="float:right;">
+                        <button type="button" class="btn btn-sm btn-fresca mt-1 mr-1 mb-1" (click)="saveEdit()">Save</button>
+                        <button type="button" class="btn btn-sm btn-secondary mt-1 mb-1" (click)="cancelEdit()">Cancel</button>
+                    </div>
+                } @else if (canEdit()) {
+                    <div style="position: relative; min-height: 30px;">
+                        @if (hasContent()) {
+                            <div [innerHtml]="def.FieldDefinitionValue"></div>
+                        } @else {
+                            <div class="hoverEmptySpace"></div>
+                        }
+                    </div>
+                } @else {
+                    <div [innerHtml]="def.FieldDefinitionValue"></div>
+                }
             </div>
-            <div *ngIf="!showEditButton()" [innerHtml]="fieldDefinition.FieldDefinitionValue"></div>
-        </ng-container>
-        <div *ngIf="isEditing">
-            <editor #tinyMceEditor [init]="tinyMceEditor | tinyMceConfig" [(ngModel)]="editedContent"></editor>
-            <div style="float:right;">
-                <button type="button" class="btn btn-sm btn-fresca mt-1 mr-1 mb-1" (click)="saveEdit()">Save</button>
-                <button type="button" class="btn btn-sm btn-secondary mt-1 mb-1" (click)="cancelEdit(p)">Cancel</button>
-            </div>
-        </div>
-    </ng-template>
-    <ng-container *ngIf="showEditButton()">
-        <span (mouseenter)="notEditingMouseEnter()" (mouseleave)="notEditingMouseLeave()">
-            {{getLabelText()}}
-            <i class="fas fa-question-circle small" style="cursor: help;" #p="ngbPopover" [ngbPopover]="popContent"
-                [popoverTitle]="popTitle" triggers="manual" [autoClose]="false" [placement]="['right', 'auto']"
-                popoverClass="popover-override" container="body">
-            </i>
-        </span>
-    </ng-container>
-    <ng-container *ngIf="!showEditButton()">
-        <span>
-            {{getLabelText()}}
-            <i class="fas fa-question-circle small" style="cursor: help;" [ngbPopover]="popContent"  popoverClass="popover-override"
-                [popoverTitle]="fieldDefinition.FieldDefinitionType.FieldDefinitionTypeDisplayName" triggers="mouseenter:mouseleave" container="body">
-            </i>
-        </span>
-    </ng-container>
-</div>
+        </ng-template>
+        @if (canEdit()) {
+            <span (mouseenter)="labelMouseEnter()" (mouseleave)="labelMouseLeave()">
+                {{labelText()}}
+                <i class="fas fa-question-circle small" style="cursor: help;" #p="ngbPopover" [ngbPopover]="popContent"
+                    [popoverTitle]="popTitle" triggers="manual" [autoClose]="false" [placement]="['right', 'auto']"
+                    popoverClass="popover-override" container="body">
+                </i>
+            </span>
+        } @else {
+            <span>
+                {{labelText()}}
+                <i class="fas fa-question-circle small" style="cursor: help;" [ngbPopover]="popContent" popoverClass="popover-override"
+                    [popoverTitle]="def.FieldDefinitionType.FieldDefinitionTypeDisplayName" triggers="mouseenter:mouseleave" container="body">
+                </i>
+            </span>
+        }
+    </div>
+}

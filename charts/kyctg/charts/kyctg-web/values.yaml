@@ -2,6 +2,7 @@
 global:
   env: {}
   domains: {}
+  auth0: {}
   secrets: {}
 
 

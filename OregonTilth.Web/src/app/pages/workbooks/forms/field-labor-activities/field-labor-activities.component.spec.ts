@@ -8,8 +8,8 @@ describe('FieldLaborActivitiesComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ FieldLaborActivitiesComponent ]
-    })
+    imports: [FieldLaborActivitiesComponent]
+})
     .compileComponents();
   }));
 

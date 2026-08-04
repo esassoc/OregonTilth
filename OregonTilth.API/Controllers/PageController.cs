@@ -14,7 +14,7 @@ namespace OregonTilth.API.Controllers
     [ApiController]
     public class PageController : SitkaController<PageController>
     {
-        public PageController(OregonTilthDbContext dbContext, ILogger<PageController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public PageController(OregonTilthDbContext dbContext, ILogger<PageController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 
@@ -116,4 +116,4 @@ namespace OregonTilth.API.Controllers
         //    return Ok(updatedFieldDefinitionDto);
         //}
     }
-}
+}

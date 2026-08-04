@@ -4,7 +4,7 @@ import { RoleService } from 'src/app/services/role/role.service';
 import { AlertService } from 'src/app/shared/services/alert.service';
 import { Alert } from 'src/app/shared/models/alert';
 import { AlertContext } from 'src/app/shared/models/enums/alert-context.enum';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { RoleDto } from 'src/app/shared/models/generated/role-dto';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UserDetailedDto } from 'src/app/shared/models';
@@ -12,6 +12,9 @@ import { forkJoin } from 'rxjs';
 import { UserInviteDto } from 'src/app/shared/models/user/user-invite-dto';
 import { environment } from 'src/environments/environment';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { NgIf, NgFor } from '@angular/common';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -20,6 +23,14 @@ import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service'
     templateUrl: './user-invite.component.html',
     styleUrls: ['./user-invite.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgIf,
+        AlertDisplayComponent,
+        FormsModule,
+        NgFor,
+        RouterLink,
+    ],
 })
 export class UserInviteComponent implements OnInit, OnDestroy {
     private watchUserChangeSubscription: any;
@@ -50,7 +61,7 @@ export class UserInviteComponent implements OnInit, OnDestroy {
                 forkJoin(
                     this.userService.getUserFromUserID(userID)
                 ).subscribe(([user]) => {
-                    if(user.UserGuid === null)
+                    if(user.GlobalID === null)
                     {
                         let userToInvite = user instanceof Array
                             ? null

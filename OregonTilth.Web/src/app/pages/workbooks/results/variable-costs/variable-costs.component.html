@@ -26,7 +26,7 @@
               </div>
               <div class="row mt-2">
                 <div class="col">
-                  <ag-grid-angular #cropCropUnitGrid style="width: 100%; height: 500px;" class="ag-theme-balham" [rowData]="variableCostsPivotedForSelectedCrop"
+                  <ag-grid-angular theme="legacy" #cropCropUnitGrid style="width: 100%; height: 500px;" class="ag-theme-balham" [rowData]="variableCostsPivotedForSelectedCrop"
                     [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" (gridReady)="onGridReady($event)" [suppressDragLeaveHidesColumns]="true">
                   </ag-grid-angular>
                 </div>

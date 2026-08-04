@@ -3,28 +3,18 @@
     "staging": [TODO],
     "dev": [TODO],
     "apiHostName": [TODO],
-    "createAccountUrl": [TODO],
-    "createAccountRedirectUrl": [TODO],
-  
-    "keystoneSupportBaseUrl": [TODO],
+
     "geoserverMapServiceUrl": [TODO],
-    
+
     "platformLongName": [TODO],
     "platformShortName": [TODO],
-    "leadOrganizationLongName": [TODO], 
+    "leadOrganizationLongName": [TODO],
     "leadOrganizationHomeUrl": [TODO],
 
-  
-    "keystoneAuthConfiguration": {
-      "clientId": [TODO],
-      "issuer": [TODO],
-      "responseType": [TODO],
-      "disablePKCE": [TODO],
-      "redirectUriRelative": [TODO],
-      "scope": [TODO]",
-      "sessionChecksEnabled": [TODO],
-      "logoutUrl": [TODO]",
-      "postLogoutRedirectUri": [TODO],
-      "waitForTokenInMsec": [TODO]
+
+    "auth0": {
+      "domain": "knowyourcosttogrow.us.auth0.com",
+      "clientId": "NMcg7B6cTWgARMnzK6GLSULHtXXtjOvh",
+      "audience": "KnowYourCostToGrowAPI"
     }
   }

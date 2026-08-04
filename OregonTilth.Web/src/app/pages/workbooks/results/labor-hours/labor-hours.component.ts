@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf, NgFor } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -19,7 +19,7 @@ import { ResultsService } from 'src/app/services/results/results.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { GridService } from 'src/app/shared/services/grid/grid.service';
 import { ViewChild } from '@angular/core';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { LaborHoursDashboardReportDto } from 'src/app/shared/models/forms/crop-yield-information/labor-hours-dashboard-report-dto';
 import { FieldLaborActivityCategoryDto } from 'src/app/shared/models/generated/field-labor-activity-category-dto';
 import { LookupTablesService } from 'src/app/services/lookup-tables/lookup-tables.service';
@@ -27,13 +27,20 @@ import { ChartData, ChartOptions, ChartType,  } from 'chart.js';
 import { CropDto } from 'src/app/shared/models/generated/crop-dto';
 import { CropUnitDto } from 'src/app/shared/models/generated/crop-unit-dto';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BaseChartDirective } from 'ng2-charts';
 
 
 
 @Component({
-  selector: 'labor-hours',
-  templateUrl: './labor-hours.component.html',
-  styleUrls: ['./labor-hours.component.scss']
+    selector: 'labor-hours',
+    templateUrl: './labor-hours.component.html',
+    styleUrls: ['./labor-hours.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, NgIf, CustomRichTextComponent, FormsModule, NgFor, NgbTooltip, AgGridModule, BaseChartDirective]
 })
 export class LaborHoursComponent implements OnInit {
   @ViewChild('cropCropUnitGrid') cropCropUnitGrid: AgGridAngular;
@@ -108,12 +115,15 @@ export class LaborHoursComponent implements OnInit {
       this.getLaborActivityCategoriesRequest = this.lookupTablesService.getFieldLaborActivityCategories();
 
 
-      forkJoin([this.getWorkbookRequest, this.getLaborHoursDashboardReportDtosRequest]).subscribe(([workbook, laborHoursDashboardReportDtos, laborActivityCategoryDtos]: [WorkbookDto, LaborHoursDashboardReportDto[], FieldLaborActivityCategoryDto[]] ) => {
+      // NOTE: getLaborActivityCategoriesRequest is built above but has never been passed
+      // to this forkJoin, so the third destructured value was always undefined at runtime.
+      // rxjs 6's looser typing hid the arity mismatch; rxjs 7 rejects it. Kept as a 2-tuple
+      // here to preserve existing behaviour exactly - see the note in the upgrade summary.
+      forkJoin<[WorkbookDto, LaborHoursDashboardReportDto[]]>([this.getWorkbookRequest, this.getLaborHoursDashboardReportDtosRequest]).subscribe(([workbook, laborHoursDashboardReportDtos]: [WorkbookDto, LaborHoursDashboardReportDto[]] ) => {
           this.workbook = workbook;
           this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Labor Breakdown'}]);
           this.laborHoursDashboardReportDtos = laborHoursDashboardReportDtos;
-          this.laborActivityCategoryDtos = laborActivityCategoryDtos;
-          
+
           this.initializeDropdowns();
           this.updateGridData();
           this.formatChartData();
@@ -242,7 +252,7 @@ export class LaborHoursComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.cropCropUnitGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropCropUnitGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

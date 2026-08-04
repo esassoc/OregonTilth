@@ -4,7 +4,7 @@ import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgIf, NgFor } from '@angular/common';
 import { WorkbookService } from 'src/app/services/workbook/workbook.service';
 import { WorkbookDto } from 'src/app/shared/models/generated/workbook-dto';
 import { ColDef } from 'ag-grid-community';
@@ -21,13 +21,19 @@ import { LookupTablesService } from 'src/app/services/lookup-tables/lookup-table
 import { forkJoin, Subscription } from 'rxjs';
 import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/button-renderer/button-renderer.component';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'field-labor-activities',
-  templateUrl: './field-labor-activities.component.html',
-  styleUrls: ['./field-labor-activities.component.scss']
+    selector: 'field-labor-activities',
+    templateUrl: './field-labor-activities.component.html',
+    styleUrls: ['./field-labor-activities.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class FieldLaborActivitiesComponent implements OnInit {
   @ViewChild('fieldLaborActivitiesGrid') fieldLaborActivitiesGrid: AgGridAngular;
@@ -64,8 +70,8 @@ export class FieldLaborActivitiesComponent implements OnInit {
 
   public columnDefs: ColDef[];
 
-  getRowNodeId(data)  {
-    return data.FieldLaborActivityID.toString();
+  getRowId(params)  {
+    return params.data.FieldLaborActivityID.toString();
   }
  
   ngOnInit() {
@@ -87,7 +93,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
     this.getFieldLaborActivityCategoriesRequest = this.lookupTablesService.getFieldLaborActivityCategories();
     this.getFieldLaborActivitiesRequest = this.workbookService.getFieldLaborActivities(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getFieldLaborActivityCategoriesRequest, this.getFieldLaborActivitiesRequest]).subscribe(([workbook, fieldLaborActivityCategories, fieldLaborActivities]: [WorkbookDto, FieldLaborActivityCategoryDto[], FieldLaborActivityDto[]]) => {
+    forkJoin<[WorkbookDto, FieldLaborActivityCategoryDto[], FieldLaborActivityDto[]]>([this.getWorkbookRequest, this.getFieldLaborActivityCategoriesRequest, this.getFieldLaborActivitiesRequest]).subscribe(([workbook, fieldLaborActivityCategories, fieldLaborActivities]: [WorkbookDto, FieldLaborActivityCategoryDto[], FieldLaborActivityDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Field Labor Activities'}]);
       this.fieldLaborActivityCategories = fieldLaborActivityCategories;
@@ -109,7 +115,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
         field: 'FieldLaborActivityName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -131,7 +137,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
         valueGetter: function (params) {
           return params.data.FieldLaborActivityCategory.FieldLaborActivityCategoryDisplayName;
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -157,7 +163,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
         valueGetter: params => {
           return params.data.LaborTypeManual ? "Yes" : "No";
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -183,7 +189,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
         valueGetter: params => {
           return params.data.LaborTypeMachinery ? "Yes" : "No";
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -191,7 +197,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
       {
         headerName: 'Delete', field: 'FieldLaborActivityID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.FieldLaborActivityID, ObjectDisplayName: params.data.FieldLaborActivityName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Field Labor Activity?`)) {
@@ -222,7 +228,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
       data.node.setData(fieldLaborActivity);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -264,7 +270,9 @@ export class FieldLaborActivitiesComponent implements OnInit {
     this.addFieldLaborActivityRequest = this.workbookService.addFieldLaborActivity(this.model).subscribe(response => {
       this.isLoadingSubmit = false;
       var transactionRows = this.gridApi.applyTransaction({add: [response]});
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.resetForm();
       this.cdr.detectChanges();
       
@@ -279,7 +287,7 @@ export class FieldLaborActivitiesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.fieldLaborActivitiesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.fieldLaborActivitiesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

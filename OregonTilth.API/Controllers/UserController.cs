@@ -21,109 +21,48 @@ namespace OregonTilth.API.Controllers
     [ApiController]
     public class UserController : SitkaController<UserController>
     {
-        public UserController(OregonTilthDbContext dbContext, ILogger<UserController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public UserController(OregonTilthDbContext dbContext, ILogger<UserController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 
+        /// <summary>
+        /// Invites someone at a chosen role. Auth0 has no invite API we can call without Management
+        /// API credentials, so instead of creating the identity up front we pre-provision the User row
+        /// with a null GlobalID and email the invitee a link to sign up. When they do,
+        /// <see cref="EFModels.Entities.User.UpdateClaims"/> matches this row on email and attaches
+        /// their Auth0 identity, so they arrive already holding the role the admin picked.
+        /// </summary>
         [HttpPost("/users/invite")]
         [AdminFeature]
-        public async Task<IActionResult> InviteUser([FromBody] UserInviteDto inviteDto)
+        public ActionResult<UserDto> InviteUser([FromBody] UserInviteDto inviteDto)
         {
-            if (inviteDto.RoleID.HasValue)
-            {
-                var role = Role.GetByRoleID(_dbContext, inviteDto.RoleID.Value);
-                if (role == null)
-                {
-                    return BadRequest($"Could not find a Role with the ID {inviteDto.RoleID}");
-                }
-            }
-            else
+            if (!inviteDto.RoleID.HasValue)
             {
                 return BadRequest("Role ID is required.");
             }
 
-            var applicationName = $"{_frescaConfiguration.PlatformLongName}";
-            var leadOrganizationLongName = $"{_frescaConfiguration.LeadOrganizationLongName}";
-            var inviteModel = new KeystoneService.KeystoneInviteModel
+            var role = Role.GetByRoleID(_dbContext, inviteDto.RoleID.Value);
+            if (role == null)
             {
-                FirstName = inviteDto.FirstName,
-                LastName = inviteDto.LastName,
-                Email = inviteDto.Email,
-                Subject = $"Invitation to {applicationName}",
-                WelcomeText = $"You are receiving this notification because an administrator of {applicationName} Program  has invited you to create an account.",
-                SiteName = applicationName,
-                SignatureBlock = $"{leadOrganizationLongName}<br /><a href='mailto:{_frescaConfiguration.LeadOrganizationEmail}'>{_frescaConfiguration.LeadOrganizationEmail}</a><a href='{_frescaConfiguration.LeadOrganizationHomeUrl}'>{_frescaConfiguration.LeadOrganizationHomeUrl}</a>",
-                RedirectURL = _frescaConfiguration.KEYSTONE_REDIRECT_URL
-            };
-
-            var response = await _keystoneService.Invite(inviteModel);
-            if (response.StatusCode != HttpStatusCode.OK || response.Error != null)
-            {
-                ModelState.AddModelError("Email", $"There was a problem inviting the user to Keystone: {response.Error.Message}.");
-                if (response.Error.ModelState != null)
-                {
-                    foreach (var modelStateKey in response.Error.ModelState.Keys)
-                    {
-                        foreach (var err in response.Error.ModelState[modelStateKey])
-                        {
-                            ModelState.AddModelError(modelStateKey, err);
-                        }
-                    }
-                }
+                return BadRequest($"Could not find a Role with the ID {inviteDto.RoleID}");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var keystoneUser = response.Payload.Claims;
             var existingUser = EFModels.Entities.User.GetByEmail(_dbContext, inviteDto.Email);
-            if (existingUser != null)
-            {
-                existingUser = EFModels.Entities.User.UpdateUserGuid(_dbContext, existingUser.UserID, keystoneUser.UserGuid);
-                return Ok(existingUser);
-            }
-
-            var newUser = new UserUpsertDto
-            {
-                FirstName = keystoneUser.FirstName,
-                LastName = keystoneUser.LastName,
-                OrganizationName = keystoneUser.OrganizationName,
-                Email = keystoneUser.Email,
-                PhoneNumber = keystoneUser.PrimaryPhone,
-                RoleID = inviteDto.RoleID.Value
-            };
-
-            var user = EFModels.Entities.User.CreateNewUser(_dbContext, newUser, keystoneUser.LoginName,
-                keystoneUser.UserGuid);
-            return Ok(user);
-        }
-
-        [HttpPost("users")]
-        [LoggedInUnclassifiedFeature]
-        public ActionResult<UserDto> CreateUser([FromBody] UserCreateDto userCreateDto)
-        {
-            // Validate request body; all fields required in Dto except Org Name and Phone
-            if (userCreateDto == null)
-            {
-                return BadRequest();
-            }
-
-            var validationMessages = EFModels.Entities.User.ValidateCreateUnassignedUser(_dbContext, userCreateDto);
-            validationMessages.ForEach(vm => { ModelState.AddModelError(vm.Type, vm.Message); });
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = EFModels.Entities.User.CreateUnassignedUser(_dbContext, userCreateDto);
+            var user = existingUser != null
+                // Re-inviting someone who already has a row: keep their identity and history, just
+                // apply the role from this invite.
+                ? EFModels.Entities.User.SetUserRole(_dbContext, existingUser.UserID, inviteDto.RoleID.Value)
+                : EFModels.Entities.User.CreateNewUser(_dbContext, new UserUpsertDto
+                {
+                    FirstName = inviteDto.FirstName,
+                    LastName = inviteDto.LastName,
+                    Email = inviteDto.Email,
+                    RoleID = inviteDto.RoleID.Value,
+                    ReceiveSupportEmails = false
+                }, null, null);
 
             var smtpClient = HttpContext.RequestServices.GetRequiredService<SitkaSmtpClientService>();
-            var mailMessage = GenerateUserCreatedEmail(_frescaConfiguration.WEB_URL, user, _dbContext, smtpClient);
-            SitkaSmtpClientService.AddCcRecipientsToEmail(mailMessage,
-                        EFModels.Entities.User.GetEmailAddressesForAdminsThatReceiveSupportEmails(_dbContext));
+            var mailMessage = GenerateUserInviteEmail(_frescaConfiguration.WEB_URL, inviteDto, smtpClient);
             SendEmailMessage(smtpClient, mailMessage);
 
             return Ok(user);
@@ -152,26 +91,6 @@ namespace OregonTilth.API.Controllers
         {
             var userDto = EFModels.Entities.User.GetByUserID(_dbContext, userID);
             return RequireNotNullThrowNotFound(userDto, "User", userID);
-        }
-
-        [HttpGet("user-claims/{globalID}")]
-        public ActionResult<UserDto> GetByGlobalID([FromRoute] string globalID)
-        {
-            var isValidGuid = Guid.TryParse(globalID, out var globalIDAsGuid);
-            if (!isValidGuid)
-            {
-                return BadRequest();
-            }
-
-            var userDto = EFModels.Entities.User.GetByUserGuid(_dbContext, globalIDAsGuid);
-            if (userDto == null)
-            {
-                var notFoundMessage = $"User with GUID {globalIDAsGuid} does not exist!";
-                _logger.LogError(notFoundMessage);
-                return NotFound(notFoundMessage);
-            }
-
-            return Ok(userDto);
         }
 
         [HttpPut("users/{userID}")]
@@ -239,21 +158,28 @@ namespace OregonTilth.API.Controllers
             return Ok(updatedUserDto);
         }
 
-        private MailMessage GenerateUserCreatedEmail(string frescaUrl, UserDto user, OregonTilthDbContext dbContext,
+        /// <summary>
+        /// The invite email Keystone used to send on our behalf. It points at the app rather than at a
+        /// pre-created account, because the invitee's Auth0 identity does not exist until they sign up.
+        /// </summary>
+        private MailMessage GenerateUserInviteEmail(string frescaUrl, UserInviteDto inviteDto,
             SitkaSmtpClientService smtpClient)
         {
-            var messageBody = $@"A new user has signed up to the {_frescaConfiguration.PlatformLongName}: <br/><br/>
- {user.FullName} ({user.Email}) <br/><br/>
-As an administrator of the {_frescaConfiguration.PlatformShortName}, you can assign them a role  by following <a href='{frescaUrl}/users/{user.UserID}'>this link</a>. <br/><br/>
-{smtpClient.GetSupportNotificationEmailSignature()}";
+            var applicationName = _frescaConfiguration.PlatformLongName;
+            // /create-user-callback opens Auth0's sign-up screen directly, the same role the old
+            // KEYSTONE_REDIRECT_URL played.
+            var signUpUrl = $"{frescaUrl}/create-user-callback";
+            var messageBody = $@"You are receiving this notification because an administrator of {applicationName} has invited you to create an account. <br/><br/>
+To get started, <a href='{signUpUrl}'>create your {applicationName} account</a>. Be sure to sign up with this email address ({inviteDto.Email}) so your account is linked to the access you have been granted. <br/><br/>
+{smtpClient.GetDefaultEmailSignature()}";
 
             var mailMessage = new MailMessage
             {
-                Subject = $"New User in {_frescaConfiguration.PlatformLongName}",
-                Body = $"Hello,<br /><br />{messageBody}",
+                Subject = $"Invitation to {applicationName}",
+                Body = $"Hello {inviteDto.FirstName},<br /><br />{messageBody}",
             };
 
-            mailMessage.To.Add(smtpClient.GetDefaultEmailFrom());
+            mailMessage.To.Add(new MailAddress(inviteDto.Email));
             return mailMessage;
         }
 
@@ -276,12 +202,5 @@ As an administrator of the {_frescaConfiguration.PlatformShortName}, you can ass
             return mailMessage;
         }
 
-        private void SendEmailMessage(SitkaSmtpClientService smtpClient, MailMessage mailMessage)
-        {
-            mailMessage.IsBodyHtml = true;
-            mailMessage.From = smtpClient.GetDefaultEmailFrom();
-            mailMessage.ReplyToList.Add(!String.IsNullOrWhiteSpace(_frescaConfiguration.LeadOrganizationEmail) ? _frescaConfiguration.LeadOrganizationEmail : "donotreply@sitkatech.com");
-            smtpClient.SendEmailMessage(mailMessage).Wait();
-        }
     }
 }

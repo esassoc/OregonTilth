@@ -1,0 +1,10 @@
+@if (visible()) {
+    <div class="container-fluid mt-2">
+        <ngb-alert [type]="context" [dismissible]="true" (closed)="onClosed()">
+            <strong>We have moved to a new sign-in provider.</strong>
+            You now sign in through Auth0 instead of Keystone. Your email address and password are
+            unchanged, so use <strong>Sign In</strong> just as you did before. If your password is
+            not accepted, choose <em>Forgot password?</em> on the sign-in screen to set a new one.
+        </ngb-alert>
+    </div>
+}

@@ -8,8 +8,8 @@ describe('UnauthenticatedComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ UnauthenticatedComponent ]
-    })
+    imports: [UnauthenticatedComponent]
+})
     .compileComponents();
   }));
 

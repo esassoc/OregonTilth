@@ -1,16 +1,21 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UserDetailedDto } from 'src/app/shared/models';
-import { error } from 'protractor';
 import { RoleEnum } from 'src/app/shared/models/enums/role.enum';
 import { environment } from 'src/environments/environment';
 import { CustomRichTextType } from 'src/app/shared/models/enums/custom-rich-text-type.enum';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../shared/components/alert-display/alert-display.component';
+import { NgIf } from '@angular/common';
+import { NgbAlert } from '@ng-bootstrap/ng-bootstrap';
+import { CustomRichTextComponent } from '../../../shared/components/custom-rich-text/custom-rich-text.component';
 
 @Component({
     selector: 'app-home-index',
     templateUrl: './home-index.component.html',
-    styleUrls: ['./home-index.component.scss']
+    styleUrls: ['./home-index.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, NgIf, NgbAlert, CustomRichTextComponent]
 })
 export class HomeIndexComponent implements OnInit, OnDestroy {
     public watchUserChangeSubscription: any;
@@ -30,10 +35,6 @@ export class HomeIndexComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.breadcrumbService.setBreadcrumbs([{label: "Home"}]);
-        if (localStorage.getItem("loginOnReturn")){
-            localStorage.removeItem("loginOnReturn");
-            this.authenticationService.login();
-        }
         this.watchUserChangeSubscription = this.authenticationService.currentUserSetObservable.subscribe(currentUser => { 
             this.currentUser = currentUser;
         });
@@ -87,16 +88,8 @@ export class HomeIndexComponent implements OnInit, OnDestroy {
         this.authenticationService.createAccount();
     }
 
-    public forgotPasswordUrl() :string{
-        return `${environment.keystoneSupportBaseUrl}/ForgotPassword`;
-    }
-
-    public forgotUsernameUrl() :string{
-        return `${environment.keystoneSupportBaseUrl}/ForgotUsername`;
-    }
-
-    public keystoneSupportUrl():string{
-        return `${environment.keystoneSupportBaseUrl}/Support/20`;
+    public resetPassword(): void{
+        this.authenticationService.resetPassword();
     }
 
     public platformLongName():string{

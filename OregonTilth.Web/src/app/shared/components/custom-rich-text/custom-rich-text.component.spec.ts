@@ -8,8 +8,8 @@ describe('CustomRichTextComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CustomRichTextComponent ]
-    })
+    imports: [CustomRichTextComponent]
+})
     .compileComponents();
   }));
 

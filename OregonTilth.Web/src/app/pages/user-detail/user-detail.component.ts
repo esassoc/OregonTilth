@@ -1,16 +1,20 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { UserDetailedDto } from 'src/app/shared/models';
 import { UserService } from 'src/app/services/user/user.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { forkJoin } from 'rxjs';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { NgIf } from '@angular/common';
+import { AlertDisplayComponent } from '../../shared/components/alert-display/alert-display.component';
 
 @Component({
     selector: 'template-user-detail',
     templateUrl: './user-detail.component.html',
     styleUrls: ['./user-detail.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [NgIf, RouterLink, AlertDisplayComponent]
 })
 export class UserDetailComponent implements OnInit, OnDestroy {
     private watchUserChangeSubscription: any;

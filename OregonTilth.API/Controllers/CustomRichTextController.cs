@@ -13,7 +13,7 @@ namespace OregonTilth.API.Controllers
     [ApiController]
     public class CustomRichTextController : SitkaController<CustomRichTextController>
     {
-        public CustomRichTextController(OregonTilthDbContext dbContext, ILogger<CustomRichTextController> logger, KeystoneService keystoneService, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, keystoneService, frescaConfiguration)
+        public CustomRichTextController(OregonTilthDbContext dbContext, ILogger<CustomRichTextController> logger, IOptions<FrescaConfiguration> frescaConfiguration) : base(dbContext, logger, frescaConfiguration)
         {
         }
 

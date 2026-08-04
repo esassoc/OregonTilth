@@ -7,7 +7,7 @@ export default class TinyMCEHelpers {
      * @param overrideConfig 
      * @returns 
      */
-    public static DefaultInitConfig(editorComponent : EditorComponent = null, overrideConfig : object = null) : object {
+    public static DefaultInitConfig(editorComponent : Pick<EditorComponent, 'editor'> = null, overrideConfig : object = null) : object {
         let config = { 
             plugins: 'lists link image table code help wordcount media', 
             file_picker_types: 'image',
@@ -46,6 +46,22 @@ export default class TinyMCEHelpers {
 
         let resultConfig = this.OverrideConfig(config, overrideConfig)
         return resultConfig;
+    }
+
+    /**
+     * Build a config for an editor that doesn't exist yet -- pass a viewChild() query rather than an
+     * instance. Call this once and hold the result: TinyMCE tears down and re-initializes whenever
+     * `init` changes identity, so the config bound to [init] has to stay identity-stable. The image
+     * picker resolves the live editor lazily through the accessor.
+     *
+     * @param editorAccessor
+     * @param overrideConfig
+     * @returns
+     */
+    public static DefaultInitConfigFor(editorAccessor : () => Pick<EditorComponent, 'editor'>, overrideConfig : object = null) : object {
+        return this.DefaultInitConfig({
+            get editor() { return editorAccessor()?.editor; },
+        }, overrideConfig);
     }
 
     /**

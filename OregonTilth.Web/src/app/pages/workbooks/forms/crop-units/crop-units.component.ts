@@ -14,14 +14,21 @@ import { ButtonRendererComponent } from 'src/app/shared/components/ag-grid/butto
 import { CropUnitCreateDto } from 'src/app/shared/models/forms/crop-units/crop-unit-create-dto';
 import { CropUnitDto } from 'src/app/shared/models/generated/crop-unit-dto';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'crop-units',
-  templateUrl: './crop-units.component.html',
-  styleUrls: ['./crop-units.component.scss']
+    selector: 'crop-units',
+    templateUrl: './crop-units.component.html',
+    styleUrls: ['./crop-units.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgbTooltip, AgGridModule]
 })
 export class CropUnitsComponent implements OnInit {
   @ViewChild('cropUnitsGrid') cropUnitsGrid: AgGridAngular;
@@ -71,7 +78,7 @@ export class CropUnitsComponent implements OnInit {
     this.getWorkbookRequest = this.workbookService.getWorkbook(this.workbookID);
     this.getCropUnitsRequest = this.workbookService.getCropUnits(this.workbookID);
 
-    forkJoin([this.getWorkbookRequest, this.getCropUnitsRequest]).subscribe(([workbook, cropUnits]: [WorkbookDto, CropUnitDto[]]) => {
+    forkJoin<[WorkbookDto, CropUnitDto[]]>([this.getWorkbookRequest, this.getCropUnitsRequest]).subscribe(([workbook, cropUnits]: [WorkbookDto, CropUnitDto[]]) => {
       this.workbook = workbook;
       this.breadcrumbService.setBreadcrumbs([{label:'Workbooks', routerLink:['/workbooks']},{label:workbook.WorkbookName, routerLink:['/workbooks',workbook.WorkbookID.toString()]}, {label:'Crop Units'}]);
 
@@ -89,7 +96,7 @@ export class CropUnitsComponent implements OnInit {
         field: 'CropUnitName',
         editable: true,
         cellEditor: 'agTextCellEditor',
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         sortable: true, 
         filter: true,
         resizable: true
@@ -97,7 +104,7 @@ export class CropUnitsComponent implements OnInit {
       {
         headerName: 'Delete', field: 'CropUnitID', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.CropUnitID, ObjectDisplayName: params.data.CropUnitName };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete the ${field.ObjectDisplayName} Crop Unit?`)) {
@@ -127,7 +134,7 @@ export class CropUnitsComponent implements OnInit {
       data.node.setData(cropUnit);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -185,7 +192,7 @@ export class CropUnitsComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.cropUnitsGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.cropUnitsGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

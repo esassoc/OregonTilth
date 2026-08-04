@@ -14,8 +14,8 @@
           </div>
           <div class="row mt-2">
             <div class="col">
-              <ag-grid-angular #cropCropUnitGrid style="width: 100%; height: 500px;" class="ag-theme-balham" [rowData]="cropYieldInformationDashboardReportDtos"
-                [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" (gridReady)="onGridReady($event)" [getRowNodeId]="getRowNodeId" [suppressDragLeaveHidesColumns]="true">
+              <ag-grid-angular theme="legacy" #cropCropUnitGrid style="width: 100%; height: 500px;" class="ag-theme-balham" [rowData]="cropYieldInformationDashboardReportDtos"
+                [columnDefs]="columnDefs" [pagination]="true" [paginationPageSize]="100" (gridReady)="onGridReady($event)" [getRowId]="getRowId" [suppressDragLeaveHidesColumns]="true">
               </ag-grid-angular>
             </div>
           </div>

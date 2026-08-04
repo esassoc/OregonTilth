@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { ApiRouteService } from '../api-route/api-route.service';
 import { Router } from '@angular/router';
 import { Observable, throwError as _throw } from 'rxjs';
@@ -7,7 +7,7 @@ import { catchError, map } from 'rxjs/operators';
 import { BusyService } from '../busy/busy.service';
 import { AlertService } from '../alert.service';
 import { Alert } from 'src/app/shared/models/alert';
-import { OAuthService } from 'angular-oauth2-oidc';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 import { AlertContext } from '../../models/enums/alert-context.enum';
 
 
@@ -16,7 +16,9 @@ import { AlertContext } from '../../models/enums/alert-context.enum';
 })
 export class ApiService {
 
-    constructor(private busyService: BusyService, private apiRoute: ApiRouteService, private http: HttpClient, private alertService: AlertService, private oauthService: OAuthService, private router: Router, ) {
+    // AuthenticationService is resolved lazily through the Injector: it depends on UserService,
+    // which depends on this service, so injecting it directly would be a DI cycle.
+    constructor(private busyService: BusyService, private apiRoute: ApiRouteService, private http: HttpClient, private alertService: AlertService, private injector: Injector, private router: Router, ) {
     }
 
     postToApi(relativeRoute: string, data: any): Observable<any> {
@@ -123,7 +125,7 @@ export class ApiService {
         if (!supressErrorMessage) {
             if (error && (error.status === 401)) {
                 this.alertService.pushAlert(new Alert("Access token expired..."));
-                this.oauthService.initImplicitFlow();
+                this.injector.get(AuthenticationService).forcedLogout();
             } else if (error && (error.status === 403)) {
                 this.alertService.pushNotFoundUnauthorizedAlert();
                 this.router.navigate(["/"]);

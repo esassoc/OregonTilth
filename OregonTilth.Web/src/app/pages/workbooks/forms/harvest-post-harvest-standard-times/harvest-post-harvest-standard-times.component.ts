@@ -22,7 +22,7 @@ import { FieldStandardTimeCreateDto } from 'src/app/shared/models/forms/field-st
 import { LaborTypeEnum } from 'src/app/shared/models/enums/labor-type.enum';
 import { TimeStudyCellRendererComponent } from 'src/app/shared/components/ag-grid/time-study-cell-renderer/time-study-cell-renderer.component';
 import { TimeStudyDto } from 'src/app/shared/models/generated/time-study-dto';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators,FormsModule, ReactiveFormsModule  } from '@angular/forms';
 import { TimeStudyModal } from 'src/app/shared/components/ag-grid/time-study-modal/time-study-modal.component';
 import { DecimalEditor } from 'src/app/shared/components/ag-grid/decimal-editor/decimal-editor.component';
@@ -31,15 +31,20 @@ import { HarvestPostHarvestStandardTimeSummaryDto } from 'src/app/shared/models/
 import { CropDto } from 'src/app/shared/models/generated/crop-dto';
 import { CropUnitDto } from 'src/app/shared/models/generated/crop-unit-dto';
 import { HarvestTypeDto } from 'src/app/shared/models/generated/harvest-type-dto';
-import { AgGridAngular } from 'ag-grid-angular';
+import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { UtilityFunctionsService } from 'src/app/services/utility-functions.service';
 import { EditableRendererComponent } from 'src/app/shared/components/ag-grid/editable-renderer/editable-renderer.component';
 import { BreadcrumbsService } from 'src/app/shared/services/breadcrumbs.service';
+import { AlertDisplayComponent } from '../../../../shared/components/alert-display/alert-display.component';
+import { CustomRichTextComponent } from '../../../../shared/components/custom-rich-text/custom-rich-text.component';
+import { NgIf, NgFor } from '@angular/common';
 
 @Component({
-  selector: 'harvest-post-harvest-standard-times',
-  templateUrl: './harvest-post-harvest-standard-times.component.html',
-  styleUrls: ['./harvest-post-harvest-standard-times.component.scss']
+    selector: 'harvest-post-harvest-standard-times',
+    templateUrl: './harvest-post-harvest-standard-times.component.html',
+    styleUrls: ['./harvest-post-harvest-standard-times.component.scss'],
+    standalone: true,
+    imports: [AlertDisplayComponent, CustomRichTextComponent, NgIf, FormsModule, NgFor, NgbTooltip, AgGridModule]
 })
 export class HarvestPostHarvestStandardTimesComponent implements OnInit {
 
@@ -100,8 +105,8 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
       this.screenWidth = width;
   }
 
-  getRowNodeId(data)  {
-    return data.HarvestPostHarvestStandardTimeID.toString();
+  getRowId(params)  {
+    return params.data.HarvestPostHarvestStandardTimeID.toString();
   }
   
   ngOnInit() {
@@ -125,7 +130,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
     this.getCropUnitsRequest = this.workbookService.getCropUnits(this.workbookID);
     this.getHarvestTypesRequest = this.lookupTablesService.getHarvestTypes();
 
-    forkJoin(
+    forkJoin<[WorkbookDto, HarvestPostHarvestStandardTimeSummaryDto[], CropDto[], CropUnitDto[], HarvestTypeDto[]]>(
       [
         this.getWorkbookRequest,
         this.getHarvestPostHarvestStandardTimesRequest,
@@ -166,7 +171,9 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
 
     this.initializeStandardTimeRequest = this.workbookService.initializeHarvestPostHarvestTimeStudy(this.model).subscribe(response => {
       var transactionRows = this.gridApi.applyTransaction({add: [response] });
-      this.gridApi.flashCells({ rowNodes: transactionRows.add });
+      this.gridApi.flashCells({
+        rowNodes: transactionRows.add
+      });
       this.isLoadingSubmit = false;
       
       this.resetForm();
@@ -206,7 +213,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.crops.map(x => x.CropName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:false,
         sortable: true, 
         filter: true,
@@ -233,7 +240,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.cropUnits.map(x => x.CropUnitName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:false,
         sortable: true, 
         filter: true,
@@ -260,7 +267,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
         cellEditorParams: {
           values: this.harvestTypes.map(x => x.HarvestTypeDisplayName)
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         editable:false,
         sortable: true, 
         filter: true,
@@ -295,7 +302,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
           return number ? number.toFixed(4) : null
         },
         editable: true,
-        cellEditorFramework: DecimalEditor,
+        cellEditor: DecimalEditor,
         sortable: true, 
         filter: true,
         cellStyle: params => {
@@ -304,7 +311,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
           } 
           return {backgroundColor: '#ffdfd6'};
         },
-        cellRendererFramework: EditableRendererComponent,
+        cellRenderer: EditableRendererComponent,
         width:150
       },
       {
@@ -314,7 +321,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
           var downloadDisplay = TimeStudyCellRendererComponent.downloadDisplay(params.data)
           return { HarvestPostHarvestStandardTime: params.data, count: params.data.TimeStudies.length, DownloadDisplay: downloadDisplay };
         }, 
-        cellRendererFramework: TimeStudyCellRendererComponent,
+        cellRenderer: TimeStudyCellRendererComponent,
         cellRendererParams: { 
           clicked: function(data: any) {
             componentScope.launchModal(TimeStudyModal, 'Harvest Post-Harvest Time Studies', data.HarvestPostHarvestStandardTime);
@@ -328,7 +335,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
       {
         headerName: 'Delete', valueGetter: function (params: any) {
           return { ButtonText: 'Delete', CssClasses: "btn btn-fresca btn-sm", PrimaryKey: params.data.HarvestPostHarvestStandardTimeID, ObjectDisplayName: null };
-        }, cellRendererFramework: ButtonRendererComponent,
+        }, cellRenderer: ButtonRendererComponent,
         cellRendererParams: { 
           clicked: function(field: any) {
             if(confirm(`Are you sure you want to delete this record?`)) {
@@ -379,7 +386,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
       data.node.setData(standardTime);
       this.gridApi.flashCells({
         rowNodes: [data.node],
-        columns: [data.column],
+        columns: [data.column]
       });
       this.isLoadingSubmit = false;
     }, error => {
@@ -421,7 +428,7 @@ export class HarvestPostHarvestStandardTimesComponent implements OnInit {
   }
 
   public exportToCsv() {
-    let columnsKeys = this.harvestPostHarvestStandardTimesGrid.columnApi.getAllDisplayedColumns(); 
+    let columnsKeys = this.harvestPostHarvestStandardTimesGrid.api.getAllDisplayedColumns(); 
     let columnIds: Array<any> = []; 
     columnsKeys.forEach(keys => 
       { 

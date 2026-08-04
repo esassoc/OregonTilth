@@ -1,38 +1,13 @@
+.hoverEmptySpace {
+  width: 100%;
+  height: 30px;
+}
 
-.hoverEditButton {
-    position: absolute;
-    right: 0px;
-    bottom: 8px;
-    height: 16px;
-  }
-  .hoverEmptySpace {
-    width: 100%;
-    height: 30px;
-  }
-  .customRichTextContent {
-    min-width:60px;
-    background-color: inherit;
-    -ms-transition: all 100ms ease-out;
-    -o-transition: all 100ms ease-out;
-    -webkit-transition: all 100ms ease-out;
-    transition: all 100ms ease-out;
-  }
-  .customRichTextContent:hover {
-    background-color: #d3d3d3;
-    background-color: rgba(211, 211, 211, 0.2);
-  }
-  .customRichTextContent .hoverEditButton {
-    visibility: hidden;
-    -ms-opacity: 0;
-    opacity: 0;
-    -ms-transition: all 100ms ease-out;
-    -o-transition: all 100ms ease-out;
-    -webkit-transition: all 100ms ease-out;
-    transition: all 100ms ease-out;
-  }
-  .customRichTextContent:hover .hoverEditButton {
-    visibility: visible;
-    -ms-opacity: 1;
-    opacity: 1;
-  }
-
+/* The popover renders under <body>, but these elements come from this component's templates so
+   view encapsulation still reaches them. The negative margins let the hover region cover the
+   padding ng-bootstrap puts on the popover header/body (see .popover-override in styles.scss) --
+   without them, crossing that padding reads as "the pointer left the popover". */
+.popoverHoverRegion {
+  margin: -0.25em -0.5em;
+  padding: 0.25em 0.5em;
+}

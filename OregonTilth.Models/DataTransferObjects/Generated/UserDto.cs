@@ -10,6 +10,7 @@ namespace OregonTilth.Models.DataTransferObjects
     public partial class UserDto
     {
         public int UserID { get; set; }
+        public string GlobalID { get; set; }
         public Guid? UserGuid { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -29,6 +30,7 @@ namespace OregonTilth.Models.DataTransferObjects
     public partial class UserSimpleDto
     {
         public int UserID { get; set; }
+        public string GlobalID { get; set; }
         public Guid? UserGuid { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

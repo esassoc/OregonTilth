@@ -1,10 +1,13 @@
 import {Component} from "@angular/core";
 import { ICellRendererParams, TextCellEditor } from "ag-grid-community";
+import { NgIf } from "@angular/common";
 
 @Component({
-   selector: 'editable-renderer-component',  
-   templateUrl: './editable-renderer.component.html',
-    styleUrls: ['./editable-renderer.component.scss']
+    selector: 'editable-renderer-component',
+    templateUrl: './editable-renderer.component.html',
+    styleUrls: ['./editable-renderer.component.scss'],
+    standalone: true,
+    imports: [NgIf]
 })
 export class EditableRendererComponent {
   public params: ICellRendererParams

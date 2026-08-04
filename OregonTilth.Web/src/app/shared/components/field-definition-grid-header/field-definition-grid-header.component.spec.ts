@@ -8,8 +8,8 @@ describe('FieldDefinitionGridHeaderComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ FieldDefinitionGridHeaderComponent ]
-    })
+    imports: [FieldDefinitionGridHeaderComponent]
+})
     .compileComponents();
   }));
 

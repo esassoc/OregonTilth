@@ -1,116 +1,137 @@
-import { Component, OnInit, Input, ChangeDetectorRef, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
-import { Alert } from '../../models/alert';
-import { UserDetailedDto } from '../../models';
-import { FieldDefinitionService } from '../../services/field-definition-service';
-import { AuthenticationService } from 'src/app/services/authentication.service';
-import { AlertService } from '../../services/alert.service';
-import { AlertContext } from '../../models/enums/alert-context.enum';
-import { FieldDefinitionDto } from '../../models/generated/field-definition-dto';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal, viewChild } from '@angular/core';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
-import { FieldDefinitionTypeEnum } from '../../models/enums/field-definition-type.enum';
+import { EditorComponent, EditorModule } from '@tinymce/tinymce-angular';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 import TinyMCEHelpers from '../../helpers/tiny-mce-helpers';
-import { EditorComponent } from '@tinymce/tinymce-angular';
+import { Alert } from '../../models/alert';
+import { AlertContext } from '../../models/enums/alert-context.enum';
+import { FieldDefinitionTypeEnum } from '../../models/enums/field-definition-type.enum';
+import { FieldDefinitionDto } from '../../models/generated/field-definition-dto';
+import { AlertService } from '../../services/alert.service';
+import { FieldDefinitionService } from '../../services/field-definition-service';
 
-declare var $ : any
+/** Grace period that lets the pointer travel between the label and the popover without closing it. */
+const HOVER_CLOSE_GRACE_MS = 50;
 
 @Component({
-  selector: 'field-definition',
-  templateUrl: './field-definition.component.html',
-  styleUrls: ['./field-definition.component.scss']
+    selector: 'field-definition',
+    templateUrl: './field-definition.component.html',
+    styleUrls: ['./field-definition.component.scss'],
+    imports: [EditorModule, FormsModule, NgbPopover],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FieldDefinitionComponent implements OnInit {
+export class FieldDefinitionComponent {
 
-  @Input() fieldDefinitionType: string;
-  @Input() labelOverride: string;
-  @ViewChild('p') public popover: NgbPopover;
-  @ViewChild('popContent') public content: any;
-  public fieldDefinition: FieldDefinitionDto;
-  public isLoading: boolean = true;
-  public isEditing: boolean = false;
-  public emptyContent: boolean = false;
-  public watchUserChangeSubscription: any;
-  public editedContent: string;
+  public readonly fieldDefinitionType = input.required<keyof typeof FieldDefinitionTypeEnum>();
+  public readonly labelOverride = input<string>();
 
-  currentUser: UserDetailedDto;
+  private readonly popover = viewChild<NgbPopover>('p');
+  private readonly editorRef = viewChild<EditorComponent>('tinyMceEditor');
 
-  constructor(private fieldDefinitionService: FieldDefinitionService,
-    private authenticationService: AuthenticationService,
-    private cdr: ChangeDetectorRef,
-    private alertService: AlertService,
-    private elem: ElementRef) { }
+  private readonly fieldDefinitionService = inject(FieldDefinitionService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly alertService = inject(AlertService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  ngOnInit() {
-    this.fieldDefinitionService.getFieldDefinition(FieldDefinitionTypeEnum[this.fieldDefinitionType]).subscribe(x => {
-      this.loadFieldDefinition(x);
-    });
+  private readonly fieldDefinitionResource = rxResource({
+    params: () => FieldDefinitionTypeEnum[this.fieldDefinitionType()],
+    stream: ({ params }) => this.fieldDefinitionService.getFieldDefinition(params),
+  });
+
+  /**
+   * Read the user reactively rather than calling isCurrentUserAnAdministrator() from the template:
+   * that method reads a plain field, so under OnPush the edit affordance would never appear for a
+   * user who finishes authenticating after this view was last checked.
+   */
+  private readonly currentUser = toSignal(this.authenticationService.currentUserSetObservable);
+
+  protected readonly fieldDefinition = this.fieldDefinitionResource.value.asReadonly();
+  protected readonly isEditing = signal(false);
+  protected readonly editedContent = signal('');
+  private readonly isSaving = signal(false);
+
+  protected readonly isBusy = computed(() => this.fieldDefinitionResource.isLoading() || this.isSaving());
+  protected readonly canEdit = computed(() => this.authenticationService.isUserAnAdministrator(this.currentUser()));
+  protected readonly hasContent = computed(() => !!this.fieldDefinition()?.FieldDefinitionValue);
+  protected readonly labelText = computed(() =>
+    this.labelOverride() ?? this.fieldDefinition()?.FieldDefinitionType?.FieldDefinitionTypeDisplayName ?? '');
+
+  /** Built once: the editor doesn't exist until the popover is opened in edit mode. */
+  protected readonly editorConfig = TinyMCEHelpers.DefaultInitConfigFor(this.editorRef);
+
+  private hoveringLabel = false;
+  private hoveringPopover = false;
+  private closeTimeoutId: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.closeTimeoutId));
   }
 
-  ngOnDestroy() {
-    this.cdr.detach();
+  protected enterEdit(): void {
+    this.editedContent.set(this.fieldDefinition()?.FieldDefinitionValue ?? '');
+    this.isEditing.set(true);
   }
 
-
-
-
-  public getLabelText() {
-    return this.labelOverride !== null && this.labelOverride !== undefined ? this.labelOverride : this.fieldDefinition.FieldDefinitionType.FieldDefinitionTypeDisplayName;
+  protected cancelEdit(): void {
+    this.isEditing.set(false);
+    this.popover()?.close();
   }
 
-  public showEditButton(): boolean {
-    return this.authenticationService.isCurrentUserAnAdministrator();
+  protected saveEdit(): void {
+    const current = this.fieldDefinition();
+    if (!current) return;
+
+    this.isEditing.set(false);
+    this.isSaving.set(true);
+
+    const updated = new FieldDefinitionDto({ ...current, FieldDefinitionValue: this.editedContent() });
+    this.fieldDefinitionService.updateFieldDefinition(updated)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: saved => {
+          this.fieldDefinitionResource.set(saved);
+          this.isSaving.set(false);
+        },
+        error: () => {
+          this.isSaving.set(false);
+          this.alertService.pushAlert(new Alert("There was an error updating the field definition", AlertContext.Danger, true));
+        },
+      });
   }
 
-  public enterEdit(): void {
-    this.editedContent = this.fieldDefinition.FieldDefinitionValue ?? "";
-    this.isEditing = true;
-  }
-
-  public cancelEdit(): void {
-    this.isEditing = false;
-    this.popover.close();
-  }
-
-  public saveEdit(): void {
-    this.isEditing = false;
-    this.isLoading = true;
-    this.fieldDefinition.FieldDefinitionValue = this.editedContent;
-    this.fieldDefinitionService.updateFieldDefinition(this.fieldDefinition).subscribe(x => {
-      this.loadFieldDefinition(x);
-    }, error => {
-      this.isLoading = false;
-      this.alertService.pushAlert(new Alert("There was an error updating the field definition", AlertContext.Danger, true));
-    });
-  }
-
-  private loadFieldDefinition(fieldDefinition:FieldDefinitionDto)
-  {
-    this.fieldDefinition = fieldDefinition;
-    this.emptyContent = fieldDefinition.FieldDefinitionValue?.length > 0 ? false : true;
-    this.isLoading = false;
-  }
-
-  public notEditingMouseEnter() {
-    if (!this.isEditing) {
-      this.popover.open();
-      this.elem.nativeElement.closest('body')
-                             .querySelector(".popover")
-                             .addEventListener('mouseleave', this.mouseLeaveEvent.bind(this));
+  protected labelMouseEnter(): void {
+    this.hoveringLabel = true;
+    if (!this.isEditing()) {
+      this.popover()?.open();
     }
   }
 
-  public mouseLeaveEvent() {
-    if (!this.isEditing) {
-      this.popover.close();
-    }
+  protected labelMouseLeave(): void {
+    this.hoveringLabel = false;
+    this.scheduleClose();
   }
 
-  public notEditingMouseLeave() {
-      setTimeout( () => {
-        let hoveringPopover = this.elem.nativeElement.closest('body')
-                                                     .querySelector(".popover:hover")
-        if (!hoveringPopover && !this.isEditing) {
-            this.popover.close();
-        }
-    }, 50);
+  protected popoverMouseEnter(): void {
+    this.hoveringPopover = true;
+  }
+
+  protected popoverMouseLeave(): void {
+    this.hoveringPopover = false;
+    this.scheduleClose();
+  }
+
+  /**
+   * The popover has to survive the pointer crossing the gap between the label and the popover
+   * itself, so closing waits for the pointer to settle outside both.
+   */
+  private scheduleClose(): void {
+    clearTimeout(this.closeTimeoutId);
+    this.closeTimeoutId = setTimeout(() => {
+      if (!this.isEditing() && !this.hoveringLabel && !this.hoveringPopover) {
+        this.popover()?.close();
+      }
+    }, HOVER_CLOSE_GRACE_MS);
   }
 }

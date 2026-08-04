@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { AgRendererComponent } from 'ag-grid-angular';
 import { TimeStudySummaryDto } from 'src/app/shared/models/forms/time-studies/time-studies-upsert-dto';
+import { NgIf } from '@angular/common';
 
 @Component({
-  selector: 'time-study-cell-renderer',
-  templateUrl: './time-study-cell-renderer.component.html',
-  styleUrls: ['./time-study-cell-renderer.component.scss']
+    selector: 'time-study-cell-renderer',
+    templateUrl: './time-study-cell-renderer.component.html',
+    styleUrls: ['./time-study-cell-renderer.component.scss'],
+    standalone: true,
+    imports: [NgIf]
 })
 
 export class TimeStudyCellRendererComponent implements AgRendererComponent {
