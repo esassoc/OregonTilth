@@ -72,6 +72,18 @@ kyctg-api:
     path: /
     hosts:
       - "kyctg-api.esa-qa.sitkatech.com"
+  # AGC: HTTPRoute on the in-cluster Envoy gateway. kyctg-web owns "/" on the same hostnames; Envoy takes the longest prefix.
+  httproute:
+    enabled: true
+    gateway:
+      name: apps-gateway
+      namespace: default
+    # hostnames[0] is set by the pipeline from domainWeb (both charts: the API rides the web
+    # hostname). This entry is only a placeholder for helm lint, which runs without overrides.
+    hostnames:
+      - "qa.knowyourcosttogrow.com"
+    pathPrefix: /api
+    requestTimeout: 60s
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -131,6 +143,18 @@ kyctg-web:
       cert-manager.io/cluster-issuer: letsencrypt
       acme.cert-manager.io/http01-edit-in-place: "true"
       cert-manager.io/issue-temporary-certificate: "true"
+  # AGC: HTTPRoute on the in-cluster Envoy gateway. kyctg-api takes /api on the same hostnames.
+  httproute:
+    enabled: true
+    gateway:
+      name: apps-gateway
+      namespace: default
+    # hostnames[0] is set by the pipeline from domainWeb (both charts: the API rides the web
+    # hostname). This entry is only a placeholder for helm lint, which runs without overrides.
+    hostnames:
+      - "qa.knowyourcosttogrow.com"
+    pathPrefix: /
+    requestTimeout: 60s
   autoscaling:
     enabled: false
     minReplicas: 1
