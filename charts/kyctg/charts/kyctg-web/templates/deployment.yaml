@@ -81,7 +81,7 @@ spec:
           #   readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      terminationGracePeriodSeconds: 45   # preStop 5 + ASP.NET Core / nginx shutdown drain (30 s default), with headroom
+      terminationGracePeriodSeconds: 45   # preStop 5 + ASP.NET Core shutdown drain (HostOptions.ShutdownTimeout, 30 s default), with headroom
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
