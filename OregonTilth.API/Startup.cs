@@ -111,6 +111,11 @@ namespace OregonTilth.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Behind the AGC gateway the API shares the web app's hostname and is routed on /api
+            // (charts/kyctg, kyctg-api httproute). Strip that prefix so controller routes stay rooted;
+            // requests without it (local dev, probes on /healthz, the legacy api hostnames) pass through unchanged.
+            app.UsePathBase("/api");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

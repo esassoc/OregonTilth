@@ -11,6 +11,12 @@ spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
+  # Behind Envoy: bring the new pod up before the old one goes, so a roll never leaves zero endpoints.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       {{- include "kyctg-api.selectorLabels" . | nindent 6 }}
@@ -72,7 +78,7 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: ["sleep","120"]
+                command: ["sleep","5"]   # Envoy drops the endpoint within seconds; the 120 s App Gateway drain is not needed
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           envFrom:
@@ -85,7 +91,7 @@ spec:
           # - name: certs
           #   mountPath: /https
           #   readOnly: true
-      terminationGracePeriodSeconds: 131
+      terminationGracePeriodSeconds: 45   # preStop 5 + ASP.NET Core / nginx shutdown drain (30 s default), with headroom
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
