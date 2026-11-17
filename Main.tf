@@ -68,10 +68,6 @@ variable "datadogAppKey" {
   sensitive = true
 }
 
-variable "domainApi" {
-  type = string
-}
-
 variable "domainWeb" {
   type = string
 }
@@ -157,7 +153,7 @@ resource "datadog_synthetics_test" "api_test" {
   subtype = "http"
   request_definition {
     method = "GET"
-    url    = "https://${var.domainApi}/healthz"
+    url    = "https://${var.domainWeb}/api/healthz"
   }
   request_headers = {
     Content-Type   = "application/json"
@@ -180,8 +176,8 @@ resource "datadog_synthetics_test" "api_test" {
       renotify_interval = 120
     }
   }
-  #email subject, attach url in place of var.domainApi
-  name    = "${var.aspNetEnvironment} - https://${var.domainApi}/healthz API test"
+  #email subject, attach url in place of var.domainWeb
+  name    = "${var.aspNetEnvironment} - https://${var.domainWeb}/api/healthz API test"
   #email body
   message = "Notify ${local.dataDogTeam}"
   tags    = ["env:${var.aspNetEnvironment}", "managed:terraformed", "team:${var.team}"]
@@ -217,7 +213,7 @@ resource "datadog_synthetics_test" "web_test" {
       renotify_interval = 120
     }
   }
-  #email subject, attach url in place of var.domainApi
+  #email subject, attach url in place of var.domainWeb
   name    = "${var.aspNetEnvironment} - https://${var.domainWeb} Web test"
   #email body
   message = "Notify ${local.dataDogTeam}"
