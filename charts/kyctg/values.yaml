@@ -7,8 +7,8 @@ global:
     aspNetEnvironment: "Staging"
     emailRedirect: ""
   domains:
-    web: "kyctg.esa-qa.sitkatech.com"
-    api: "kyctg-api.esa-qa.sitkatech.com"
+    # The pipeline sets this from domainWeb. The API is served at /api on the same hostname.
+    web: "qa.knowyourcosttogrow.com"
   # Shared by the api and web charts: the api validates tokens against authority+audience, the web
   # app signs users in with domain+clientId and requests tokens for the same audience.
   # A single Auth0 tenant serves every environment, so these are not overridden per-env.
@@ -58,20 +58,6 @@ kyctg-api:
   service:
     type: ClusterIP
     port: 80
-  ingress:
-    enabled: true
-    className: "azure-application-gateway"
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt
-      acme.cert-manager.io/http01-edit-in-place: "true"
-      appgw.ingress.kubernetes.io/ssl-redirect: "true"
-      cert-manager.io/issue-temporary-certificate: "true"
-      appgw.ingress.kubernetes.io/connection-draining: "true"
-      appgw.ingress.kubernetes.io/connection-draining-timeout: "30"
-    tls: true
-    path: /
-    hosts:
-      - "kyctg-api.esa-qa.sitkatech.com"
   # AGC: HTTPRoute on the in-cluster Envoy gateway. kyctg-web owns "/" on the same hostnames; Envoy takes the longest prefix.
   httproute:
     enabled: true
@@ -133,16 +119,6 @@ kyctg-web:
   service:
     type: ClusterIP
     port: 80
-  ingress:
-    enabled: true
-    className: "azure-application-gateway"
-    annotations:
-      appgw.ingress.kubernetes.io/ssl-redirect: "true"
-      appgw.ingress.kubernetes.io/connection-draining: "true"
-      appgw.ingress.kubernetes.io/connection-draining-timeout: "30"
-      cert-manager.io/cluster-issuer: letsencrypt
-      acme.cert-manager.io/http01-edit-in-place: "true"
-      cert-manager.io/issue-temporary-certificate: "true"
   # AGC: HTTPRoute on the in-cluster Envoy gateway. kyctg-api takes /api on the same hostnames.
   httproute:
     enabled: true
