@@ -7,7 +7,8 @@ data:
   production: {{ eq .Values.global.env.aspNetEnvironment "Production" | ternary "'true'" "'false'" }}
   staging: {{ eq .Values.global.env.aspNetEnvironment "Production" | ternary "'false'" "'true'" }}
   dev: "false"
-  apiHostName: "{{ .Values.global.domains.api }}"
+  # The API is served at /api on the web hostname (kyctg-api HTTPRoute); the SPA prefixes https://.
+  apiHostName: "{{ .Values.global.domains.web }}/api"
   platformLongName: "Know Your Cost To Grow"
   platformShortName: "Know Your Cost To Grow"
   leadOrganizationLongName: "Oregon Tilth"
