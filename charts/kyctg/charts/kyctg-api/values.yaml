@@ -21,6 +21,11 @@ service:
   type: ClusterIP
   port: 80
 ingress: {}
+httproute:
+  enabled: false
+  gateway: {}
+  hostnames: []
+  pathPrefix: /api
 autoscaling: {}
 nodeSelector: {}
 tolerations: []
