@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OregonTilth.API.Services;
@@ -16,6 +17,7 @@ namespace OregonTilth.API.Controllers
         {
         }
 
+        [AllowAnonymous]
         [HttpGet("lookupTable/field-labor-activity-categories")]
         public ActionResult<List<FieldLaborActivityCategoryDto>> ListAllFieldLaborActivityCategories()
         {
@@ -23,6 +25,7 @@ namespace OregonTilth.API.Controllers
             return fieldlaborActivityCategoryDtos;
         }
 
+        [AllowAnonymous]
         [HttpGet("lookupTable/labor-types")]
         public ActionResult<List<LaborTypeDto>> ListAllLaborTypes()
         {
@@ -30,6 +33,7 @@ namespace OregonTilth.API.Controllers
             return laborTypeDtos;
         }
 
+        [AllowAnonymous]
         [HttpGet("lookupTable/field-unit-types")]
         public ActionResult<List<FieldUnitTypeDto>> ListAllFieldUnitTypes()
         {
@@ -37,6 +41,7 @@ namespace OregonTilth.API.Controllers
             return fieldUnitTypes;
         }
 
+        [AllowAnonymous]
         [HttpGet("lookupTable/phases")]
         public ActionResult<List<PhaseDto>> ListAllPhases()
         {
@@ -44,6 +49,7 @@ namespace OregonTilth.API.Controllers
             return phases;
         }
 
+        [AllowAnonymous]
         [HttpGet("lookupTable/harvest-types")]
         public ActionResult<List<HarvestTypeDto>> ListAllHarvestTypes()
         {
@@ -51,6 +57,7 @@ namespace OregonTilth.API.Controllers
             return harvestTypes;
         }
 
+        [AllowAnonymous]
         [HttpGet("lookupTable/tp-or-ds-types")]
         public ActionResult<List<TpOrDsTypeDto>> ListAllTpOrDsTypes()
         {

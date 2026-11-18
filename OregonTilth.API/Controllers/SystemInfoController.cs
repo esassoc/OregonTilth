@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,6 +23,7 @@ public class SystemInfoController(
     IOptions<FrescaConfiguration> frescaConfiguration)
     : SitkaController<SystemInfoController>(dbContext, logger, frescaConfiguration)
 {
+    [AllowAnonymous]
     [HttpGet("/", Name = "GetSystemInfo")]
     public ActionResult<SystemInfoDto> GetSystemInfo([FromServices] IWebHostEnvironment environment)
     {

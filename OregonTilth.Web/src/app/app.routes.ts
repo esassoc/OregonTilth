@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { NotFoundComponent, UnauthenticatedComponent, SubscriptionInsufficientComponent } from './shared/pages';
 import { UnauthenticatedAccessGuard } from './shared/guards/unauthenticated-access/unauthenticated-access.guard';
 import { ManagerOnlyGuard } from "./shared/guards/unauthenticated-access/manager-only-guard";
+import { ApprovedUserGuard } from "./shared/guards/unauthenticated-access/approved-user-guard";
 import { UserListComponent } from './pages/user-list/user-list.component';
 import { HomeIndexComponent } from './pages/home/home-index/home-index.component';
 import { UserDetailComponent } from './pages/user-detail/user-detail.component';
@@ -50,7 +51,7 @@ export const routes: Routes = [
   { path: "custom-rich-text", component: CustomRichTextListComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard] },
   { path: "pages", component: PageListComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard]},
   { path: "pages/edit/:id", component: PageEditComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard]},
-  { path: "pages/:pageId", component: PageDetailComponent, canActivate: [UnauthenticatedAccessGuard]},
+  { path: "pages/:pageId", component: PageDetailComponent, canActivate: [UnauthenticatedAccessGuard, ApprovedUserGuard]},
   { path: "users", component: UserListComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard]},
   { path: "users/:id", component: UserDetailComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard] },
   { path: "users/:id/edit", component: UserEditComponent, canActivate: [UnauthenticatedAccessGuard, ManagerOnlyGuard] },
