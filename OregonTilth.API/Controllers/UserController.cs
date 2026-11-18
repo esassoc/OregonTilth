@@ -89,6 +89,13 @@ namespace OregonTilth.API.Controllers
         [UserViewFeature]
         public ActionResult<UserDto> GetByUserID([FromRoute] int userID)
         {
+            // Users read their own record; only admins read anyone's.
+            var caller = UserContext.GetUserFromHttpContext(_dbContext, HttpContext);
+            if (caller.UserID != userID && caller.Role.RoleID != (int)RoleEnum.Admin)
+            {
+                return Forbid();
+            }
+
             var userDto = EFModels.Entities.User.GetByUserID(_dbContext, userID);
             return RequireNotNullThrowNotFound(userDto, "User", userID);
         }
@@ -133,28 +140,30 @@ namespace OregonTilth.API.Controllers
         }
 
         [HttpPut("users/set-disclaimer-acknowledged-date")]
-        public ActionResult<UserDto> SetDisclaimerAcknowledgedDate([FromBody] int userID)
+        public ActionResult<UserDto> SetDisclaimerAcknowledgedDate()
         {
-            var userDto = EFModels.Entities.User.GetByUserID(_dbContext, userID);
-            if (ThrowNotFound(userDto, "User", userID, out var actionResult))
+            // Always the signed-in caller. The web app still sends a user ID in the body; it is ignored.
+            var userDto = UserContext.GetUserFromHttpContext(_dbContext, HttpContext);
+            if (userDto == null)
             {
-                return actionResult;
+                return Forbid();
             }
 
-            var updatedUserDto = EFModels.Entities.User.SetDisclaimerAcknowledgedDate(_dbContext, userID);
+            var updatedUserDto = EFModels.Entities.User.SetDisclaimerAcknowledgedDate(_dbContext, userDto.UserID);
             return Ok(updatedUserDto);
         }
 
         [HttpPost("users/update-activity-date")]
-        public ActionResult<UserDto> UpdateActivityDate([FromBody] int userID)
+        public ActionResult<UserDto> UpdateActivityDate()
         {
-            var userDto = EFModels.Entities.User.GetByUserID(_dbContext, userID);
-            if (ThrowNotFound(userDto, "User", userID, out var actionResult))
+            // Always the signed-in caller. The web app still sends a user ID in the body; it is ignored.
+            var userDto = UserContext.GetUserFromHttpContext(_dbContext, HttpContext);
+            if (userDto == null)
             {
-                return actionResult;
+                return Forbid();
             }
 
-            var updatedUserDto = EFModels.Entities.User.SetLastActivityDateDate(_dbContext, userID);
+            var updatedUserDto = EFModels.Entities.User.SetLastActivityDateDate(_dbContext, userDto.UserID);
             return Ok(updatedUserDto);
         }
 

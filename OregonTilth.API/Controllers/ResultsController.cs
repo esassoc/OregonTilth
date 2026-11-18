@@ -20,8 +20,7 @@ namespace OregonTilth.API.Controllers
         }
 
         [HttpGet("workbooks/{workbookID}/results/crop-crop-unit")]
-        [LoggedInUnclassifiedFeature]
-        [ValidateWorkbookIDFromRouteExistsAndBelongsToUser]
+        [WorkbookEditFeature]
         public ActionResult<IEnumerable<CropCropUnitDashboardReportDto>> GetCropYieldInformationDashboardReportDtos([FromRoute] int workbookID)
         {
             var cropYieldInfos = CropYieldInformation.GetCropCropUnitDashboardReportDtoListByWorkbookID(_dbContext, workbookID);
@@ -30,8 +29,7 @@ namespace OregonTilth.API.Controllers
         }
 
         [HttpGet("workbooks/{workbookID}/results/labor-hours")]
-        [LoggedInUnclassifiedFeature]
-        [ValidateWorkbookIDFromRouteExistsAndBelongsToUser]
+        [WorkbookEditFeature]
         public ActionResult<IEnumerable<LaborHoursDashboardReportDto>> GetCropYieldInformationDashboardReportLaborHoursDtos([FromRoute] int workbookID)
         {
             var cropYieldInfos = CropYieldInformation.GetLaborHoursDashboardReportDtoListByWorkbookID(_dbContext, workbookID);
@@ -40,8 +38,7 @@ namespace OregonTilth.API.Controllers
         }
 
         [HttpGet("workbooks/{workbookID}/results/variable-costs")]
-        [LoggedInUnclassifiedFeature]
-        [ValidateWorkbookIDFromRouteExistsAndBelongsToUser]
+        [WorkbookEditFeature]
         public ActionResult<IEnumerable<LaborHoursDashboardReportDto>> GetCropYieldInformationDashboardReportVariableCostDtos([FromRoute] int workbookID)
         {
             var cropYieldInfos = CropYieldInformation.GetVariableCostsDashboardReportDtoListByWorkbookID(_dbContext, workbookID);

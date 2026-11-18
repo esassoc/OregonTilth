@@ -67,6 +67,13 @@ namespace OregonTilth.API.Controllers
         [Authorize]
         public ActionResult<UserDto> GetByGlobalID([FromRoute] string globalID)
         {
+            // Users read their own record; only admins read anyone's.
+            var caller = UserContext.GetUserFromHttpContext(_dbContext, HttpContext);
+            if (caller == null || (caller.GlobalID != globalID && caller.Role.RoleID != (int)RoleEnum.Admin))
+            {
+                return Forbid();
+            }
+
             var userDto = EFModels.Entities.User.GetByUserGlobalID(_dbContext, globalID);
             if (userDto == null)
             {

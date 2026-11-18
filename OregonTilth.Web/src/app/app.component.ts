@@ -9,6 +9,7 @@ import { HeaderNavComponent } from './shared/components/header-nav/header-nav.co
 import { BreadcrumbsComponent } from './shared/components/breadcrumbs/breadcrumbs.component';
 import { SideNavComponent } from './shared/components/side-nav/side-nav.component';
 import { MigrationNoticeComponent } from './shared/components/migration-notice/migration-notice.component';
+import { RoleEnum } from './shared/models/enums/role.enum';
 
 @Component({
     selector: 'app-root',
@@ -31,7 +32,12 @@ export class AppComponent {
     // POST /user-claims returning - everything in the nav needs the user anyway.
     private readonly currentUser = toSignal(this.authenticationService.currentUserSetObservable);
 
-    protected readonly showSideNav = computed(() => !!this.currentUser());
+    // Only approved users (Admin, Normal): the nav lists the curriculum pages and the user's workbooks,
+    // neither of which an Unassigned or Disabled user can load.
+    protected readonly showSideNav = computed(() => {
+        const roleID = this.currentUser()?.Role?.RoleID;
+        return roleID === RoleEnum.Admin || roleID === RoleEnum.Normal;
+    });
 
     constructor(private router: Router, private busyService: BusyService, private titleService: Title, @Inject(DOCUMENT) private _document: HTMLDocument) {
     }

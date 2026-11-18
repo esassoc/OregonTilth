@@ -18,6 +18,7 @@ namespace OregonTilth.API.Controllers
         {
         }
 
+        [WorkbookEditFeature]
         [HttpGet("/pages")]
         public ActionResult<List<PageTreeDto>> ListAllPages()
         {
@@ -29,6 +30,7 @@ namespace OregonTilth.API.Controllers
 
         }
 
+        [WorkbookEditFeature]
         [HttpGet("/pages/{pageID}")]
         public ActionResult<PageDto> GetPage([FromRoute] int pageID)
         {
@@ -40,6 +42,7 @@ namespace OregonTilth.API.Controllers
 
         }
 
+        [AdminFeature]
         [HttpDelete("/pages/{pageID}")]
         public ActionResult<List<PageTreeDto>> DeletePage([FromRoute] int pageID)
         {
@@ -57,6 +60,7 @@ namespace OregonTilth.API.Controllers
             return pageDtos;
         }
 
+        [AdminFeature]
         [HttpPost("/pages")]
         public ActionResult<List<PageTreeDto>> CreatePage([FromBody] PageCreateDto pageCreateDto)
         {
@@ -73,6 +77,7 @@ namespace OregonTilth.API.Controllers
             return pageDtos;
         }
 
+        [AdminFeature]
         [HttpPut("/pages/{pageID}")]
         public ActionResult<PageDto> UpdatePage([FromBody] PageUpdateDto pageUpdateDto)
         {
