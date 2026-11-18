@@ -12,7 +12,8 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OregonTilth.API.Services;
-using OregonTilth.API.Services.Hierarchy;
+using OregonTilth.API.Services.Filters;
+using Microsoft.AspNetCore.Authorization;
 using OregonTilth.EFModels.Entities;
 using Serilog;
 using System;
@@ -40,7 +41,8 @@ namespace OregonTilth.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddNewtonsoftJson(opt =>
+            // Every action runs the workbook ownership check; it does nothing for requests that touch no workbook.
+            services.AddControllers(options => options.Filters.Add<WorkbookOwnershipFilter>()).AddNewtonsoftJson(opt =>
                 {
                     if (!_environment.IsProduction())
                     {
@@ -100,9 +102,15 @@ namespace OregonTilth.API
             services.AddSingleton<ISendGridClient>(_ => new SendGridClient(frescaConfiguration.SendGridApiKey));
             services.AddSingleton<SitkaSmtpClientService>();
 
+            // Fail closed: an action with no authorization attribute requires a signed-in user.
+            // Endpoints meant for anonymous callers say so with [AllowAnonymous].
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+            });
+
             services.AddHealthChecks().AddDbContextCheck<OregonTilthDbContext>();
 
-            services.AddScoped<HierarchyContext>();
             services.AddScoped(s => s.GetService<IHttpContextAccessor>().HttpContext);
             services.AddScoped(s => UserContext.GetUserFromHttpContext(s.GetService<OregonTilthDbContext>(), s.GetService<IHttpContextAccessor>().HttpContext));
             services.AddControllers();
@@ -153,7 +161,7 @@ namespace OregonTilth.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks("/healthz");
+                endpoints.MapHealthChecks("/healthz").AllowAnonymous();
             });
 
             

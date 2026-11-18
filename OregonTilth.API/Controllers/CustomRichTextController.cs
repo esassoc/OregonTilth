@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,7 @@ namespace OregonTilth.API.Controllers
         {
         }
 
+        [AllowAnonymous]
         [HttpGet("customRichText/{customRichTextTypeID}")]
         public ActionResult<CustomRichTextDto> GetCustomRichText([FromRoute] int customRichTextTypeID)
         {

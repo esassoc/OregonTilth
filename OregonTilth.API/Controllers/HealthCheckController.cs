@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,7 @@ namespace OregonTilth.API.Controllers
         {
         }
 
+        [AllowAnonymous]
         [HttpGet("/health-check")]
         public IActionResult HealthCheck()
         {

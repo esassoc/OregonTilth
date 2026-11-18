@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace OregonTilth.API.Controllers
         }
 
 
+        [AllowAnonymous]
         [HttpGet("FileResource/{fileResourceGuidAsString}")]
         public ActionResult DisplayResource(string fileResourceGuidAsString)
         {

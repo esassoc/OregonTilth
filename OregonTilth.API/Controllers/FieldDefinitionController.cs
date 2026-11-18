@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OregonTilth.API.Services;
@@ -16,6 +17,7 @@ namespace OregonTilth.API.Controllers
         {
         }
 
+        [AllowAnonymous]
         [HttpGet("/fieldDefinitions")]
         public ActionResult<List<FieldDefinitionDto>> ListAllFieldDefinitions()
         {
@@ -24,6 +26,7 @@ namespace OregonTilth.API.Controllers
         }
 
 
+        [AllowAnonymous]
         [HttpGet("fieldDefinitions/{fieldDefinitionTypeID}")]
         public ActionResult<FieldDefinitionDto> GetFieldDefinition([FromRoute] int fieldDefinitionTypeID)
         {
