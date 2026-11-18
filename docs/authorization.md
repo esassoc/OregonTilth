@@ -18,8 +18,6 @@ How this app decides who can see and change what. Written with `/compass:authz-p
 | **Reviewed** | 2026-11-18, Stewart Gordon |
 <!-- compass:authz:end -->
 
-This profile describes the app once [#97](https://github.com/esassoc/OregonTilth/pull/97) is merged. That PR fixed the six findings from this review; they're listed under "Resolved in this review" below.
-
 ## Roles
 
 Roles are fixed, seeded by `OregonTilth.Database/Scripts/LookupTables/dbo.Role.sql`.
@@ -83,15 +81,3 @@ None.
 
 <When a finding is fixed, delete its row, lower the count, and update the summary.>
 
-## Resolved in this review
-
-All six findings were fixed in [#97](https://github.com/esassoc/OregonTilth/pull/97). In each case the team's answer described the intended behaviour and the code was wrong.
-
-1. **Unassigned and Disabled users could call 24 endpoints, including writes.** Those endpoints used `LoggedInUnclassifiedFeature`, which checked sign-in but never role. They now require Admin or Normal, and a fallback policy denies anonymous access to any unmarked action.
-2. **19 workbook endpoints had no ownership check.** A caller could read or write another farmer's workbook by ID. The global `WorkbookOwnershipFilter` now covers them.
-3. **Child-record IDs weren't tied to the route's workbook.** A caller who owned one workbook could delete or update records in another. The filter now resolves every child ID to its workbook.
-4. **Any signed-in user could read any user's record.** Now restricted to the caller's own record, or anyone's for an Admin.
-5. **CMS pages could be created, edited and deleted anonymously, and read anonymously.** Writes now require Admin. Reads require Admin or Normal.
-6. **The disclaimer and activity dates could be set anonymously on any user.** These endpoints now act on the signed-in caller.
-
-Verified locally on 2026-11-18. User B got 404 on user A's workbook data, including through body-only routes. B got 403 on A's user record. B got 400 when deleting or updating A's crop through B's own workbook, and the crop was unchanged.
