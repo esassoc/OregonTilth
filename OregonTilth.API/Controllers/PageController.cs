@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,7 @@ namespace OregonTilth.API.Controllers
         {
         }
 
-        [AllowAnonymous]
+        [WorkbookEditFeature]
         [HttpGet("/pages")]
         public ActionResult<List<PageTreeDto>> ListAllPages()
         {
@@ -31,7 +30,7 @@ namespace OregonTilth.API.Controllers
 
         }
 
-        [AllowAnonymous]
+        [WorkbookEditFeature]
         [HttpGet("/pages/{pageID}")]
         public ActionResult<PageDto> GetPage([FromRoute] int pageID)
         {
